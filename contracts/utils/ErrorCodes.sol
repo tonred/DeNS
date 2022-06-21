@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.57.3;
+pragma ton-solidity >= 0.61.2;
 
 
 library ErrorCodes {

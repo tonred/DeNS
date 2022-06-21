@@ -1,6 +1,6 @@
-pragma ton-solidity >= 0.57.3;
+pragma ton-solidity >= 0.61.2;
 
 
 enum PlatformType {
-    CERTIFICATE
+    DOMAIN, NFT
 }

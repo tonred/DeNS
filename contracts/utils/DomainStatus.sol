@@ -1,10 +1,12 @@
-pragma ton-solidity >= 0.57.0;
+pragma ton-solidity >= 0.61.2;
 
 
-enum EventStatus {
-    NEW,
-    IN_AUCTION,
-    COMMON,
-    EXPIRING,
-    EXPIRED
+enum DomainStatus {
+    RESERVED,           // 0
+    NEW,                // 1
+    IN_ZERO_AUCTION,    // 2
+    COMMON,             // 3
+    EXPIRING,           // 4
+    GRACE,              // 5
+    EXPIRED             // 6
 }

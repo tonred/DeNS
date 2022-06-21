@@ -1,5 +1,5 @@
 {
-  "name": "ever-solidity-project-templated",
+  "name": "DeNS",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -17,7 +17,8 @@
     "dotenv": "^10.0.0",
     "folder-hash": "^4.0.1",
     "mocha": "^9.1.3",
-    "mocha-logger": "^1.0.7"
+    "mocha-logger": "^1.0.7",
+    "ton-eth-bridge-token-contracts": "git://github.com/broxus/ton-eth-bridge-token-contracts#6503e61880c03fb45741c177c25f4955dca5f0df"
   },
   "devDependencies": {
     "@broxus/contracts": "^1.0.3",

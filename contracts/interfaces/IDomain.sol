@@ -36,6 +36,8 @@ interface IDomain {
     function confiscate(address newOwner) external;
     function unreserve(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) external;
     function expire() external;
-    function destroy() external;
+
+    function requestUpgrade() external;
+    function upgrade(uint16 version, TvmCell code, Config config) external;
 
 }

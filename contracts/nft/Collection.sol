@@ -25,7 +25,7 @@ contract Collection is ICollection, IUpgradable, Addressable, TransferUtils, Che
 
 
     modifier onlyNFT(uint256 id) {
-        address nft = _nftAddress(address(this), id);
+        address nft = _nftAddressThis(id);
         require(msg.sender == nft, 69);
         _;
     }
@@ -51,7 +51,7 @@ contract Collection is ICollection, IUpgradable, Addressable, TransferUtils, Che
     }
 
     function nftAddress(uint256 id) public view responsible override returns (address nft) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _nftAddress(address(this), id);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _nftAddressThis(id);
     }
 
     function nftAddressByName(string name) public view responsible override returns (address nft) {
@@ -63,13 +63,14 @@ contract Collection is ICollection, IUpgradable, Addressable, TransferUtils, Che
         uint256 id = tvm.hash(name);
         TvmCell stateInit = _buildNftStateInit(address(this), id);
         TvmCell params = abi.encode(name, owner, _root, expireTime, expiringTimeRange);
-        address nft = new Platform{
+        address nft = _nftAddressThis(id);
+        emit NftCreated(id, nft, owner, _root, owner);
+        new Platform{
             stateInit: stateInit,
             value: 0,
-            flag: MsgFlag.ALL_NOT_RESERVED,  // todo test with emit
+            flag: MsgFlag.ALL_NOT_RESERVED,
             bounce: true
         }(_nftCode, params, address(0));
-        emit NftCreated(id, nft, owner, _root, owner);
         _totalSupply++;
     }
 
@@ -80,6 +81,10 @@ contract Collection is ICollection, IUpgradable, Addressable, TransferUtils, Che
         owner.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
     }
 
+
+    function _nftAddressThis(uint256 id) private inline view returns (address) {
+        return _nftAddress(address(this), id);
+    }
 
     onBounce(TvmSlice body) external {
         uint32 functionId = body.decode(uint32);

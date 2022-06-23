@@ -1,0 +1,458 @@
+{
+	"ABI version": 2,
+	"version": "2.2",
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "onDeployRetry",
+			"id": "0x3F61459C",
+			"inputs": [
+				{"name":"code","type":"cell"},
+				{"name":"params","type":"cell"},
+				{"name":"value2","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getName",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"name","type":"string"}
+			]
+		},
+		{
+			"name": "getDetails",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"nft","type":"address"},
+				{"name":"owner","type":"address"},
+				{"name":"defaultPrice","type":"uint128"},
+				{"name":"currentPrice","type":"uint128"},
+				{"name":"initTime","type":"uint32"},
+				{"name":"expireTime","type":"uint32"}
+			]
+		},
+		{
+			"name": "getConfigDetails",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"}
+			]
+		},
+		{
+			"name": "getAuctionDetails",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"inZeroAuction","type":"bool"},
+				{"name":"needZeroAuction","type":"bool"}
+			]
+		},
+		{
+			"name": "getStatus",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"status","type":"uint8"}
+			]
+		},
+		{
+			"name": "resolve",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"target","type":"address"}
+			]
+		},
+		{
+			"name": "resolveQuery",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"group","type":"string"},
+				{"name":"query","type":"string"}
+			],
+			"outputs": [
+				{"name":"values","type":"optional(string[])"}
+			]
+		},
+		{
+			"name": "getRecordsCount",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"group","type":"string"}
+			],
+			"outputs": [
+				{"name":"count","type":"uint256"}
+			]
+		},
+		{
+			"name": "checkRecords",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"group","type":"string"},
+				{"components":[{"name":"template","type":"string"},{"name":"values","type":"string[]"}],"name":"records","type":"tuple[]"}
+			],
+			"outputs": [
+				{"name":"correct","type":"bool"}
+			]
+		},
+		{
+			"name": "setTarget",
+			"inputs": [
+				{"name":"target","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setRecords",
+			"inputs": [
+				{"name":"group","type":"string"},
+				{"components":[{"name":"template","type":"string"},{"name":"values","type":"string[]"}],"name":"records","type":"tuple[]"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setRecord",
+			"inputs": [
+				{"name":"group","type":"string"},
+				{"components":[{"name":"template","type":"string"},{"name":"values","type":"string[]"}],"name":"record","type":"tuple"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "deleteRecords",
+			"inputs": [
+				{"name":"group","type":"string"},
+				{"name":"templates","type":"string[]"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "startZeroAuction",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "zeroAuctionFinished",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "expectedProlongAmount",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"duration","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"amount","type":"uint128"}
+			]
+		},
+		{
+			"name": "prolong",
+			"inputs": [
+				{"name":"amount","type":"uint128"},
+				{"name":"sender","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "nftOwnerChanged",
+			"inputs": [
+				{"name":"newOwner","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "confiscate",
+			"inputs": [
+				{"name":"newOwner","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "unreserve",
+			"inputs": [
+				{"name":"owner","type":"address"},
+				{"name":"price","type":"uint128"},
+				{"name":"expireTime","type":"uint32"},
+				{"name":"needZeroAuction","type":"bool"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "expire",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "requestUpgrade",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "upgrade",
+			"inputs": [
+				{"name":"version","type":"uint16"},
+				{"name":"code","type":"cell"},
+				{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getRoot",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"root","type":"address"}
+			]
+		},
+		{
+			"name": "calcAddress",
+			"inputs": [
+				{"name":"stateInit","type":"cell"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "constructor",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "_root",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_root","type":"address"}
+			]
+		},
+		{
+			"name": "_platformCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_platformCode","type":"cell"}
+			]
+		},
+		{
+			"name": "_name",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_name","type":"string"}
+			]
+		},
+		{
+			"name": "_nft",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_nft","type":"address"}
+			]
+		},
+		{
+			"name": "_owner",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_owner","type":"address"}
+			]
+		},
+		{
+			"name": "_version",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_version","type":"uint16"}
+			]
+		},
+		{
+			"name": "_config",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"_config","type":"tuple"}
+			]
+		},
+		{
+			"name": "_defaultPrice",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_defaultPrice","type":"uint128"}
+			]
+		},
+		{
+			"name": "_currentPrice",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_currentPrice","type":"uint128"}
+			]
+		},
+		{
+			"name": "_inZeroAuction",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_inZeroAuction","type":"bool"}
+			]
+		},
+		{
+			"name": "_needZeroAuction",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_needZeroAuction","type":"bool"}
+			]
+		},
+		{
+			"name": "_reserved",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_reserved","type":"bool"}
+			]
+		},
+		{
+			"name": "_initTime",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_initTime","type":"uint32"}
+			]
+		},
+		{
+			"name": "_expireTime",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_expireTime","type":"uint32"}
+			]
+		},
+		{
+			"name": "_target",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_target","type":"address"}
+			]
+		},
+		{
+			"name": "_records",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_records","type":"map(uint256,map(uint256,string[]))"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+		{
+			"name": "ZeroAuctionStarted",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "ZeroAuctionFinished",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "Prolonged",
+			"inputs": [
+				{"name":"time","type":"uint32"},
+				{"name":"duration","type":"uint32"},
+				{"name":"newExpireTime","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "ChangedOwner",
+			"inputs": [
+				{"name":"oldOwner","type":"address"},
+				{"name":"newOwner","type":"address"},
+				{"name":"confiscate","type":"bool"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "Destroyed",
+			"inputs": [
+				{"name":"time","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "CodeUpgraded",
+			"inputs": [
+				{"name":"oldVersion","type":"uint16"},
+				{"name":"newVersion","type":"uint16"}
+			],
+			"outputs": [
+			]
+		}
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_root","type":"address"},
+		{"name":"_platformCode","type":"cell"},
+		{"name":"_name","type":"string"},
+		{"name":"_nft","type":"address"},
+		{"name":"_owner","type":"address"},
+		{"name":"_version","type":"uint16"},
+		{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"_config","type":"tuple"},
+		{"name":"_defaultPrice","type":"uint128"},
+		{"name":"_currentPrice","type":"uint128"},
+		{"name":"_inZeroAuction","type":"bool"},
+		{"name":"_needZeroAuction","type":"bool"},
+		{"name":"_reserved","type":"bool"},
+		{"name":"_initTime","type":"uint32"},
+		{"name":"_expireTime","type":"uint32"},
+		{"name":"_target","type":"address"},
+		{"name":"_records","type":"map(uint256,map(uint256,string[]))"}
+	]
+}

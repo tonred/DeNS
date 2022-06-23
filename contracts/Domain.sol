@@ -8,7 +8,6 @@ import "./abstract/Addressable.sol";
 import "./interfaces/nft/INFT.sol";
 import "./interfaces/IDomain.sol";
 import "./interfaces/IRoot.sol";
-import "./interfaces/IUpgradableVersionable.sol";
 import "./structures/DomainSetup.sol";
 import "./utils/Converter.sol";
 import "./utils/Gas.sol";
@@ -17,13 +16,14 @@ import "./utils/TransferUtils.sol";
 import "@broxus/contracts/contracts/libraries/MsgFlag.sol";
 
 
-contract Domain is IDomain, IUpgradableVersionable, Addressable, TransferUtils {
+contract Domain is IDomain, Addressable, TransferUtils {
 
     event ZeroAuctionStarted();
     event ZeroAuctionFinished();
     event Prolonged(uint32 time, uint32 duration, uint32 newExpireTime);
     event ChangedOwner(address oldOwner, address newOwner, bool confiscate);
     event Destroyed(uint32 time);
+    event CodeUpgraded(uint16 oldVersion, uint16 newVersion);
 
 
     string public _name;
@@ -78,25 +78,36 @@ contract Domain is IDomain, IUpgradableVersionable, Addressable, TransferUtils {
         _name = abi.decode(initialData, string);
 
         TvmCell initialParams = slice.loadRef();
-        DomainSetup setup;
-        (_version, _nft, _config, setup) = abi.decode(initialParams, (uint16, address, Config, DomainSetup));
-        (_owner, _defaultPrice, _needZeroAuction, _reserved, _expireTime, /*amount*/) = setup.unpack();
-        _currentPrice = _defaultPrice;
-        _initTime = now;
+        _init(initialParams);
     }
 
     // 0x3f61459c is Platform constructor functionID
-    function onDeployRetry(TvmCell /*code*/, TvmCell params, address /*remainingGasTo*/) public override functionID(0x3f61459c) onlyRoot {
-        (/*version*/, /*nft*/, /*config*/, DomainSetup setup) = abi.decode(params, (uint16, address, Config, DomainSetup));
-        if (setup.reserved) {
-            _root.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
+    function onDeployRetry(TvmCell code, TvmCell params, address /*remainingGasTo*/) public override functionID(0x3f61459c) onlyRoot {
+        (uint16 version, /*nft*/, Config config, DomainSetup setup) = abi.decode(params, (uint16, address, Config, DomainSetup));
+        if (_status() == DomainStatus.EXPIRED) {
+            if (version != _version) {
+                _upgrade(version, code, config);
+            }
+            _init(params);
         } else {
-            IRoot(_root).onDomainDeployRetry{
-                value: 0,
-                flag: MsgFlag.REMAINING_GAS,
-                bounce: false
-            }(_name, setup.amount, setup.owner);
+            if (setup.reserved) {
+                _root.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
+            } else {
+                IRoot(_root).onDomainDeployRetry{
+                    value: 0,
+                    flag: MsgFlag.REMAINING_GAS,
+                    bounce: false
+                }(_name, setup.amount, setup.owner);
+            }
         }
+    }
+
+    function _init(TvmCell params) private {
+        DomainSetup setup;
+        (_version, _nft, _config, setup) = abi.decode(params, (uint16, address, Config, DomainSetup));
+        (_owner, _defaultPrice, _needZeroAuction, _reserved, _expireTime, /*amount*/) = setup.unpack();
+        _currentPrice = _defaultPrice;
+        _initTime = now;
     }
 
 
@@ -233,8 +244,8 @@ contract Domain is IDomain, IUpgradableVersionable, Addressable, TransferUtils {
 
     function prolong(uint128 amount, address sender) public override onlyRoot {
         DomainStatus status = _status();
-        if (now + _config.maxDuration <= _expireTime || status == DomainStatus.RESERVED) {
-            // already prolonged for max period OR reserved
+        if (sender != _owner || now + _config.maxDuration <= _expireTime || status == DomainStatus.RESERVED) {
+            // wrong sender OR already prolonged for max period OR reserved
             IRoot(_root).onProlongReturn{
                 value: 0,
                 flag: MsgFlag.REMAINING_GAS,
@@ -243,7 +254,7 @@ contract Domain is IDomain, IUpgradableVersionable, Addressable, TransferUtils {
             return;
         }
 
-        _reserve();  // todo move up in case of The Target Balance
+        _reserve();  // todo move up in case of using target balance
         uint128 price = _calcProlongPrice(status);
         uint32 maxIncrease = now + _config.maxDuration - _expireTime;
         uint128 maxAmount = Converter.toAmount(maxIncrease, price);
@@ -301,10 +312,6 @@ contract Domain is IDomain, IUpgradableVersionable, Addressable, TransferUtils {
 
     function expire() public override onStatus(DomainStatus.EXPIRED) {
         tvm.accept();
-        _destroy();
-    }
-
-    function destroy() public override onlyOwner {
         _destroy();
     }
 
@@ -395,7 +402,7 @@ contract Domain is IDomain, IUpgradableVersionable, Addressable, TransferUtils {
     }
 
 
-    function requestUpgrade() public internalMsg override minValue(Gas.REQUEST_UPGRADE_DOMAIN_VALUE) {
+    function requestUpgrade() public override minValue(Gas.REQUEST_UPGRADE_DOMAIN_VALUE) {
         IRoot(_root).requestDomainUpgrade{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
@@ -403,13 +410,18 @@ contract Domain is IDomain, IUpgradableVersionable, Addressable, TransferUtils {
         }(_name, _version);
     }
 
-    function upgrade(TvmCell code, uint16 version) public internalMsg override onlyRoot {
+    function upgrade(uint16 version, TvmCell code, Config config) public override onlyRoot {
         if (version == _version) {
             _owner.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
             return;
         }
+        _upgrade(version, code, config);
+    }
+
+    function _upgrade(uint16 version, TvmCell code, Config config) private {
         emit CodeUpgraded(_version, version);
         _version = version;
+        _config = config;
         TvmCell data = abi.encode("xxx");  // todo values
         tvm.setcode(code);
         tvm.setCurrentCode(code);

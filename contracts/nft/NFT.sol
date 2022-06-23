@@ -78,7 +78,6 @@ contract NFT is INFT, Addressable, TransferUtils {
         _reserve();
         _changeManager(newManager);
         _sendCallbacks(sendGasTo, callbacks);
-        // todo case when NFT burnt while it is in auction...
         // todo expiring
     }
 
@@ -151,6 +150,7 @@ contract NFT is INFT, Addressable, TransferUtils {
             sendGasTo.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
         }
     }
+
 
     // todo update
 

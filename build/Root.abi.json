@@ -1,0 +1,318 @@
+{
+	"ABI version": 2,
+	"version": "2.2",
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"dao","type":"address"},
+				{"name":"collection","type":"address"},
+				{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"},
+				{"name":"platformCode","type":"cell"},
+				{"name":"domainCode","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onWalletDeployed",
+			"inputs": [
+				{"name":"wallet","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "checkName",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"name","type":"string"}
+			],
+			"outputs": [
+				{"name":"correct","type":"bool"}
+			]
+		},
+		{
+			"name": "expectedPrice",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"name","type":"string"}
+			],
+			"outputs": [
+				{"name":"price","type":"uint128"}
+			]
+		},
+		{
+			"name": "onAcceptTokensTransfer",
+			"inputs": [
+				{"name":"value0","type":"address"},
+				{"name":"amount","type":"uint128"},
+				{"name":"sender","type":"address"},
+				{"name":"value3","type":"address"},
+				{"name":"value4","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onDomainDeployRetry",
+			"inputs": [
+				{"name":"name","type":"string"},
+				{"name":"amount","type":"uint128"},
+				{"name":"sender","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onProlongReturn",
+			"inputs": [
+				{"name":"name","type":"string"},
+				{"name":"returnAmount","type":"uint128"},
+				{"name":"sender","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "resolve",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"name","type":"string"}
+			],
+			"outputs": [
+				{"name":"domain","type":"address"}
+			]
+		},
+		{
+			"name": "confiscate",
+			"inputs": [
+				{"name":"name","type":"string"},
+				{"name":"owner","type":"address"},
+				{"name":"reason","type":"string"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "reserve",
+			"inputs": [
+				{"name":"names","type":"string[]"},
+				{"name":"ignoreNameCheck","type":"bool"},
+				{"name":"reason","type":"string"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "execute",
+			"inputs": [
+				{"components":[{"name":"target","type":"address"},{"name":"value","type":"uint128"},{"name":"payload","type":"cell"},{"name":"abi","type":"cell"}],"name":"actions","type":"tuple[]"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "activate",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "deactivate",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "_calcPrice",
+			"inputs": [
+				{"name":"name","type":"string"}
+			],
+			"outputs": [
+				{"name":"value0","type":"uint128"},
+				{"name":"value1","type":"bool"}
+			]
+		},
+		{
+			"name": "setDomainCode",
+			"inputs": [
+				{"name":"code","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "requestDomainUpgrade",
+			"inputs": [
+				{"name":"name","type":"string"},
+				{"name":"version","type":"uint16"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "upgrade",
+			"inputs": [
+				{"name":"code","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getRoot",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"root","type":"address"}
+			]
+		},
+		{
+			"name": "calcAddress",
+			"inputs": [
+				{"name":"stateInit","type":"cell"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "_root",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_root","type":"address"}
+			]
+		},
+		{
+			"name": "_platformCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_platformCode","type":"cell"}
+			]
+		},
+		{
+			"name": "_dao",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_dao","type":"address"}
+			]
+		},
+		{
+			"name": "_collection",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_collection","type":"address"}
+			]
+		},
+		{
+			"name": "_config",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"_config","type":"tuple"}
+			]
+		},
+		{
+			"name": "_domainCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_domainCode","type":"cell"}
+			]
+		},
+		{
+			"name": "_domainVersion",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_domainVersion","type":"uint16"}
+			]
+		},
+		{
+			"name": "_wallet",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_wallet","type":"address"}
+			]
+		},
+		{
+			"name": "_balance",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_balance","type":"uint128"}
+			]
+		},
+		{
+			"name": "_active",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_active","type":"bool"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+		{
+			"name": "Confiscated",
+			"inputs": [
+				{"name":"name","type":"string"},
+				{"name":"owner","type":"address"},
+				{"name":"reason","type":"string"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "Reserved",
+			"inputs": [
+				{"name":"name","type":"string"},
+				{"name":"reason","type":"string"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "DomainCodeUpgraded",
+			"inputs": [
+				{"name":"newVersion","type":"uint16"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "CodeUpgraded",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		}
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_root","type":"address"},
+		{"name":"_platformCode","type":"cell"},
+		{"name":"_dao","type":"address"},
+		{"name":"_collection","type":"address"},
+		{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"_config","type":"tuple"},
+		{"name":"_domainCode","type":"cell"},
+		{"name":"_domainVersion","type":"uint16"},
+		{"name":"_wallet","type":"address"},
+		{"name":"_balance","type":"uint128"},
+		{"name":"_active","type":"bool"}
+	]
+}

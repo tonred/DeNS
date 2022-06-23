@@ -7,7 +7,6 @@ pragma AbiHeader pubkey;
 import "./interfaces/nft/ICollection.sol";
 import "./interfaces/IRoot.sol";
 import "./interfaces/IUpgradable.sol";
-import "./interfaces/IUpgradableVersionable.sol";
 import "./utils/ErrorCodes.sol";
 import "./utils/Gas.sol";
 import "./utils/TransferCanselReason.sol";
@@ -35,6 +34,7 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
     uint16 public _domainVersion;
 
     address public _wallet;
+    uint128 public _balance;
     bool public _active;
 
 
@@ -100,6 +100,7 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
     ) public override {
         require(msg.sender == _wallet, 69);
         _reserve();
+        _balance += amount;
         if (!_active) {
             _returnToken(amount, sender, TransferCanselReason.IS_NOT_ACTIVE);
             return;
@@ -178,6 +179,15 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
             _register(name, _dao, setup);
         }
     }
+
+//    function collect(uint128 amount, address staking) public override onlyDao {
+//        // todo collect while exception in prolong (we must return some tokens):
+//        // 1) use onProlong + dont call "collect" (auto send to dao)
+//        // 2) leave as is (maybe return to dao instead of staking)
+//        require(amount <= _balance, 69);
+//        TvmCell payload = abi.encode(reason);
+//        _transferToken(amount, staking, payload);
+//    }
 
     function execute(Action[] actions) public override onlyDao {
         for (Action action : actions) {
@@ -274,8 +284,13 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
         });
     }
 
-    function _returnToken(uint128 amount, address recipient, TransferCanselReason reason) private view {
+    function _returnToken(uint128 amount, address recipient, TransferCanselReason reason) private {
         TvmCell payload = abi.encode(reason);
+        _transferToken(amount, recipient, payload);
+    }
+
+    function _transferToken(uint128 amount, address recipient, TvmCell payload) private {
+        _balance -= amount;
         ITokenWallet(_wallet).transfer{
             value: 0,
             flag: MsgFlag.ALL_NOT_RESERVED,
@@ -291,8 +306,6 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
     }
 
 
-    // todo upgrade
-
     function setDomainCode(TvmCell code) public override onlyDao cashBack {
         _domainCode = code;
         _domainVersion++;
@@ -306,11 +319,11 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
     }
 
     function _upgradeDomain(address domain, uint128 value, uint8 flag) private view {
-        IUpgradableVersionable(domain).upgrade{
+        IDomain(domain).upgrade{
             value: value,
             flag: flag,
             bounce: false
-        }(_domainCode, _domainVersion);
+        }(_domainVersion, _domainCode, _config);
     }
 
     function upgrade(TvmCell code) public internalMsg override onlyDao {

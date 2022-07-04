@@ -6,38 +6,14 @@
 		{
 			"name": "constructor",
 			"inputs": [
+				{"name":"nftCode","type":"cell"},
+				{"name":"indexBasisCode","type":"cell"},
+				{"name":"indexCode","type":"cell"},
+				{"name":"json","type":"string"},
 				{"name":"root","type":"address"},
-				{"name":"platformCode","type":"cell"},
-				{"name":"nftCode","type":"cell"}
+				{"name":"platformCode","type":"cell"}
 			],
 			"outputs": [
-			]
-		},
-		{
-			"name": "totalSupply",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"count","type":"uint128"}
-			]
-		},
-		{
-			"name": "nftCode",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"code","type":"cell"}
-			]
-		},
-		{
-			"name": "nftCodeHash",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"codeHash","type":"uint256"}
 			]
 		},
 		{
@@ -48,6 +24,16 @@
 			],
 			"outputs": [
 				{"name":"nft","type":"address"}
+			]
+		},
+		{
+			"name": "supportsInterface",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"interfaceID","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"support","type":"bool"}
 			]
 		},
 		{
@@ -72,7 +58,17 @@
 			]
 		},
 		{
-			"name": "onNftBurn",
+			"name": "onMint",
+			"inputs": [
+				{"name":"id","type":"uint256"},
+				{"name":"owner","type":"address"},
+				{"name":"manager","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onBurn",
 			"inputs": [
 				{"name":"id","type":"uint256"},
 				{"name":"owner","type":"address"},
@@ -108,6 +104,127 @@
 			]
 		},
 		{
+			"name": "getJson",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"json","type":"string"}
+			]
+		},
+		{
+			"name": "indexBasisCode",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"code","type":"cell"}
+			]
+		},
+		{
+			"name": "indexBasisCodeHash",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"hash","type":"uint256"}
+			]
+		},
+		{
+			"name": "indexCode",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"code","type":"cell"}
+			]
+		},
+		{
+			"name": "indexCodeHash",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"hash","type":"uint256"}
+			]
+		},
+		{
+			"name": "resolveIndexBasis",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"indexBasis","type":"address"}
+			]
+		},
+		{
+			"name": "totalSupply",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"count","type":"uint128"}
+			]
+		},
+		{
+			"name": "nftCode",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"code","type":"cell"}
+			]
+		},
+		{
+			"name": "nftCodeHash",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"codeHash","type":"uint256"}
+			]
+		},
+		{
+			"name": "_totalSupply",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_totalSupply","type":"uint128"}
+			]
+		},
+		{
+			"name": "_nftCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_nftCode","type":"cell"}
+			]
+		},
+		{
+			"name": "_indexBasisCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_indexBasisCode","type":"cell"}
+			]
+		},
+		{
+			"name": "_indexCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_indexCode","type":"cell"}
+			]
+		},
+		{
+			"name": "_json",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_json","type":"string"}
+			]
+		},
+		{
 			"name": "_root",
 			"inputs": [
 			],
@@ -122,27 +239,26 @@
 			"outputs": [
 				{"name":"_platformCode","type":"cell"}
 			]
-		},
-		{
-			"name": "_totalSupply",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_totalSupply","type":"uint64"}
-			]
-		},
-		{
-			"name": "_nftCode",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_nftCode","type":"cell"}
-			]
 		}
 	],
 	"data": [
 	],
 	"events": [
+		{
+			"name": "AlreadyMinted",
+			"inputs": [
+				{"name":"nft","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "CodeUpgraded",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
 		{
 			"name": "NftCreated",
 			"inputs": [
@@ -165,22 +281,18 @@
 			],
 			"outputs": [
 			]
-		},
-		{
-			"name": "CodeUpgraded",
-			"inputs": [
-			],
-			"outputs": [
-			]
 		}
 	],
 	"fields": [
 		{"name":"_pubkey","type":"uint256"},
 		{"name":"_timestamp","type":"uint64"},
 		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_totalSupply","type":"uint128"},
+		{"name":"_nftCode","type":"cell"},
+		{"name":"_indexBasisCode","type":"cell"},
+		{"name":"_indexCode","type":"cell"},
+		{"name":"_json","type":"string"},
 		{"name":"_root","type":"address"},
-		{"name":"_platformCode","type":"cell"},
-		{"name":"_totalSupply","type":"uint64"},
-		{"name":"_nftCode","type":"cell"}
+		{"name":"_platformCode","type":"cell"}
 	]
 }

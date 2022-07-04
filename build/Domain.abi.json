@@ -33,6 +33,7 @@
 				{"name":"owner","type":"address"},
 				{"name":"defaultPrice","type":"uint128"},
 				{"name":"currentPrice","type":"uint128"},
+				{"name":"reserved","type":"bool"},
 				{"name":"initTime","type":"uint32"},
 				{"name":"expireTime","type":"uint32"}
 			]
@@ -43,6 +44,7 @@
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
+				{"name":"version","type":"uint16"},
 				{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"}
 			]
 		},
@@ -83,6 +85,15 @@
 			],
 			"outputs": [
 				{"name":"values","type":"optional(string[])"}
+			]
+		},
+		{
+			"name": "getRecords",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"records","type":"map(uint256,map(uint256,string[]))"}
 			]
 		},
 		{

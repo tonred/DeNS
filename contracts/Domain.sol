@@ -35,6 +35,7 @@ contract Domain is IDomain, Addressable, TransferUtils {
 
     uint128 public _defaultPrice;
     uint128 public _currentPrice;
+
     bool public _inZeroAuction;
     bool public _needZeroAuction;
     bool public _reserved;
@@ -81,8 +82,8 @@ contract Domain is IDomain, Addressable, TransferUtils {
         _init(initialParams);
     }
 
-    // 0x3f61459c is Platform constructor functionID
-    function onDeployRetry(TvmCell code, TvmCell params, address /*remainingGasTo*/) public override functionID(0x3f61459c) onlyRoot {
+    // 0x3F61459C is Platform constructor functionID
+    function onDeployRetry(TvmCell code, TvmCell params, address /*remainingGasTo*/) public override functionID(0x3F61459C) onlyRoot {
         (uint16 version, /*nft*/, Config config, DomainSetup setup) = abi.decode(params, (uint16, address, Config, DomainSetup));
         if (_status() == DomainStatus.EXPIRED) {
             if (version != _version) {
@@ -116,13 +117,15 @@ contract Domain is IDomain, Addressable, TransferUtils {
     }
 
     function getDetails() public responsible override returns (
-        address nft, address owner, uint128 defaultPrice, uint128 currentPrice, uint32 initTime, uint32 expireTime
+        address nft, address owner, uint128 defaultPrice, uint128 currentPrice, bool reserved, uint32 initTime, uint32 expireTime
     ) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_nft, _owner, _defaultPrice, _currentPrice, _initTime, _expireTime);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (
+            _nft, _owner, _defaultPrice, _currentPrice, _reserved, _initTime, _expireTime
+        );
     }
 
-    function getConfigDetails() public responsible override returns (Config config) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _config;
+    function getConfigDetails() public responsible override returns (uint16 version, Config config) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_version, _config);
     }
 
     function getAuctionDetails() public responsible override returns (bool inZeroAuction, bool needZeroAuction) {
@@ -166,6 +169,10 @@ contract Domain is IDomain, Addressable, TransferUtils {
         }
         // finally, check "*"
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _getRecordValues(records, "*");
+    }
+
+    function getRecords() public responsible override returns (mapping(uint256 => mapping(uint256 => string[])) records) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records;
     }
 
     function getRecordsCount(string group) public responsible override returns (uint256 count) {

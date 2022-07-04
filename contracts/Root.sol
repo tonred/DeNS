@@ -7,11 +7,9 @@ pragma AbiHeader pubkey;
 import "./interfaces/nft/ICollection.sol";
 import "./interfaces/IRoot.sol";
 import "./interfaces/IUpgradable.sol";
-import "./utils/ErrorCodes.sol";
 import "./utils/Gas.sol";
 import "./utils/TransferCanselReason.sol";
 import "./utils/TransferKind.sol";
-import "./utils/TransferUtils.sol";
 import "./Domain.sol";
 
 import "@broxus/contracts/contracts/utils/CheckPubKey.sol";

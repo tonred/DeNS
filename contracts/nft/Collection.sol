@@ -6,23 +6,18 @@ pragma AbiHeader pubkey;
 
 import "../abstract/Addressable.sol";
 import "../interfaces/nft/ICollection.sol";
+import "../interfaces/outer/IOwner.sol";
 import "../interfaces/IUpgradable.sol";
-import "../utils/ErrorCodes.sol";
-import "../utils/Gas.sol";
 import "../utils/TransferUtils.sol";
 
 import "@broxus/contracts/contracts/utils/CheckPubKey.sol";
+import "tip4/contracts/implementation/4_2/JSONMetadataBase.sol";
+import "tip4/contracts/implementation/4_3/CollectionBase4_3.sol";
 
 
-contract Collection is ICollection, IUpgradable, Addressable, TransferUtils, CheckPubKey {
+contract Collection is CollectionBase4_3, JSONMetadataBase, ICollection, IUpgradable, Addressable, TransferUtils, CheckPubKey {
 
-    event NftCreated(uint256 id, address nft, address owner, address manager, address creator);
-    event NftBurned(uint256 id, address nft, address owner, address manager);
-
-
-    uint64 public _totalSupply;
-    TvmCell public _nftCode;
-
+    event AlreadyMinted(address nft);
 
     modifier onlyNFT(uint256 id) {
         address nft = _nftAddressThis(id);
@@ -30,28 +25,35 @@ contract Collection is ICollection, IUpgradable, Addressable, TransferUtils, Che
         _;
     }
 
-    constructor(address root, TvmCell platformCode, TvmCell nftCode) public checkPubKey {
+    constructor(
+        TvmCell nftCode,
+        TvmCell indexBasisCode,
+        TvmCell indexCode,
+        string json,
+        address root,
+        TvmCell platformCode
+    ) public checkPubKey {
         tvm.accept();
+        _onInit4_3(nftCode, indexBasisCode, indexCode);
+        _onInit4_2(json);
         _root = root;
         _platformCode = platformCode;
-        _nftCode = nftCode;
     }
 
 
-    function totalSupply() public view responsible override returns (uint128 count) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _totalSupply;
-    }
-
-    function nftCode() public view responsible override returns (TvmCell code) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _nftCode;
-    }
-
-    function nftCodeHash() public view responsible override returns (uint256 codeHash) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} tvm.hash(_nftCode);
-    }
-
+    // TIP 4.1
     function nftAddress(uint256 id) public view responsible override returns (address nft) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _nftAddressThis(id);
+    }
+
+    // TIP6
+    function supportsInterface(
+        bytes4 interfaceID
+    ) public view responsible override(CollectionBase4_3, JSONMetadataBase) returns (bool support) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (
+            CollectionBase4_3.supportsInterface(interfaceID) ||
+            JSONMetadataBase.supportsInterface(interfaceID)
+        );
     }
 
     function nftAddressByName(string name) public view responsible override returns (address nft) {
@@ -62,23 +64,34 @@ contract Collection is ICollection, IUpgradable, Addressable, TransferUtils, Che
     function mint(string name, address owner, uint32 expireTime, uint32 expiringTimeRange) public override onlyRoot {
         uint256 id = tvm.hash(name);
         TvmCell stateInit = _buildNftStateInit(address(this), id);
-        TvmCell params = abi.encode(name, owner, _root, expireTime, expiringTimeRange);
-        address nft = _nftAddressThis(id);
-        emit NftCreated(id, nft, owner, _root, owner);
+        TvmCell params = abi.encode(name, owner, _root, expireTime, expiringTimeRange, _indexCode);
         new Platform{
             stateInit: stateInit,
             value: 0,
-            flag: MsgFlag.ALL_NOT_RESERVED,
+            flag: MsgFlag.REMAINING_GAS,
             bounce: true
         }(_nftCode, params, address(0));
-        _totalSupply++;
     }
 
-    function onNftBurn(uint256 id, address owner, address manager) public override onlyNFT(id) {
+    function onMint(uint256 id, address owner, address manager) public override onlyNFT(id) {
         _reserve();
-        _totalSupply--;
-        emit NftBurned(id, msg.sender, owner, manager);
-        owner.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
+        address creator = _root;
+        _onMint(id, msg.sender, owner, manager, creator);
+        IOwner(owner).onMint{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(id, msg.sender, owner, manager, creator);
+    }
+
+    function onBurn(uint256 id, address owner, address manager) public override onlyNFT(id) {
+        _reserve();
+        _onBurn(id, msg.sender, owner, manager);
+        IOwner(owner).onBurn{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(id, msg.sender, owner, manager);
     }
 
 
@@ -86,10 +99,11 @@ contract Collection is ICollection, IUpgradable, Addressable, TransferUtils, Che
         return _nftAddress(address(this), id);
     }
 
-    onBounce(TvmSlice body) external {
+    onBounce(TvmSlice body) external pure {
         uint32 functionId = body.decode(uint32);
         if (functionId == tvm.functionId(mint)) {
-            _totalSupply--;  // already minted
+            // already minted
+            emit AlreadyMinted(msg.sender);
         }
     }
 

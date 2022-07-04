@@ -7,18 +7,19 @@ import "../utils/DomainStatus.sol";
 
 interface IDomain {
 
-    function onDeployRetry(TvmCell /*code*/, TvmCell params, address /*remainingGasTo*/) external functionID(0x3f61459c);
+    function onDeployRetry(TvmCell /*code*/, TvmCell params, address /*remainingGasTo*/) external functionID(0x3F61459C);
 
     function getName() external responsible returns (string name);
     function getDetails() external responsible returns (
-        address nft, address owner, uint128 defaultPrice, uint128 currentPrice, uint32 initTime, uint32 expireTime
+        address nft, address owner, uint128 defaultPrice, uint128 currentPrice, bool reserved, uint32 initTime, uint32 expireTime
     );
-    function getConfigDetails() external responsible returns (Config config);
+    function getConfigDetails() external responsible returns (uint16 version, Config config);
     function getAuctionDetails() external responsible returns (bool inZeroAuction, bool needZeroAuction);
     function getStatus() external responsible returns (DomainStatus status);
 
     function resolve() external responsible returns (address target);
     function resolveQuery(string group, string query) external responsible returns (optional(string[]) values);
+    function getRecords() external responsible returns (mapping(uint256 => mapping(uint256 => string[])) records);
     function getRecordsCount(string group) external responsible returns (uint256 count);
     function checkRecords(string group, InputRecord[] records) external responsible returns (bool correct);
     function setTarget(address target) external;

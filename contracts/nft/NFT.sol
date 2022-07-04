@@ -9,22 +9,16 @@ import "../interfaces/nft/ICollection.sol";
 import "../interfaces/nft/INFT.sol";
 import "../interfaces/outer/INFTCallback.sol";
 import "../interfaces/outer/IOwner.sol";
-import "../utils/TransferUtils.sol";
+import "../utils/Gas.sol";
+
+import "tip4/contracts/implementation/4_2/JSONMetadataBase.sol";
+import "tip4/contracts/implementation/4_3/NFTBase4_3.sol";
 
 
-contract NFT is INFT, Addressable, TransferUtils {
-
-    event NftCreated(uint256 id, address owner, address manager, address collection);
-    event OwnerChanged(address oldOwner, address newOwner);
-    event ManagerChanged(address oldManager, address newManager);
-    event NftBurned(uint256 id, address owner, address manager, address collection);
-
+contract NFT is NFTBase4_3, JSONMetadataBase, INFT, Addressable {
 
     uint256 public _id;
     address public _collection;
-
-    address public _owner;
-    address public _manager;
 
     string public _name;
     address public _domain;
@@ -57,35 +51,45 @@ contract NFT is INFT, Addressable, TransferUtils {
         TvmCell initialData = slice.loadRef();
         (_id, _collection) = abi.decode(initialData, (uint256, address));
         TvmCell initialParams = slice.loadRef();
-        (_name, _owner, _manager, _expireTime, _expiringTimeRange) =
-            abi.decode(initialParams, (string, address, address, uint32, uint32));
+        (_name, _owner, _manager, _expireTime, _expiringTimeRange, _indexCode) =
+            abi.decode(initialParams, (string, address, address, uint32, uint32, TvmCell));
         _domain = _domainAddress(_name);
-        emit NftCreated(_id, _owner, _manager, _collection);
+
+        _onInit4_3(_owner, _manager, _indexCode);
+        _onInit4_2("");  // todo generate JSON
+        ICollection(_collection).onMint{
+            value: Gas.ON_MINT_VALUE,
+            flag: MsgFlag.SENDER_PAYS_FEES,
+            bounce: false
+        }(_id, _owner, _manager);
     }
 
 
-    function getInfo() public view responsible override returns (uint256 id, address owner, address manager, address collection) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_id, _owner, _manager, _collection);
-    }
-
+    // TIP 4.1
     function changeOwner(address newOwner, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager notExpiring {
-        _reserve();
-        _changeOwner(newOwner);
-        _sendCallbacks(sendGasTo, callbacks);
+        super.changeOwner(newOwner, sendGasTo, callbacks);
     }
 
+    // TIP 4.1
     function changeManager(address newManager, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager notExpiring {
-        _reserve();
-        _changeManager(newManager);
-        _sendCallbacks(sendGasTo, callbacks);
+        super.changeManager(newManager, sendGasTo, callbacks);_reserve();
         // todo expiring
     }
 
+    // TIP 4.1
     function transfer(address to, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager notExpiring {
-//        _reserve();
-//        _changeOwner(to);  // todo !!!
-//        _changeManager(to);
-//        _sendCallbacks(sendGasTo, callbacks);
+        super.transfer(to, sendGasTo, callbacks);
+        // todo expiring
+    }
+
+    // TIP 6
+    function supportsInterface(
+        bytes4 interfaceID
+    ) public view responsible override(NFTBase4_3, JSONMetadataBase) returns (bool support) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (
+            NFTBase4_3.supportsInterface(interfaceID) ||
+            JSONMetadataBase.supportsInterface(interfaceID)
+        );
     }
 
     function prolong(uint32 expireTime) public override onlyDomain {
@@ -100,6 +104,7 @@ contract NFT is INFT, Addressable, TransferUtils {
     function unreserve(address owner, uint32 expireTime) public override onlyDomain {
         _owner = owner;
         _expireTime = expireTime;
+        _updateIndexes(_owner, owner, _owner);
         IOwner(_owner).onUnresevre{
             value: 0,
             flag: MsgFlag.ALL_NOT_RESERVED,
@@ -108,47 +113,21 @@ contract NFT is INFT, Addressable, TransferUtils {
     }
 
     function burn() public override onlyDomain {
-        emit NftBurned(_id, _owner, _manager, _collection);
-        ICollection(_collection).onNftBurn{
+        ICollection(_collection).onBurn{
             value: 0,
-            flag: MsgFlag.ALL_NOT_RESERVED + MsgFlag.DESTROY_IF_ZERO,
+            flag: MsgFlag.REMAINING_GAS,
             bounce: false
         }(_id, _owner, _manager);
+        _onBurn(_owner);
     }
 
 
-    function _changeOwner(address newOwner) private {
-        emit OwnerChanged(_owner, newOwner);
-        _owner = newOwner;
+    function _getId() internal view override returns (uint256) {
+        return _id;
     }
 
-    function _changeManager(address newManager) private {
-        emit ManagerChanged(_manager, newManager);
-        _manager = newManager;
-    }
-
-    function _sendCallbacks(address sendGasTo, mapping(address => CallbackParams) callbacks) private view {
-        optional(TvmCell) ownerPayload;
-        for ((address recipient, CallbackParams params) : callbacks) {
-            if (recipient != sendGasTo) {
-                INFTCallback(recipient).callback{
-                    value: params.value,
-                    flag: 0,
-                    bounce: false
-                }(_id, _owner, _manager, _collection, params.payload);
-            } else {
-                ownerPayload.set(params.payload);
-            }
-        }
-        if (ownerPayload.hasValue()) {
-            INFTCallback(sendGasTo).callback{
-                value: 0,
-                flag: MsgFlag.ALL_NOT_RESERVED,
-                bounce: false
-            }(_id, _owner, _manager, _collection, ownerPayload.get());
-        } else {
-            sendGasTo.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
-        }
+    function _getCollection() internal view override returns (address) {
+        return _collection;
     }
 
 

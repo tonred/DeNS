@@ -4,6 +4,15 @@
 	"header": ["pubkey", "time", "expire"],
 	"functions": [
 		{
+			"name": "getConfig",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"}
+			]
+		},
+		{
 			"name": "requestProlong",
 			"inputs": [
 			],
@@ -29,8 +38,8 @@
 			"name": "acceptUpgrade",
 			"inputs": [
 				{"name":"version","type":"uint16"},
-				{"name":"code","type":"cell"},
-				{"components":[{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"}
+				{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"},
+				{"name":"code","type":"cell"}
 			],
 			"outputs": [
 			]
@@ -73,6 +82,14 @@
 			],
 			"outputs": [
 				{"name":"support","type":"bool"}
+			]
+		},
+		{
+			"name": "confiscate",
+			"inputs": [
+				{"name":"newOwner","type":"address"}
+			],
+			"outputs": [
 			]
 		},
 		{
@@ -169,7 +186,9 @@
 			"name": "createSubdomain",
 			"inputs": [
 				{"name":"name","type":"string"},
-				{"name":"owner","type":"address"}
+				{"name":"owner","type":"address"},
+				{"name":"renewable","type":"bool"},
+				{"name":"callbackTo","type":"address"}
 			],
 			"outputs": [
 			]
@@ -180,32 +199,6 @@
 				{"name":"subdomain","type":"address"}
 			],
 			"outputs": [
-			]
-		},
-		{
-			"name": "confiscate",
-			"inputs": [
-				{"name":"newOwner","type":"address"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "getRoot",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"root","type":"address"}
-			]
-		},
-		{
-			"name": "calcAddress",
-			"inputs": [
-				{"name":"stateInit","type":"cell"}
-			],
-			"outputs": [
-				{"name":"value0","type":"address"}
 			]
 		},
 		{
@@ -298,27 +291,19 @@
 			]
 		},
 		{
-			"name": "_root",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_root","type":"address"}
-			]
-		},
-		{
-			"name": "_platformCode",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_platformCode","type":"cell"}
-			]
-		},
-		{
 			"name": "_id",
 			"inputs": [
 			],
 			"outputs": [
 				{"name":"_id","type":"uint256"}
+			]
+		},
+		{
+			"name": "_root",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_root","type":"address"}
 			]
 		},
 		{
@@ -370,19 +355,27 @@
 			]
 		},
 		{
-			"name": "_domain",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_domain","type":"address"}
-			]
-		},
-		{
 			"name": "_config",
 			"inputs": [
 			],
 			"outputs": [
-				{"components":[{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"_config","type":"tuple"}
+				{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"_config","type":"tuple"}
+			]
+		},
+		{
+			"name": "_parent",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_parent","type":"address"}
+			]
+		},
+		{
+			"name": "_renewable",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_renewable","type":"bool"}
 			]
 		}
 	],
@@ -483,9 +476,8 @@
 		{"name":"_manager","type":"address"},
 		{"name":"_indexCode","type":"cell"},
 		{"name":"_json","type":"string"},
-		{"name":"_root","type":"address"},
-		{"name":"_platformCode","type":"cell"},
 		{"name":"_id","type":"uint256"},
+		{"name":"_root","type":"address"},
 		{"name":"_path","type":"string"},
 		{"name":"_owner","type":"address"},
 		{"name":"_version","type":"uint16"},
@@ -493,7 +485,8 @@
 		{"name":"_expireTime","type":"uint32"},
 		{"name":"_target","type":"address"},
 		{"name":"_records","type":"map(uint32,bytes)"},
-		{"name":"_domain","type":"address"},
-		{"components":[{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"_config","type":"tuple"}
+		{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"_config","type":"tuple"},
+		{"name":"_parent","type":"address"},
+		{"name":"_renewable","type":"bool"}
 	]
 }

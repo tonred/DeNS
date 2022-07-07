@@ -10,7 +10,7 @@ contract Platform {
 
     constructor(TvmCell code, TvmCell params) public functionID(0x4A2E4FD6) {
         require(msg.sender == _root, 69);
-        TvmCell data = abi.encode(_root, tvm.code(), _initialData, params);
+        TvmCell data = abi.encode(_root, _initialData, params);
         tvm.setcode(code);
         tvm.setCurrentCode(code);
         onCodeUpgrade(data);

@@ -86,8 +86,7 @@
 			"inputs": [
 				{"name":"path","type":"string"},
 				{"name":"name","type":"string"},
-				{"name":"owner","type":"address"},
-				{"name":"expireTime","type":"uint32"}
+				{"components":[{"name":"owner","type":"address"},{"name":"expireTime","type":"uint32"},{"name":"parent","type":"address"},{"name":"renewable","type":"bool"},{"name":"callbackTo","type":"address"}],"name":"setup","type":"tuple"}
 			],
 			"outputs": [
 			]
@@ -135,6 +134,15 @@
 			]
 		},
 		{
+			"name": "_isCorrectName",
+			"inputs": [
+				{"name":"name","type":"string"}
+			],
+			"outputs": [
+				{"name":"value0","type":"bool"}
+			]
+		},
+		{
 			"name": "_calcPrice",
 			"inputs": [
 				{"name":"name","type":"string"}
@@ -142,6 +150,22 @@
 			"outputs": [
 				{"name":"value0","type":"uint128"},
 				{"name":"value1","type":"bool"}
+			]
+		},
+		{
+			"name": "upgradeDomain",
+			"inputs": [
+				{"name":"domain","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "upgradeSubdomain",
+			"inputs": [
+				{"name":"subdomain","type":"address"}
+			],
+			"outputs": [
 			]
 		},
 		{
@@ -487,7 +511,7 @@
 		{"name":"_dao","type":"address"},
 		{"name":"_active","type":"bool"},
 		{"components":[{"name":"maxPathLength","type":"uint32"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"components":[{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"}],"name":"prices","type":"tuple"}],"name":"_config","type":"tuple"},
-		{"components":[{"name":"version","type":"uint16"},{"components":[{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"},{"name":"code","type":"cell"}],"name":"_domainDeployConfig","type":"tuple"},
-		{"components":[{"name":"version","type":"uint16"},{"components":[{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"},{"name":"code","type":"cell"}],"name":"_subdomainDeployConfig","type":"tuple"}
+		{"components":[{"name":"version","type":"uint16"},{"components":[{"name":"maxDuration","type":"uint32"},{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"times","type":"tuple"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"},{"name":"code","type":"cell"}],"name":"_domainDeployConfig","type":"tuple"},
+		{"components":[{"name":"version","type":"uint16"},{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"},{"name":"code","type":"cell"}],"name":"_subdomainDeployConfig","type":"tuple"}
 	]
 }

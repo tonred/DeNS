@@ -18,7 +18,9 @@ abstract contract TransferUtils {
     }
 
     function _reserve() internal view virtual {
-        tvm.rawReserve(address(this).balance - msg.value, 2);
+        tvm.rawReserve(_targetBalance(), 0);
     }
+
+    function _targetBalance() internal view inline virtual returns (uint128);
 
 }

@@ -5,40 +5,54 @@ pragma AbiHeader expire;
 pragma AbiHeader pubkey;
 
 import "./abstract/NFTCertificate.sol";
-import "./interfaces/ICertificate.sol";
-import "./structures/Configs.sol";
 
 
 contract Subdomain is NFTCertificate, ISubdomain {
 
     event Prolonged(uint32 time, uint32 newExpireTime);
 
-    address public _domain;
-    SubdomainConfig public _config;
+    TimeRangeConfig public _config;
+    address public _parent;
+    bool public _renewable;
 
 
-    modifier onlyDomain() {
-        require(msg.sender == _domain, 69);
+    modifier onlyParent() {
+        require(msg.sender == _parent, 69);
         _;
     }
 
+    modifier onlyRenewable() {
+        require(_renewable, 69);
+        _;
+    }
+
+    // todo on deploy retry + callbackTo
+
     function _init(TvmCell params) internal override {
-        (_version, _config, _owner, _expireTime, _indexCode) =
-            abi.decode(params, (uint16, SubdomainConfig, address, uint32, TvmCell));
+        SubdomainSetup setup;
+        address callbackTo;
+        (_path, _version, _config, setup, _indexCode) =
+            abi.decode(params, (string, uint16, TimeRangeConfig, SubdomainSetup, TvmCell));
+        (_owner, _expireTime, _parent, _renewable, callbackTo) = setup.unpack();
         _initTime = now;
         _initNFT(_owner, _owner, _indexCode);
+        // todo callbackTo
+    }
+
+    function getConfig() public view responsible returns (TimeRangeConfig config) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _config;
     }
 
 
-    function requestProlong() public cashBack {
-        ICertificate(_domain).prolongSubdomain{
+    function requestProlong() public view onlyRenewable cashBack {
+        Certificate(_parent).prolongSubdomain{
             value: Gas.PROLONG_SUBDOMAIN_VALUE,
             flag: MsgFlag.SENDER_PAYS_FEES,
-            bounce: true
+            bounce: false
         }(address(this));
     }
 
-    function prolong(uint32 expireTime) public override onlyDomain {
+    function prolong(uint32 expireTime) public override onlyParent onlyRenewable {
         _reserve();
         _expireTime = expireTime;
         emit Prolonged(now, _expireTime);
@@ -59,24 +73,24 @@ contract Subdomain is NFTCertificate, ISubdomain {
         }
     }
 
-
-    function requestUpgrade() public override minValue(Gas.REQUEST_UPGRADE_DOMAIN_VALUE) {
-        IRoot(_root).requestSubdomainUpgrade{
-            value: 0,
-            flag: MsgFlag.REMAINING_GAS,
-            bounce: false
-        }(_path, _version);
+    function _targetBalance() internal view inline override returns (uint128) {
+        return Gas.SUBDOMAIN_TARGET_BALANCE;
     }
 
-    function acceptUpgrade(uint16 version, TvmCell code, SubdomainConfig config) public onlyRoot {
+
+    function requestUpgrade() public override onlyOwner cashBack {
+        IRoot(_root).upgradeSubdomain{
+            value: Gas.UPGRADE_SUBDOMAIN_VALUE,
+            flag: MsgFlag.SENDER_PAYS_FEES,
+            bounce: false
+        }(address(this));
+    }
+
+    function acceptUpgrade(uint16 version, TimeRangeConfig config, TvmCell code) public override onlyRoot {
         if (version == _version) {
             _owner.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
             return;
         }
-        _upgrade(version, code, config);
-    }
-
-    function _upgrade(uint16 version, TvmCell code, SubdomainConfig config) private {
 //        emit CodeUpgraded(_version, version);
         _version = version;
         _config = config;
@@ -84,15 +98,6 @@ contract Subdomain is NFTCertificate, ISubdomain {
         tvm.setcode(code);
         tvm.setCurrentCode(code);
         onCodeUpgrade(data);
-    }
-
-
-    onBounce(TvmSlice body) external {
-        uint32 functionId = body.decode(uint32);
-        if (functionId == tvm.functionId(prolongSubdomain)) {
-            // parent domain is not exists (this is possible only if it is expired)
-            _destroy();
-        }
     }
 
 }

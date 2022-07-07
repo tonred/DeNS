@@ -6,7 +6,7 @@ import "../platform/PlatformType.sol";
 import "@broxus/contracts/contracts/libraries/MsgFlag.sol";
 
 
-abstract contract Addressable {
+abstract contract Addressable {  // todo rename + see usage
 
     address public _root;
     TvmCell public _platformCode;
@@ -22,12 +22,12 @@ abstract contract Addressable {
     }
 
 
-    function _certificateAddressByPath(string path) internal view returns (address) {
+    function _certificateAddress(string path) internal view returns (address) {
         uint256 id = tvm.hash(path);
-        return _certificateAddress(id);
+        return _certificateAddressByID(id);
     }
 
-    function _certificateAddress(uint256 id) internal view returns (address) {
+    function _certificateAddressByID(uint256 id) internal view returns (address) {
         TvmCell stateInit = _buildCertificateStateInit(id);
         return calcAddress(stateInit);
     }

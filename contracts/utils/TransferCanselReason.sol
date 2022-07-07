@@ -4,17 +4,17 @@ pragma ton-solidity >= 0.61.2;
 enum TransferCanselReason {
 
     // Register
-    LOW_MSG_VALUE,      // 0
-    INVALID_NAME,       // 1
-    NOT_FOR_SALE,       // 2
-    LOW_TOKENS_AMOUNT,  // 3
-    INVALID_DURATION,   // 4
-    ALREADY_EXIST,      // 5
+    INVALID_NAME,       // 0
+    NOT_FOR_SALE,       // 1
+    LOW_TOKENS_AMOUNT,  // 2
+    INVALID_DURATION,   // 3
+    ALREADY_EXIST,      // 4
 
     // Prolong
-    DURATION_OVERFLOW,  // 6
+    DURATION_OVERFLOW,  // 5
 
     // Other
+    LOW_MSG_VALUE,      // 6
     IS_NOT_ACTIVE,      // 7
     UNKNOWN_TYPE        // 8
 

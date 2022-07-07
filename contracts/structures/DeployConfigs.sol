@@ -11,6 +11,6 @@ struct DomainDeployConfig {
 
 struct SubdomainDeployConfig {
     uint16 version;
-    SubdomainConfig config;
+    TimeRangeConfig config;
     TvmCell code;
 }

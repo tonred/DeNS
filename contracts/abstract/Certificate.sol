@@ -6,10 +6,9 @@ import "../utils/CertificateStatus.sol";
 import "../utils/Gas.sol";
 import "../utils/NameChecker.sol";
 import "../utils/TransferUtils.sol";
-import "./Addressable.sol";
 
 
-abstract contract Certificate is Addressable, TransferUtils {
+abstract contract Certificate is TransferUtils {
 
     event ChangedTarget(address oldTarget, address newTarget);
     event ChangedOwner(address oldOwner, address newOwner, bool confiscate);
@@ -18,6 +17,7 @@ abstract contract Certificate is Addressable, TransferUtils {
 
 
     uint256 public _id;
+    address public _root;
 
     string public _path;
     address private _owner;  // private in order to use from nft
@@ -29,6 +29,11 @@ abstract contract Certificate is Addressable, TransferUtils {
     address public _target;
     mapping(uint32 => bytes) public _records;
 
+
+    modifier onlyRoot() {  // todo move in inheritance up ?
+        require(msg.sender == _root, 69);
+        _;
+    }
 
     modifier onlyOwner() {
         require(msg.sender == _owner, 69);
@@ -49,11 +54,9 @@ abstract contract Certificate is Addressable, TransferUtils {
 
     function onCodeUpgrade(TvmCell input) internal {
         tvm.resetStorage();
-        TvmCell initialData;
-        TvmCell initialParams;
-        (_root, _platformCode, initialData, initialParams) =
-            abi.decode(input, (address, TvmCell, TvmCell, TvmCell));
-
+        (address root, TvmCell initialData, TvmCell initialParams) =
+            abi.decode(input, (address, TvmCell, TvmCell));
+        _root = root;
         _id = abi.decode(initialData, uint256);
         _init(initialParams);
     }
@@ -61,27 +64,27 @@ abstract contract Certificate is Addressable, TransferUtils {
     function _init(TvmCell params) internal virtual;
 
 
-    function getPath() public responsible returns (string path) {
+    function getPath() public view responsible returns (string path) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _path;
     }
 
-    function getDetails() public responsible returns (address owner, uint16 version, uint32 initTime, uint32 expireTime) {
+    function getDetails() public view responsible returns (address owner, uint16 version, uint32 initTime, uint32 expireTime) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_owner, _version, _initTime, _expireTime);
     }
 
-    function getStatus() public responsible returns (CertificateStatus status) {
+    function getStatus() public view responsible returns (CertificateStatus status) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _status();
     }
 
-    function resolve() public responsible onActive returns (address target) {
+    function resolve() public view responsible onActive returns (address target) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _target;
     }
 
-    function getRecords() public responsible onActive returns (mapping(uint32 => bytes) records) {
+    function getRecords() public view responsible onActive returns (mapping(uint32 => bytes) records) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records;
     }
 
-    function getRecord(uint32 key) public responsible onActive returns (bytes value) {
+    function getRecord(uint32 key) public view responsible onActive returns (bytes value) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records[key];
     }
 
@@ -102,18 +105,17 @@ abstract contract Certificate is Addressable, TransferUtils {
         _records[key] = value;
     }
 
-    function createSubdomain(string name, address owner) public onActive onlyOwner cashBack {
-//        uint32 remainingLength = _config.maxNameLength - _path.byteLength() - 1;  // todo config bounce
-        require(NameChecker.isCorrectName(name), 69);  // todo path + name lengths
+    function createSubdomain(string name, address owner, bool renewable, address callbackTo) public view onActive onlyOwner cashBack {
+        SubdomainSetup setup = SubdomainSetup(owner, _expireTime, address(this), renewable, callbackTo);
         IRoot(_root).deploySubdomain{
-            value: 0,
+            value: Gas.DEPLOY_SUBDOMAIN_VALUE,
             flag: MsgFlag.ALL_NOT_RESERVED,
             bounce: false
-        }(_path, name, owner, _expireTime);
+        }(_path, name, setup);
     }
 
     // can prolong only direct child, no sender check needed
-    function prolongSubdomain(address subdomain) public minValue(Gas.PROLONG_SUBDOMAIN_VALUE) {
+    function prolongSubdomain(address subdomain) public view onActive minValue(Gas.PROLONG_SUBDOMAIN_VALUE) {
         ISubdomain(subdomain).prolong{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
@@ -121,19 +123,17 @@ abstract contract Certificate is Addressable, TransferUtils {
         }(_expireTime);
     }
 
-    // todo join with previous method ?
-    function confiscate(address newOwner) public onlyRoot {
-//        _reserve();
-        // todo nft change owner
-//        emit ChangedOwner(_owner, newOwner, true);
-//        _owner = newOwner;
-//        newOwner.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
-    }
-
 
     function _status() internal view virtual returns (CertificateStatus);
 
-
     function requestUpgrade() public virtual;
+
+    onBounce(TvmSlice body) external view {
+        uint32 functionId = body.decode(uint32);
+        if (functionId == tvm.functionId(prolongSubdomain)) {
+            // subdomain is not exist
+            _owner.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
+        }
+    }
 
 }

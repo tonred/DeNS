@@ -1,7 +1,7 @@
 pragma ton-solidity >= 0.61.2;
 
-import "../interfaces/ICollection.sol";
 import "./Certificate.sol";
+import "./Collection.sol";
 
 import "tip4/contracts/implementation/4_2/JSONMetadataBase.sol";
 import "tip4/contracts/implementation/4_3/NFTBase4_3.sol";
@@ -17,7 +17,7 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataBase, Certificate {
     function _initNFT(address owner, address manager, TvmCell indexCode) internal {
         _onInit4_3(owner, manager, indexCode);
         _onInit4_2("");  // todo generate JSON
-        ICollection(_root).onMint{
+        Collection(_root).onMint{
             value: Gas.ON_MINT_VALUE,
             flag: MsgFlag.SENDER_PAYS_FEES,
             bounce: false
@@ -56,6 +56,10 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataBase, Certificate {
         );
     }
 
+    function confiscate(address newOwner) public onlyRoot cashBack {
+        _changeOwner(_owner, newOwner);
+    }
+
     // todo ?
     function expire() public onStatus(CertificateStatus.EXPIRED) {
         _destroy();
@@ -72,7 +76,7 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataBase, Certificate {
 
     function _destroy() internal {
         // todo gas + TIP4 sample correct is needed
-        ICollection(_root).onBurn{
+        Collection(_root).onBurn{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
             bounce: false

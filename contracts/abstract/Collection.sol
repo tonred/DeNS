@@ -14,8 +14,8 @@ import "tip4/contracts/implementation/4_3/CollectionBase4_3.sol";
 
 abstract contract Collection is CollectionBase4_3, JSONMetadataBase, Addressable, TransferUtils {
 
-    modifier onlyCertificate(uint256 id) {
-        address nft = _certificateAddress(id);
+    modifier onlyCertificateByID(uint256 id) {
+        address nft = _certificateAddressByID(id);
         require(msg.sender == nft, 69);
         _;
     }
@@ -36,7 +36,7 @@ abstract contract Collection is CollectionBase4_3, JSONMetadataBase, Addressable
 
     // TIP 4.1
     function nftAddress(uint256 id) public view responsible override returns (address nft) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _certificateAddress(id);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _certificateAddressByID(id);
     }
 
     // TIP6
@@ -50,11 +50,11 @@ abstract contract Collection is CollectionBase4_3, JSONMetadataBase, Addressable
     }
 
     function certificateAddressByPath(string path) public view responsible returns (address nft) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _certificateAddressByPath(path);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _certificateAddress(path);
     }
 
 
-    function onMint(uint256 id, address owner, address manager) public onlyCertificate(id) {
+    function onMint(uint256 id, address owner, address manager) public onlyCertificateByID(id) {
         _reserve();
         address creator = _root;
         _onMint(id, msg.sender, owner, manager, creator);
@@ -65,7 +65,7 @@ abstract contract Collection is CollectionBase4_3, JSONMetadataBase, Addressable
         }(id, msg.sender, owner, manager, creator);
     }
 
-    function onBurn(uint256 id, address owner, address manager) public onlyCertificate(id) {
+    function onBurn(uint256 id, address owner, address manager) public onlyCertificateByID(id) {
         _reserve();
         _onBurn(id, msg.sender, owner, manager);
         IOwner(owner).onBurn{

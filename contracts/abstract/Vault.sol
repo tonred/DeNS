@@ -20,7 +20,7 @@ abstract contract Vault is IAcceptTokensTransferCallback {
         _token = token;
         ITokenRoot(token).deployWallet{
             value: 0,
-            flag: MsgFlag.ALL_NOT_RESERVED,
+            flag: MsgFlag.ALL_NOT_RESERVED,  // todo value
             callback: onWalletDeployed
         }({
             owner: address(this),

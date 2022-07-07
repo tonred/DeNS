@@ -6,7 +6,7 @@ pragma AbiHeader pubkey;
 
 import "../abstract/Addressable.sol";
 import "../interfaces/nft/ICollection.sol";
-import "../interfaces/outer/IOwner.sol";
+import "../interfaces/outer/INFTOwner.sol";
 import "../interfaces/IUpgradable.sol";
 import "../utils/TransferUtils.sol";
 
@@ -56,15 +56,15 @@ contract Collection is CollectionBase4_3, JSONMetadataBase, ICollection, IUpgrad
         );
     }
 
-    function nftAddressByName(string name) public view responsible override returns (address nft) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _nftAddressByName(address(this), name);
+    function nftAddressByPath(string path) public view responsible override returns (address nft) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _nftAddressByPath(address(this), path);
     }
 
 
-    function mint(string name, address owner, uint32 expireTime, uint32 expiringTimeRange) public override onlyRoot {
-        uint256 id = tvm.hash(name);
+    function mint(string path, address owner, uint32 expireTime, uint32 expiringTimeRange) public override onlyRoot {
+        uint256 id = tvm.hash(path);
         TvmCell stateInit = _buildNftStateInit(address(this), id);
-        TvmCell params = abi.encode(name, owner, _root, expireTime, expiringTimeRange, _indexCode);
+        TvmCell params = abi.encode(path, owner, _root, expireTime, expiringTimeRange, _indexCode);
         new Platform{
             stateInit: stateInit,
             value: 0,

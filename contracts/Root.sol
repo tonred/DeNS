@@ -20,9 +20,12 @@ import "ton-eth-bridge-token-contracts/contracts/interfaces/IAcceptTokensTransfe
 
 contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable, TransferUtils, CheckPubKey {
 
-    event Confiscated(string name, address owner, string reason);
-    event Reserved(string name, string reason);
+    event Confiscated(string path, address owner, string reason);
+    event Reserved(string path, string reason);
     event DomainCodeUpgraded(uint16 newVersion);
+
+
+    string public static _tld;
 
     address public _dao;
     address public _collection;
@@ -46,8 +49,9 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
         _;
     }
 
-    modifier onlyDomain(string name) {
-        address domain = _domainAddress(name);
+    modifier onlyDomain(string path) {
+        // todo is not subdomain !!!
+        address domain = _certificateAddress(path);
         require(msg.sender == domain, 69);
         _;
     }
@@ -79,7 +83,7 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
 
 
     function checkName(string name) public responsible override returns (bool correct) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _isCorrectName(name);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} NameChecker.isCorrectName(name);
     }
 
     function expectedPrice(string name) public responsible override returns (uint128 price) {
@@ -116,7 +120,7 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
                 _returnToken(amount, sender, error.get());
                 return;
             }
-            _register(name, sender, setup);
+            _register(name, setup);
             sender.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
         } else if (kind == TransferKind.PROLONG) {
             if (msg.value < Gas.PROLONG_VALUE) {
@@ -124,8 +128,17 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
                 return;
             }
             string name = abi.decode(data, string);
-            address domain = _domainAddress(name);
-            _upgradeDomain(domain, Gas.UPGRADE_DOMAIN_VALUE, MsgFlag.SENDER_PAYS_FEES);
+            if (!NameChecker.isCorrectName(name)) {
+                _returnToken(amount, sender, TransferCanselReason.INVALID_NAME);
+                return;
+            }
+            string path = _createPath(name);
+            address domain = _certificateAddress(path);
+            ICodeStorage(domain).upgradeDomain{
+                value: Gas.REQUEST_UPGRADE_DOMAIN_VALUE,
+                flag: MsgFlag.SENDER_PAYS_FEES,
+                bounce: false
+            }();
             IDomain(domain).prolong{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
@@ -136,24 +149,24 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
         }
     }
 
-    function onDomainDeployRetry(string name, uint128 amount, address sender) public override onlyDomain(name) {
+    function onDomainDeployRetry(string path, uint128 amount, address sender) public override onlyDomain(path) {
         _reserve();
         _returnToken(amount, sender, TransferCanselReason.ALREADY_EXIST);
     }
 
-    function onProlongReturn(string name, uint128 returnAmount, address sender) public override onlyDomain(name) {
+    function onProlongReturn(string path, uint128 returnAmount, address sender) public override onlyDomain(path) {
         _reserve();
         _returnToken(returnAmount, sender, TransferCanselReason.DURATION_OVERFLOW);
     }
 
-    function resolve(string name) public responsible override returns (address domain) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _domainAddress(name);
+    function resolve(string path) public responsible override returns (address certificate) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _certificateAddress(path);
     }
 
-    function confiscate(string name, address owner, string reason) public override onlyDao {
+    function confiscate(string path, address owner, string reason) public override onlyDao {
         _reserve();
-        emit Confiscated(name, owner, reason);
-        address domain = _domainAddress(name);
+        emit Confiscated(path, owner, reason);
+        address domain = _certificateAddress(path);
         IDomain(domain).confiscate{
             value: 0,
             flag: MsgFlag.ALL_NOT_RESERVED,
@@ -161,20 +174,20 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
         }(owner);
     }
 
-    function reserve(string[] names, bool ignoreNameCheck, string reason) public override onlyDao {
+    function reserve(string[] names, bool ignoreNameCheck, string reason) public override onlyDao {  // todo path
         _reserve();
         for (string name : names) {
-            require(_isCorrectName(name) || ignoreNameCheck, 69);
+            require(NameChecker.isCorrectName(name) || ignoreNameCheck, 69);
             emit Reserved(name, reason);
             DomainSetup setup = DomainSetup({
-                owner: address(this),
+                owner: _dao,
                 price: 0,
                 needZeroAuction: false,
                 reserved: true,
                 expireTime: 0,
                 amount: 0
             });
-            _register(name, _dao, setup);
+            _register(name, setup);
         }
     }
 
@@ -204,7 +217,7 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
 
     function _buildDomainSetup(string name, uint128 amount, address owner) private view returns (DomainSetup, optional(TransferCanselReason)) {
         DomainSetup empty;
-        if (!_isCorrectName(name)) {
+        if (!NameChecker.isCorrectName(name)) {
             return (empty, TransferCanselReason.INVALID_NAME);
         }
         (uint128 price, bool needZeroAuction) = _calcPrice(name);
@@ -234,43 +247,17 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
         return (0, true);  // todo
     }
 
-    function _isCorrectName(string name) private view returns (bool) {
-        uint32 length = name.byteLength();
-        if (length == 0 || length > _config.maxNameLength) {
-            return false;
-        }
-        for (byte char : bytes(name)) {
-            bool ok = (char > 0x3c && char < 0x7b) || (char > 0x2f && char < 0x3a) || (char == 0x2d);  // a-z0-9-
-            if (!ok) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    function _register(string name, address owner, DomainSetup setup) private view {
-        address nft = _nftAddressByName(_collection, name);
-        TvmCell domainParams = abi.encode(_domainVersion, nft, _config, setup);
-        _mintNft(name, owner, setup.expireTime);
-        _deployDomain(name, domainParams);
-    }
-
-    function _mintNft(string name, address owner, uint32 expireTime) private view {
-        ICollection(_collection).mint{
-            value: Gas.MINT_VALUE,
-            flag: MsgFlag.SENDER_PAYS_FEES,
+    function _register(string name, DomainSetup setup) private view {  // todo name or path
+        string path = _createPath(name);
+        ICodeStorage.registerDomain{
+            value: 0,  // todo
+            flag: 0,  //todo
             bounce: false
-        }(name, owner, expireTime, _config.expiringTimeRange);
+        }(path, setup);
     }
 
-    function _deployDomain(string name, TvmCell params) private view {
-        TvmCell stateInit = _buildDomainStateInit(name);
-        new Platform{
-            stateInit: stateInit,
-            value: Gas.DEPLOY_DOMAIN_VALUE,
-            flag: MsgFlag.SENDER_PAYS_FEES,
-            bounce: false
-        }(_domainCode, params, address(0));
+    function _createPath(string name) internal inline returns (string) {
+        return name + Constants.SEPARATOR + _tld;
     }
 
     function _execute(Action action) private pure {
@@ -303,26 +290,6 @@ contract Root is IRoot, IAcceptTokensTransferCallback, IUpgradable, Addressable,
         });
     }
 
-
-    function setDomainCode(TvmCell code) public override onlyDao cashBack {
-        _domainCode = code;
-        _domainVersion++;
-        emit DomainCodeUpgraded(_domainVersion);
-    }
-
-    function requestDomainUpgrade(string name, uint16 version) public override onlyDomain(name) {
-        if (version != _domainVersion) {
-            _upgradeDomain(msg.sender, 0, MsgFlag.REMAINING_GAS);
-        }
-    }
-
-    function _upgradeDomain(address domain, uint128 value, uint8 flag) private view {
-        IDomain(domain).upgrade{
-            value: value,
-            flag: flag,
-            bounce: false
-        }(_domainVersion, _domainCode, _config);
-    }
 
     function upgrade(TvmCell code) public internalMsg override onlyDao {
         emit CodeUpgraded();

@@ -7,21 +7,21 @@ pragma AbiHeader pubkey;
 import "../abstract/Addressable.sol";
 import "../interfaces/nft/ICollection.sol";
 import "../interfaces/nft/INFT.sol";
-import "../interfaces/outer/INFTCallback.sol";
-import "../interfaces/outer/IOwner.sol";
+import "../interfaces/outer/INFTOwner.sol";
 import "../utils/Gas.sol";
 
 import "tip4/contracts/implementation/4_2/JSONMetadataBase.sol";
 import "tip4/contracts/implementation/4_3/NFTBase4_3.sol";
 
 
-contract NFT is NFTBase4_3, JSONMetadataBase, INFT, Addressable {
+contract NFT is NFTBase4_3, JSONMetadataBase, INFT {
 
     uint256 public _id;
     address public _collection;
 
-    string public _name;
+    string public _path;
     address public _domain;
+
     uint32 public _expireTime;
     uint32 public _expiringTimeRange;
 
@@ -44,16 +44,14 @@ contract NFT is NFTBase4_3, JSONMetadataBase, INFT, Addressable {
 
     function onCodeUpgrade(TvmCell input) private {
         tvm.resetStorage();
-        TvmSlice slice = input.toSlice();
-        (_root, /*type*/, /*remainingGasTo*/) = slice.decode(address, uint8, address);
-        _platformCode = slice.loadRef();
+        TvmSlice /*slice*/ = input.toSlice();
 
         TvmCell initialData = slice.loadRef();
         (_id, _collection) = abi.decode(initialData, (uint256, address));
+
         TvmCell initialParams = slice.loadRef();
-        (_name, _owner, _manager, _expireTime, _expiringTimeRange, _indexCode) =
-            abi.decode(initialParams, (string, address, address, uint32, uint32, TvmCell));
-        _domain = _domainAddress(_name);
+        (_path, _domain, _owner, _manager, _expireTime, _expiringTimeRange, _indexCode) =
+            abi.decode(initialParams, (string, address, address, address, uint32, uint32, TvmCell));
 
         _onInit4_3(_owner, _manager, _indexCode);
         _onInit4_2("");  // todo generate JSON
@@ -68,6 +66,8 @@ contract NFT is NFTBase4_3, JSONMetadataBase, INFT, Addressable {
     // TIP 4.1
     function changeOwner(address newOwner, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager notExpiring {
         super.changeOwner(newOwner, sendGasTo, callbacks);
+        // todo notify certificate
+        // todo to != current owner
     }
 
     // TIP 4.1
@@ -80,6 +80,8 @@ contract NFT is NFTBase4_3, JSONMetadataBase, INFT, Addressable {
     function transfer(address to, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager notExpiring {
         super.transfer(to, sendGasTo, callbacks);
         // todo expiring
+        // todo notify certificate
+        // todo to != current owner
     }
 
     // TIP 6
@@ -98,7 +100,7 @@ contract NFT is NFTBase4_3, JSONMetadataBase, INFT, Addressable {
             value: 0,
             flag: MsgFlag.ALL_NOT_RESERVED,
             bounce: false
-        }(_name, expireTime);
+        }(_path, expireTime);
     }
 
     function unreserve(address owner, uint32 expireTime) public override onlyDomain {
@@ -109,7 +111,7 @@ contract NFT is NFTBase4_3, JSONMetadataBase, INFT, Addressable {
             value: 0,
             flag: MsgFlag.ALL_NOT_RESERVED,
             bounce: false
-        }(_name, expireTime);
+        }(_path, expireTime);
     }
 
     function burn() public override onlyDomain {

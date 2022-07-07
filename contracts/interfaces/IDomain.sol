@@ -1,8 +1,8 @@
 pragma ton-solidity >= 0.61.2;
 
-import "../structures/Config.sol";
+import "../structures/Configs.sol";
 import "../structures/InputRecord.sol";
-import "../utils/DomainStatus.sol";
+import "../utils/CertificateStatus.sol";
 
 
 interface IDomain {
@@ -15,7 +15,7 @@ interface IDomain {
     );
     function getConfigDetails() external responsible returns (uint16 version, Config config);
     function getAuctionDetails() external responsible returns (bool inZeroAuction, bool needZeroAuction);
-    function getStatus() external responsible returns (DomainStatus status);
+    function getStatus() external responsible returns (CertificateStatus status);
 
     function resolve() external responsible returns (address target);
     function resolveQuery(string group, string query) external responsible returns (optional(string[]) values);

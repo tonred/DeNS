@@ -13,4 +13,5 @@ library Converter {
     function toAmount(uint128 duration, uint128 price) public returns (uint128) {
         return math.muldiv(duration, price, Constants.DURATION_UNIT);
     }
+
 }

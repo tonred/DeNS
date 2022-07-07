@@ -7,6 +7,7 @@ import "../platform/PlatformType.sol";
 abstract contract Addressable {
 
     address public _root;
+    address public _storage;
     TvmCell public _platformCode;
 
 
@@ -20,8 +21,18 @@ abstract contract Addressable {
     }
 
 
-    function _nftAddressByName(address collection, string name) internal view returns (address) {
-        uint256 id = tvm.hash(name);
+    function _deployCertificate(string path, uint128 value, TvmCell code, TvmCell params) internal view {
+        TvmCell stateInit = buildCertificateStateInit(path);
+        new Platform{
+            stateInit: stateInit,
+            value: value,
+            flag: MsgFlag.SENDER_PAYS_FEES,
+            bounce: false
+        }(code, params, address(0));
+    }
+
+    function _nftAddressByPath(address collection, string path) internal view returns (address) {
+        uint256 id = tvm.hash(path);
         return _nftAddress(collection, id);
     }
 
@@ -30,8 +41,8 @@ abstract contract Addressable {
         return calcAddress(stateInit);
     }
 
-    function _domainAddress(string name) internal view returns (address) {
-        TvmCell stateInit = _buildDomainStateInit(name);
+    function _certificateAddress(string path) internal view returns (address) {
+        TvmCell stateInit = buildCertificateStateInit(path);
         return calcAddress(stateInit);
     }
 
@@ -40,16 +51,16 @@ abstract contract Addressable {
         return _buildPlatformStateInit(PlatformType.NFT, initialData);
     }
 
-    function _buildDomainStateInit(string name) internal view returns (TvmCell) {
-        TvmCell initialData = abi.encode(name);
-        return _buildPlatformStateInit(PlatformType.DOMAIN, initialData);
+    function buildCertificateStateInit(string path) internal view returns (TvmCell) {
+        TvmCell initialData = abi.encode(path);
+        return _buildPlatformStateInit(PlatformType.CERTIFICATE, initialData);
     }
 
     function _buildPlatformStateInit(PlatformType platformType, TvmCell initialData) private view returns (TvmCell) {
         return tvm.buildStateInit({
             contr: Platform,
             varInit: {
-                root: _root,
+                root: _storage,
                 platformType: uint8(platformType),
                 initialData: initialData,
                 platformCode: _platformCode

@@ -1,7 +1,7 @@
 pragma ton-solidity >= 0.61.2;
 
 
-enum DomainStatus {
+enum CertificateStatus {
     RESERVED,           // 0
     NEW,                // 1
     IN_ZERO_AUCTION,    // 2

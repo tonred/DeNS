@@ -3,11 +3,12 @@ pragma ton-solidity >= 0.61.2;
 import "../platform/Platform.sol";
 import "../platform/PlatformType.sol";
 
+import "@broxus/contracts/contracts/libraries/MsgFlag.sol";
+
 
 abstract contract Addressable {
 
     address public _root;
-    address public _storage;
     TvmCell public _platformCode;
 
 
@@ -21,49 +22,28 @@ abstract contract Addressable {
     }
 
 
-    function _deployCertificate(string path, uint128 value, TvmCell code, TvmCell params) internal view {
-        TvmCell stateInit = buildCertificateStateInit(path);
-        new Platform{
-            stateInit: stateInit,
-            value: value,
-            flag: MsgFlag.SENDER_PAYS_FEES,
-            bounce: false
-        }(code, params, address(0));
-    }
-
-    function _nftAddressByPath(address collection, string path) internal view returns (address) {
+    function _certificateAddressByPath(string path) internal view returns (address) {
         uint256 id = tvm.hash(path);
-        return _nftAddress(collection, id);
+        return _certificateAddress(id);
     }
 
-    function _nftAddress(address collection, uint256 id) internal view returns (address) {
-        TvmCell stateInit = _buildNftStateInit(collection, id);
+    function _certificateAddress(uint256 id) internal view returns (address) {
+        TvmCell stateInit = _buildCertificateStateInit(id);
         return calcAddress(stateInit);
     }
 
-    function _certificateAddress(string path) internal view returns (address) {
-        TvmCell stateInit = buildCertificateStateInit(path);
-        return calcAddress(stateInit);
-    }
-
-    function _buildNftStateInit(address collection, uint256 id) internal view returns (TvmCell) {
-        TvmCell initialData = abi.encode(collection, id);
+    function _buildCertificateStateInit(uint256 id) internal view returns (TvmCell) {
+        TvmCell initialData = abi.encode(id);
         return _buildPlatformStateInit(PlatformType.NFT, initialData);
-    }
-
-    function buildCertificateStateInit(string path) internal view returns (TvmCell) {
-        TvmCell initialData = abi.encode(path);
-        return _buildPlatformStateInit(PlatformType.CERTIFICATE, initialData);
     }
 
     function _buildPlatformStateInit(PlatformType platformType, TvmCell initialData) private view returns (TvmCell) {
         return tvm.buildStateInit({
             contr: Platform,
             varInit: {
-                root: _storage,
-                platformType: uint8(platformType),
-                initialData: initialData,
-                platformCode: _platformCode
+                _root: _root,
+                _platformType: uint8(platformType),
+                _initialData: initialData
             },
             code: _platformCode
         });

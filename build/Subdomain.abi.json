@@ -4,6 +4,38 @@
 	"header": ["pubkey", "time", "expire"],
 	"functions": [
 		{
+			"name": "requestProlong",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "prolong",
+			"inputs": [
+				{"name":"expireTime","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "requestUpgrade",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "acceptUpgrade",
+			"inputs": [
+				{"name":"version","type":"uint16"},
+				{"name":"code","type":"cell"},
+				{"components":[{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "changeOwner",
 			"inputs": [
 				{"name":"newOwner","type":"address"},
@@ -44,25 +76,116 @@
 			]
 		},
 		{
-			"name": "prolong",
+			"name": "expire",
 			"inputs": [
-				{"name":"expireTime","type":"uint32"}
 			],
 			"outputs": [
 			]
 		},
 		{
-			"name": "unreserve",
+			"name": "getPath",
 			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"path","type":"string"}
+			]
+		},
+		{
+			"name": "getDetails",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
 				{"name":"owner","type":"address"},
+				{"name":"version","type":"uint16"},
+				{"name":"initTime","type":"uint32"},
 				{"name":"expireTime","type":"uint32"}
+			]
+		},
+		{
+			"name": "getStatus",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"status","type":"uint8"}
+			]
+		},
+		{
+			"name": "resolve",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"target","type":"address"}
+			]
+		},
+		{
+			"name": "getRecords",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"records","type":"map(uint32,bytes)"}
+			]
+		},
+		{
+			"name": "getRecord",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"key","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value","type":"bytes"}
+			]
+		},
+		{
+			"name": "setTarget",
+			"inputs": [
+				{"name":"target","type":"address"}
 			],
 			"outputs": [
 			]
 		},
 		{
-			"name": "burn",
+			"name": "setRecords",
 			"inputs": [
+				{"name":"records","type":"map(uint32,bytes)"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setRecord",
+			"inputs": [
+				{"name":"key","type":"uint32"},
+				{"name":"value","type":"bytes"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "createSubdomain",
+			"inputs": [
+				{"name":"name","type":"string"},
+				{"name":"owner","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "prolongSubdomain",
+			"inputs": [
+				{"name":"subdomain","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "confiscate",
+			"inputs": [
+				{"name":"newOwner","type":"address"}
 			],
 			"outputs": [
 			]
@@ -199,27 +322,27 @@
 			]
 		},
 		{
-			"name": "_collection",
+			"name": "_path",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_collection","type":"address"}
+				{"name":"_path","type":"string"}
 			]
 		},
 		{
-			"name": "_name",
+			"name": "_version",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_name","type":"string"}
+				{"name":"_version","type":"uint16"}
 			]
 		},
 		{
-			"name": "_domain",
+			"name": "_initTime",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_domain","type":"address"}
+				{"name":"_initTime","type":"uint32"}
 			]
 		},
 		{
@@ -231,17 +354,86 @@
 			]
 		},
 		{
-			"name": "_expiringTimeRange",
+			"name": "_target",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_expiringTimeRange","type":"uint32"}
+				{"name":"_target","type":"address"}
+			]
+		},
+		{
+			"name": "_records",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_records","type":"map(uint32,bytes)"}
+			]
+		},
+		{
+			"name": "_domain",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_domain","type":"address"}
+			]
+		},
+		{
+			"name": "_config",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"_config","type":"tuple"}
 			]
 		}
 	],
 	"data": [
 	],
 	"events": [
+		{
+			"name": "Prolonged",
+			"inputs": [
+				{"name":"time","type":"uint32"},
+				{"name":"newExpireTime","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "ChangedTarget",
+			"inputs": [
+				{"name":"oldTarget","type":"address"},
+				{"name":"newTarget","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "ChangedOwner",
+			"inputs": [
+				{"name":"oldOwner","type":"address"},
+				{"name":"newOwner","type":"address"},
+				{"name":"confiscate","type":"bool"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "Destroyed",
+			"inputs": [
+				{"name":"time","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "CodeUpgraded",
+			"inputs": [
+				{"name":"oldVersion","type":"uint16"},
+				{"name":"newVersion","type":"uint16"}
+			],
+			"outputs": [
+			]
+		},
 		{
 			"name": "NftCreated",
 			"inputs": [
@@ -294,10 +486,14 @@
 		{"name":"_root","type":"address"},
 		{"name":"_platformCode","type":"cell"},
 		{"name":"_id","type":"uint256"},
-		{"name":"_collection","type":"address"},
-		{"name":"_name","type":"string"},
-		{"name":"_domain","type":"address"},
+		{"name":"_path","type":"string"},
+		{"name":"_owner","type":"address"},
+		{"name":"_version","type":"uint16"},
+		{"name":"_initTime","type":"uint32"},
 		{"name":"_expireTime","type":"uint32"},
-		{"name":"_expiringTimeRange","type":"uint32"}
+		{"name":"_target","type":"address"},
+		{"name":"_records","type":"map(uint32,bytes)"},
+		{"name":"_domain","type":"address"},
+		{"components":[{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"_config","type":"tuple"}
 	]
 }

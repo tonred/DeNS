@@ -3,9 +3,10 @@ pragma ton-solidity >= 0.61.2;
 
 library NameChecker {
 
-    function isCorrectName(string name, uint32 maxNameLength) public pure returns (bool) {
+    function isCorrectName(string name) public returns (bool) {
+        // todo max length check ?
         uint32 length = name.byteLength();
-        if (length == 0 || length > maxNameLength) {
+        if (length == 0) {
             return false;
         }
         for (byte char : bytes(name)) {

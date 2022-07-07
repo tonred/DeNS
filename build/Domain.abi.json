@@ -5,151 +5,42 @@
 	"functions": [
 		{
 			"name": "onDeployRetry",
-			"id": "0x3F61459C",
+			"id": "0x4A2E4FD6",
 			"inputs": [
 				{"name":"code","type":"cell"},
-				{"name":"params","type":"cell"},
-				{"name":"value2","type":"address"}
+				{"name":"params","type":"cell"}
 			],
 			"outputs": [
 			]
 		},
 		{
-			"name": "getName",
+			"name": "getConfig",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
-				{"name":"name","type":"string"}
+				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"}
 			]
 		},
 		{
-			"name": "getDetails",
+			"name": "getPrices",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
-				{"name":"nft","type":"address"},
-				{"name":"owner","type":"address"},
 				{"name":"defaultPrice","type":"uint128"},
-				{"name":"currentPrice","type":"uint128"},
-				{"name":"reserved","type":"bool"},
-				{"name":"initTime","type":"uint32"},
-				{"name":"expireTime","type":"uint32"}
+				{"name":"auctionPrice","type":"uint128"}
 			]
 		},
 		{
-			"name": "getConfigDetails",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"version","type":"uint16"},
-				{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"}
-			]
-		},
-		{
-			"name": "getAuctionDetails",
+			"name": "getFlags",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
 				{"name":"inZeroAuction","type":"bool"},
-				{"name":"needZeroAuction","type":"bool"}
-			]
-		},
-		{
-			"name": "getStatus",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"status","type":"uint8"}
-			]
-		},
-		{
-			"name": "resolve",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"target","type":"address"}
-			]
-		},
-		{
-			"name": "resolveQuery",
-			"inputs": [
-				{"name":"answerId","type":"uint32"},
-				{"name":"group","type":"string"},
-				{"name":"query","type":"string"}
-			],
-			"outputs": [
-				{"name":"values","type":"optional(string[])"}
-			]
-		},
-		{
-			"name": "getRecords",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"records","type":"map(uint256,map(uint256,string[]))"}
-			]
-		},
-		{
-			"name": "getRecordsCount",
-			"inputs": [
-				{"name":"answerId","type":"uint32"},
-				{"name":"group","type":"string"}
-			],
-			"outputs": [
-				{"name":"count","type":"uint256"}
-			]
-		},
-		{
-			"name": "checkRecords",
-			"inputs": [
-				{"name":"answerId","type":"uint32"},
-				{"name":"group","type":"string"},
-				{"components":[{"name":"template","type":"string"},{"name":"values","type":"string[]"}],"name":"records","type":"tuple[]"}
-			],
-			"outputs": [
-				{"name":"correct","type":"bool"}
-			]
-		},
-		{
-			"name": "setTarget",
-			"inputs": [
-				{"name":"target","type":"address"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "setRecords",
-			"inputs": [
-				{"name":"group","type":"string"},
-				{"components":[{"name":"template","type":"string"},{"name":"values","type":"string[]"}],"name":"records","type":"tuple[]"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "setRecord",
-			"inputs": [
-				{"name":"group","type":"string"},
-				{"components":[{"name":"template","type":"string"},{"name":"values","type":"string[]"}],"name":"record","type":"tuple"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "deleteRecords",
-			"inputs": [
-				{"name":"group","type":"string"},
-				{"name":"templates","type":"string[]"}
-			],
-			"outputs": [
+				{"name":"needZeroAuction","type":"bool"},
+				{"name":"reserved","type":"bool"}
 			]
 		},
 		{
@@ -186,35 +77,12 @@
 			]
 		},
 		{
-			"name": "nftOwnerChanged",
-			"inputs": [
-				{"name":"newOwner","type":"address"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "confiscate",
-			"inputs": [
-				{"name":"newOwner","type":"address"}
-			],
-			"outputs": [
-			]
-		},
-		{
 			"name": "unreserve",
 			"inputs": [
 				{"name":"owner","type":"address"},
 				{"name":"price","type":"uint128"},
 				{"name":"expireTime","type":"uint32"},
 				{"name":"needZeroAuction","type":"bool"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "expire",
-			"inputs": [
 			],
 			"outputs": [
 			]
@@ -227,11 +95,166 @@
 			]
 		},
 		{
-			"name": "upgrade",
+			"name": "acceptUpgrade",
 			"inputs": [
 				{"name":"version","type":"uint16"},
 				{"name":"code","type":"cell"},
-				{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"}
+				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "changeOwner",
+			"inputs": [
+				{"name":"newOwner","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"components":[{"name":"value","type":"uint128"},{"name":"payload","type":"cell"}],"name":"callbacks","type":"map(address,tuple)"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "changeManager",
+			"inputs": [
+				{"name":"newManager","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"components":[{"name":"value","type":"uint128"},{"name":"payload","type":"cell"}],"name":"callbacks","type":"map(address,tuple)"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "transfer",
+			"inputs": [
+				{"name":"to","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"components":[{"name":"value","type":"uint128"},{"name":"payload","type":"cell"}],"name":"callbacks","type":"map(address,tuple)"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "supportsInterface",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"interfaceID","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"support","type":"bool"}
+			]
+		},
+		{
+			"name": "expire",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getPath",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"path","type":"string"}
+			]
+		},
+		{
+			"name": "getDetails",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"owner","type":"address"},
+				{"name":"version","type":"uint16"},
+				{"name":"initTime","type":"uint32"},
+				{"name":"expireTime","type":"uint32"}
+			]
+		},
+		{
+			"name": "getStatus",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"status","type":"uint8"}
+			]
+		},
+		{
+			"name": "resolve",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"target","type":"address"}
+			]
+		},
+		{
+			"name": "getRecords",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"records","type":"map(uint32,bytes)"}
+			]
+		},
+		{
+			"name": "getRecord",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"key","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value","type":"bytes"}
+			]
+		},
+		{
+			"name": "setTarget",
+			"inputs": [
+				{"name":"target","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setRecords",
+			"inputs": [
+				{"name":"records","type":"map(uint32,bytes)"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setRecord",
+			"inputs": [
+				{"name":"key","type":"uint32"},
+				{"name":"value","type":"bytes"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "createSubdomain",
+			"inputs": [
+				{"name":"name","type":"string"},
+				{"name":"owner","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "prolongSubdomain",
+			"inputs": [
+				{"name":"subdomain","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "confiscate",
+			"inputs": [
+				{"name":"newOwner","type":"address"}
 			],
 			"outputs": [
 			]
@@ -255,10 +278,92 @@
 			]
 		},
 		{
+			"name": "getJson",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"json","type":"string"}
+			]
+		},
+		{
+			"name": "indexCode",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"code","type":"cell"}
+			]
+		},
+		{
+			"name": "indexCodeHash",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"hash","type":"uint256"}
+			]
+		},
+		{
+			"name": "resolveIndex",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"collection","type":"address"},
+				{"name":"owner","type":"address"}
+			],
+			"outputs": [
+				{"name":"index","type":"address"}
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"id","type":"uint256"},
+				{"name":"owner","type":"address"},
+				{"name":"manager","type":"address"},
+				{"name":"collection","type":"address"}
+			]
+		},
+		{
 			"name": "constructor",
 			"inputs": [
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "_owner",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_owner","type":"address"}
+			]
+		},
+		{
+			"name": "_manager",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_manager","type":"address"}
+			]
+		},
+		{
+			"name": "_indexCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_indexCode","type":"cell"}
+			]
+		},
+		{
+			"name": "_json",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_json","type":"string"}
 			]
 		},
 		{
@@ -278,27 +383,19 @@
 			]
 		},
 		{
-			"name": "_name",
+			"name": "_id",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_name","type":"string"}
+				{"name":"_id","type":"uint256"}
 			]
 		},
 		{
-			"name": "_nft",
+			"name": "_path",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_nft","type":"address"}
-			]
-		},
-		{
-			"name": "_owner",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_owner","type":"address"}
+				{"name":"_path","type":"string"}
 			]
 		},
 		{
@@ -307,54 +404,6 @@
 			],
 			"outputs": [
 				{"name":"_version","type":"uint16"}
-			]
-		},
-		{
-			"name": "_config",
-			"inputs": [
-			],
-			"outputs": [
-				{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"_config","type":"tuple"}
-			]
-		},
-		{
-			"name": "_defaultPrice",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_defaultPrice","type":"uint128"}
-			]
-		},
-		{
-			"name": "_currentPrice",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_currentPrice","type":"uint128"}
-			]
-		},
-		{
-			"name": "_inZeroAuction",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_inZeroAuction","type":"bool"}
-			]
-		},
-		{
-			"name": "_needZeroAuction",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_needZeroAuction","type":"bool"}
-			]
-		},
-		{
-			"name": "_reserved",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_reserved","type":"bool"}
 			]
 		},
 		{
@@ -386,7 +435,55 @@
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_records","type":"map(uint256,map(uint256,string[]))"}
+				{"name":"_records","type":"map(uint32,bytes)"}
+			]
+		},
+		{
+			"name": "_config",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"_config","type":"tuple"}
+			]
+		},
+		{
+			"name": "_defaultPrice",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_defaultPrice","type":"uint128"}
+			]
+		},
+		{
+			"name": "_auctionPrice",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_auctionPrice","type":"uint128"}
+			]
+		},
+		{
+			"name": "_inZeroAuction",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_inZeroAuction","type":"bool"}
+			]
+		},
+		{
+			"name": "_needZeroAuction",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_needZeroAuction","type":"bool"}
+			]
+		},
+		{
+			"name": "_reserved",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_reserved","type":"bool"}
 			]
 		}
 	],
@@ -418,6 +515,15 @@
 			]
 		},
 		{
+			"name": "ChangedTarget",
+			"inputs": [
+				{"name":"oldTarget","type":"address"},
+				{"name":"newTarget","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "ChangedOwner",
 			"inputs": [
 				{"name":"oldOwner","type":"address"},
@@ -443,27 +549,71 @@
 			],
 			"outputs": [
 			]
+		},
+		{
+			"name": "NftCreated",
+			"inputs": [
+				{"name":"id","type":"uint256"},
+				{"name":"owner","type":"address"},
+				{"name":"manager","type":"address"},
+				{"name":"collection","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "OwnerChanged",
+			"inputs": [
+				{"name":"oldOwner","type":"address"},
+				{"name":"newOwner","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "ManagerChanged",
+			"inputs": [
+				{"name":"oldManager","type":"address"},
+				{"name":"newManager","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "NftBurned",
+			"inputs": [
+				{"name":"id","type":"uint256"},
+				{"name":"owner","type":"address"},
+				{"name":"manager","type":"address"},
+				{"name":"collection","type":"address"}
+			],
+			"outputs": [
+			]
 		}
 	],
 	"fields": [
 		{"name":"_pubkey","type":"uint256"},
 		{"name":"_timestamp","type":"uint64"},
 		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_owner","type":"address"},
+		{"name":"_manager","type":"address"},
+		{"name":"_indexCode","type":"cell"},
+		{"name":"_json","type":"string"},
 		{"name":"_root","type":"address"},
 		{"name":"_platformCode","type":"cell"},
-		{"name":"_name","type":"string"},
-		{"name":"_nft","type":"address"},
+		{"name":"_id","type":"uint256"},
+		{"name":"_path","type":"string"},
 		{"name":"_owner","type":"address"},
 		{"name":"_version","type":"uint16"},
-		{"components":[{"name":"token","type":"address"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"_config","type":"tuple"},
-		{"name":"_defaultPrice","type":"uint128"},
-		{"name":"_currentPrice","type":"uint128"},
-		{"name":"_inZeroAuction","type":"bool"},
-		{"name":"_needZeroAuction","type":"bool"},
-		{"name":"_reserved","type":"bool"},
 		{"name":"_initTime","type":"uint32"},
 		{"name":"_expireTime","type":"uint32"},
 		{"name":"_target","type":"address"},
-		{"name":"_records","type":"map(uint256,map(uint256,string[]))"}
+		{"name":"_records","type":"map(uint32,bytes)"},
+		{"components":[{"name":"maxDuration","type":"uint32"},{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"_config","type":"tuple"},
+		{"name":"_defaultPrice","type":"uint128"},
+		{"name":"_auctionPrice","type":"uint128"},
+		{"name":"_inZeroAuction","type":"bool"},
+		{"name":"_needZeroAuction","type":"bool"},
+		{"name":"_reserved","type":"bool"}
 	]
 }

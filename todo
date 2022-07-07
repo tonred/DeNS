@@ -1,0 +1,16 @@
++Grandbazar workflow
++Current price VS default price
+?Expiring
++mapping todo check if value exists ?
++Target balance
++prolong if domain not exists
+staking
+
+
+*.b.c -> {
+    mx: [1, 2, 3],
+    cname: []
+}
+
+
+test emit + 128 before

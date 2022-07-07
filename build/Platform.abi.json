@@ -1,25 +1,23 @@
 {
 	"ABI version": 2,
 	"version": "2.2",
-	"header": ["pubkey", "time", "expire"],
+	"header": ["time"],
 	"functions": [
 		{
 			"name": "constructor",
-			"id": "0x3F61459C",
+			"id": "0x4A2E4FD6",
 			"inputs": [
 				{"name":"code","type":"cell"},
-				{"name":"params","type":"cell"},
-				{"name":"remainingGasTo","type":"address"}
+				{"name":"params","type":"cell"}
 			],
 			"outputs": [
 			]
 		}
 	],
 	"data": [
-		{"key":1,"name":"root","type":"address"},
-		{"key":2,"name":"platformType","type":"uint8"},
-		{"key":3,"name":"initialData","type":"cell"},
-		{"key":4,"name":"platformCode","type":"cell"}
+		{"key":1,"name":"_root","type":"address"},
+		{"key":2,"name":"_platformType","type":"uint8"},
+		{"key":3,"name":"_initialData","type":"cell"}
 	],
 	"events": [
 	],
@@ -27,9 +25,8 @@
 		{"name":"_pubkey","type":"uint256"},
 		{"name":"_timestamp","type":"uint64"},
 		{"name":"_constructorFlag","type":"bool"},
-		{"name":"root","type":"address"},
-		{"name":"platformType","type":"uint8"},
-		{"name":"initialData","type":"cell"},
-		{"name":"platformCode","type":"cell"}
+		{"name":"_root","type":"address"},
+		{"name":"_platformType","type":"uint8"},
+		{"name":"_initialData","type":"cell"}
 	]
 }

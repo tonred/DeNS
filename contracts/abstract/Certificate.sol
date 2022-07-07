@@ -1,18 +1,15 @@
 pragma ton-solidity >= 0.61.2;
 
-import "./abstract/Addressable.sol";
-import "./interfaces/nft/INFT.sol";
-import "./interfaces/IDomain.sol";
-import "./interfaces/IRoot.sol";
-import "./structures/DomainSetup.sol";
-import "./utils/Converter.sol";
-import "./utils/Gas.sol";
-import "./utils/TransferUtils.sol";
-
-import "@broxus/contracts/contracts/libraries/MsgFlag.sol";
+import "../interfaces/IRoot.sol";
+import "../interfaces/ISubdomain.sol";
+import "../utils/CertificateStatus.sol";
+import "../utils/Gas.sol";
+import "../utils/NameChecker.sol";
+import "../utils/TransferUtils.sol";
+import "./Addressable.sol";
 
 
-abstract contract Certificate is ICertificate, Addressable, TransferUtils {
+abstract contract Certificate is Addressable, TransferUtils {
 
     event ChangedTarget(address oldTarget, address newTarget);
     event ChangedOwner(address oldOwner, address newOwner, bool confiscate);
@@ -20,31 +17,21 @@ abstract contract Certificate is ICertificate, Addressable, TransferUtils {
     event CodeUpgraded(uint16 oldVersion, uint16 newVersion);
 
 
-    string public _path;
+    uint256 public _id;
 
-    address public _nft;
-    address public _owner;
+    string public _path;
+    address private _owner;  // private in order to use from nft
     uint16 public _version;
-    Config public _config;
 
     uint32 public _initTime;
     uint32 public _expireTime;
 
     address public _target;
-    mapping(string => string) public _records;
-
-    uint16 public _subdomainVersion;
-    SubdomainConfig public _subdomainConfig;
-    TvmCell public _subdomainCode;
+    mapping(uint32 => bytes) public _records;
 
 
     modifier onlyOwner() {
         require(msg.sender == _owner, 69);
-        _;
-    }
-
-    modifier onlyNFT() {
-        require(msg.sender == _nft, 69);
         _;
     }
 
@@ -60,51 +47,46 @@ abstract contract Certificate is ICertificate, Addressable, TransferUtils {
     }
 
 
-    function onCodeUpgrade(TvmCell input) private {
+    function onCodeUpgrade(TvmCell input) internal {
         tvm.resetStorage();
-        TvmSlice slice = input.toSlice();
-        _platformCode = slice.loadRef();
+        TvmCell initialData;
+        TvmCell initialParams;
+        (_root, _platformCode, initialData, initialParams) =
+            abi.decode(input, (address, TvmCell, TvmCell, TvmCell));
 
-        TvmCell initialData = slice.loadRef();
-        _path = abi.decode(initialData, string);
-
-        TvmCell initialParams = slice.loadRef();
+        _id = abi.decode(initialData, uint256);
         _init(initialParams);
     }
 
     function _init(TvmCell params) internal virtual;
 
 
-    function getPath() public responsible override returns (string path) {
+    function getPath() public responsible returns (string path) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _path;
     }
 
-    function getDetails() public responsible override returns (address nft, address owner, uint32 initTime, uint32 expireTime) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_nft, _owner, _initTime, _expireTime);
+    function getDetails() public responsible returns (address owner, uint16 version, uint32 initTime, uint32 expireTime) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_owner, _version, _initTime, _expireTime);
     }
 
-    function getConfigDetails() public responsible override returns (uint16 version, Config config) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_version, _config);
-    }
-
-    function getStatus() public responsible override returns (CertificateStatus status) {
+    function getStatus() public responsible returns (CertificateStatus status) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _status();
     }
 
-    function resolve() public responsible override onActive returns (address target) {
+    function resolve() public responsible onActive returns (address target) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _target;
     }
 
-    function getRecords() public responsible override onActive returns (mapping(string => string) records) {
+    function getRecords() public responsible onActive returns (mapping(uint32 => bytes) records) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records;
     }
 
-    function getRecord(string key) public responsible override onActive returns (string value) {
+    function getRecord(uint32 key) public responsible onActive returns (bytes value) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records[key];
     }
 
 
-    function setTarget(address target) public override onActive onlyOwner cashBack {
+    function setTarget(address target) public onActive onlyOwner cashBack {
         emit ChangedTarget(_target, target);
         _target = target;
         TvmCell salt = abi.encode(target);
@@ -112,22 +94,26 @@ abstract contract Certificate is ICertificate, Addressable, TransferUtils {
         tvm.setcode(code);
     }
 
-    function setRecords(mapping(string => string) records) public override onActive onlyOwner cashBack {
+    function setRecords(mapping(uint32 => bytes) records) public onActive onlyOwner cashBack {
         _records = records;
     }
 
-    function setRecord(string key, string value) public override onActive onlyOwner cashBack {
+    function setRecord(uint32 key, bytes value) public onActive onlyOwner cashBack {
         _records[key] = value;
     }
 
-    function createSubdomain(string name) public override onActive onlyOwner cashBack {
-        uint32 remainingLength = maxNameLength - _path.byteLength() - 1;
-        require(NameChecker.isCorrectName(name), 69);
-        _deploySubdomain(name);
+    function createSubdomain(string name, address owner) public onActive onlyOwner cashBack {
+//        uint32 remainingLength = _config.maxNameLength - _path.byteLength() - 1;  // todo config bounce
+        require(NameChecker.isCorrectName(name), 69);  // todo path + name lengths
+        IRoot(_root).deploySubdomain{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(_path, name, owner, _expireTime);
     }
 
     // can prolong only direct child, no sender check needed
-    function prolongSubdomain(address subdomain) public override minValue(Gas.PROLONG_SUBDOMAIN_VALUE) {
+    function prolongSubdomain(address subdomain) public minValue(Gas.PROLONG_SUBDOMAIN_VALUE) {
         ISubdomain(subdomain).prolong{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
@@ -135,79 +121,19 @@ abstract contract Certificate is ICertificate, Addressable, TransferUtils {
         }(_expireTime);
     }
 
-    function onNftChangeOwner(address newOwner) public override onlyNFT {
-        _reserve();
-        emit ChangedOwner(_owner, newOwner, false);
-        _owner = newOwner;
-        newOwner.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
-    }
-
     // todo join with previous method ?
-    function confiscate(address newOwner) public override onlyRoot {
-        _reserve();
-        emit ChangedOwner(_owner, newOwner, true);
-        _owner = newOwner;
-        newOwner.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
-    }
-
-    // todo ?
-    function expire() public override onStatus(CertificateStatus.EXPIRED) {
-        _destroy();
+    function confiscate(address newOwner) public onlyRoot {
+//        _reserve();
+        // todo nft change owner
+//        emit ChangedOwner(_owner, newOwner, true);
+//        _owner = newOwner;
+//        newOwner.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
     }
 
 
     function _status() internal view virtual returns (CertificateStatus);
 
-    function _deploySubdomain(string name) private view {
-        string path = name + Constants.SEPARATOR + _path;
-        TvmCell stateInit = buildCertificateStateInit(path);
-        TvmCell params = abi.encode(_subdomainVersion, _subdomainConfig, _subdomainCode, address(this));  // todo pack ?
-        _deployCertificate(path, Gas.DEPLOY_SUBDOMAIN_VALUE, _subdomainCode, params);
-    }
 
-    function _prolongNFT() internal {
-        INFT(_nft).prolong{
-            value: Gas.PROLONG_NFT_VALUE,
-            flag: MsgFlag.SENDER_PAYS_FEES,
-            bounce: false
-        }(_expireTime);
-    }
-
-    function _destroy() internal {
-        emit Destroyed(now);
-        INFT(_nft).burn{
-            value: 0,
-            flag: MsgFlag.ALL_NOT_RESERVED + MsgFlag.DESTROY_IF_ZERO,
-            bounce: false
-        }();
-    }
-
-
-    function requestUpgrade() public override minValue(Gas.REQUEST_UPGRADE_DOMAIN_VALUE) {
-        // todo virtual
-        IRoot(_root).requestDomainUpgrade{
-            value: 0,
-            flag: MsgFlag.REMAINING_GAS,
-            bounce: false
-        }(_path, _version, bool domainOrSubdomain);  // todo domainOrSubdomain
-    }
-
-    function upgrade(uint16 version, TvmCell code, Config config) public override onlyRoot {
-        if (version == _version) {
-            _owner.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
-            return;
-        }
-        _upgrade(version, code, config);
-    }
-
-    function _upgrade(uint16 version, TvmCell code, Config config) private {
-        emit CodeUpgraded(_version, version);
-        _version = version;
-        _config = config;
-        TvmCell data = abi.encode("xxx");  // todo values
-        tvm.setcode(code);
-        tvm.setCurrentCode(code);
-        onCodeUpgrade(data);
-    }
+    function requestUpgrade() public virtual;
 
 }

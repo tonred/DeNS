@@ -17,7 +17,7 @@ abstract contract TransferUtils {
         msg.sender.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
     }
 
-    function _reserve() internal pure {
+    function _reserve() internal view virtual {
         tvm.rawReserve(address(this).balance - msg.value, 2);
     }
 

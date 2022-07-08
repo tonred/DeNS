@@ -4,6 +4,16 @@
 	"header": ["pubkey", "time", "expire"],
 	"functions": [
 		{
+			"name": "onDeployRetry",
+			"id": "0x4A2E4FD6",
+			"inputs": [
+				{"name":"code","type":"cell"},
+				{"name":"params","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "getConfig",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}
@@ -13,14 +23,14 @@
 			]
 		},
 		{
-			"name": "requestProlong",
+			"name": "requestRenew",
 			"inputs": [
 			],
 			"outputs": [
 			]
 		},
 		{
-			"name": "prolong",
+			"name": "renew",
 			"inputs": [
 				{"name":"expireTime","type":"uint32"}
 			],
@@ -194,7 +204,7 @@
 			]
 		},
 		{
-			"name": "prolongSubdomain",
+			"name": "renewSubdomain",
 			"inputs": [
 				{"name":"subdomain","type":"address"}
 			],
@@ -383,7 +393,7 @@
 	],
 	"events": [
 		{
-			"name": "Prolonged",
+			"name": "Renewed",
 			"inputs": [
 				{"name":"time","type":"uint32"},
 				{"name":"newExpireTime","type":"uint32"}

@@ -20,7 +20,7 @@ abstract contract Certificate is TransferUtils {
     address public _root;
 
     string public _path;
-    address private _owner;  // private in order to use from nft
+    address private _owner;  // private in order to be compatible with nft  // todo test (in case of bug - use _getOwner() method)
     uint16 public _version;
 
     uint32 public _initTime;
@@ -30,7 +30,7 @@ abstract contract Certificate is TransferUtils {
     mapping(uint32 => bytes) public _records;
 
 
-    modifier onlyRoot() {  // todo move in inheritance up ?
+    modifier onlyRoot() {
         require(msg.sender == _root, 69);
         _;
     }
@@ -105,8 +105,17 @@ abstract contract Certificate is TransferUtils {
         _records[key] = value;
     }
 
-    function createSubdomain(string name, address owner, bool renewable, address callbackTo) public view onActive onlyOwner cashBack {
-        SubdomainSetup setup = SubdomainSetup(owner, _expireTime, address(this), renewable, callbackTo);
+    function createSubdomain(string name, address owner, bool renewable, address callbackTo) public view onlyOwner cashBack {
+        CertificateStatus status = _status();
+        require(status == CertificateStatus.COMMON || status == CertificateStatus.EXPIRING, 69);
+        SubdomainSetup setup = SubdomainSetup({
+            owner: owner,
+            creator: msg.sender,
+            expireTime: _expireTime,
+            parent: address(this),
+            renewable: renewable,
+            callbackTo: callbackTo
+        });
         IRoot(_root).deploySubdomain{
             value: Gas.DEPLOY_SUBDOMAIN_VALUE,
             flag: MsgFlag.ALL_NOT_RESERVED,
@@ -114,9 +123,9 @@ abstract contract Certificate is TransferUtils {
         }(_path, name, setup);
     }
 
-    // can prolong only direct child, no sender check needed
-    function prolongSubdomain(address subdomain) public view onActive minValue(Gas.PROLONG_SUBDOMAIN_VALUE) {
-        ISubdomain(subdomain).prolong{
+    // can renew only direct child, no sender check needed
+    function renewSubdomain(address subdomain) public view onActive minValue(Gas.RENEW_SUBDOMAIN_VALUE) {
+        ISubdomain(subdomain).renew{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
             bounce: true
@@ -130,7 +139,7 @@ abstract contract Certificate is TransferUtils {
 
     onBounce(TvmSlice body) external view {
         uint32 functionId = body.decode(uint32);
-        if (functionId == tvm.functionId(prolongSubdomain)) {
+        if (functionId == tvm.functionId(renewSubdomain)) {
             // subdomain is not exist
             _owner.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
         }

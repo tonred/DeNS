@@ -4,7 +4,6 @@ import "../utils/Constants.sol";
 
 
 library Converter {
-//    uint128 constant DURATION_UNIT = 1 years;
 
     function toDuration(uint128 amount, uint128 price) public returns (uint32) {
         return uint32(math.muldiv(Constants.DURATION_UNIT, amount, price));

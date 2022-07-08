@@ -7,9 +7,9 @@ pragma AbiHeader pubkey;
 import "./abstract/NFTCertificate.sol";
 
 
-contract Subdomain is NFTCertificate, ISubdomain {
+contract Subdomain is ISubdomain, NFTCertificate {
 
-    event Prolonged(uint32 time, uint32 newExpireTime);
+    event Renewed(uint32 time, uint32 newExpireTime);
 
     TimeRangeConfig public _config;
     address public _parent;
@@ -26,17 +26,44 @@ contract Subdomain is NFTCertificate, ISubdomain {
         _;
     }
 
-    // todo on deploy retry + callbackTo
+
+    function onDeployRetry(TvmCell code, TvmCell params) public functionID(0x4A2E4FD6) onlyRoot {
+        (/*path*/, uint16 version, TimeRangeConfig config, SubdomainSetup setup, /*indexCode*/)
+            = abi.decode(params, (string, uint16, TimeRangeConfig, SubdomainSetup, TvmCell));
+        if (_status() == CertificateStatus.EXPIRED) {
+            // init as new creation
+            if (version != _version) {
+                _upgrade(version, config, code);
+            }
+            _init(params);  // todo called after `tvm.setCurrentCode`, check
+        } else {
+            _notify(setup.callbackTo, true);
+        }
+    }
 
     function _init(TvmCell params) internal override {
         SubdomainSetup setup;
+        address creator;
         address callbackTo;
         (_path, _version, _config, setup, _indexCode) =
             abi.decode(params, (string, uint16, TimeRangeConfig, SubdomainSetup, TvmCell));
-        (_owner, _expireTime, _parent, _renewable, callbackTo) = setup.unpack();
+        (_owner, creator, _expireTime, _parent, _renewable, callbackTo) = setup.unpack();
         _initTime = now;
-        _initNFT(_owner, _owner, _indexCode);
-        // todo callbackTo
+        _initNFT(_owner, _owner, _indexCode, creator);
+        _notify(setup.callbackTo, false);
+    }
+
+    function _notify(address callbackTo, bool deployRetry) private view {
+        _reserve();
+        optional(TransferCanselReason) reason;  // todo construct in one line
+        if (deployRetry) {
+            reason.set(TransferCanselReason.ALREADY_EXIST);
+        }
+        IOwner(callbackTo).onSubdomainCreated{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(_path, !deployRetry, reason);
     }
 
     function getConfig() public view responsible returns (TimeRangeConfig config) {
@@ -44,18 +71,18 @@ contract Subdomain is NFTCertificate, ISubdomain {
     }
 
 
-    function requestProlong() public view onlyRenewable cashBack {
-        Certificate(_parent).prolongSubdomain{
-            value: Gas.PROLONG_SUBDOMAIN_VALUE,
+    function requestRenew() public view onlyRenewable cashBack {
+        Certificate(_parent).renewSubdomain{
+            value: Gas.RENEW_SUBDOMAIN_VALUE,
             flag: MsgFlag.SENDER_PAYS_FEES,
             bounce: false
         }(address(this));
     }
 
-    function prolong(uint32 expireTime) public override onlyParent onlyRenewable {
+    function renew(uint32 expireTime) public override onlyParent onlyRenewable {
         _reserve();
         _expireTime = expireTime;
-        emit Prolonged(now, _expireTime);
+        emit Renewed(now, _expireTime);
         _owner.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
     }
 
@@ -91,7 +118,11 @@ contract Subdomain is NFTCertificate, ISubdomain {
             _owner.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
             return;
         }
-//        emit CodeUpgraded(_version, version);
+        _upgrade(version, config, code);
+    }
+
+    function _upgrade(uint16 version, TimeRangeConfig config, TvmCell code) private {
+        emit CodeUpgraded(_version, version);
         _version = version;
         _config = config;
         TvmCell data = abi.encode("xxx");  // todo values

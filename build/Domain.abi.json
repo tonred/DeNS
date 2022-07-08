@@ -58,7 +58,7 @@
 			]
 		},
 		{
-			"name": "expectedProlongAmount",
+			"name": "expectedRenewAmount",
 			"inputs": [
 				{"name":"answerId","type":"uint32"},
 				{"name":"newExpireTime","type":"uint32"}
@@ -68,7 +68,7 @@
 			]
 		},
 		{
-			"name": "prolong",
+			"name": "renew",
 			"inputs": [
 				{"name":"amount","type":"uint128"},
 				{"name":"sender","type":"address"}
@@ -77,7 +77,7 @@
 			]
 		},
 		{
-			"name": "unreserve",
+			"name": "unreserved",
 			"inputs": [
 				{"name":"owner","type":"address"},
 				{"name":"price","type":"uint128"},
@@ -254,7 +254,7 @@
 			]
 		},
 		{
-			"name": "prolongSubdomain",
+			"name": "renewSubdomain",
 			"inputs": [
 				{"name":"subdomain","type":"address"}
 			],
@@ -473,7 +473,7 @@
 			]
 		},
 		{
-			"name": "Prolonged",
+			"name": "Renewed",
 			"inputs": [
 				{"name":"time","type":"uint32"},
 				{"name":"duration","type":"uint32"},

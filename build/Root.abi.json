@@ -11,11 +11,35 @@
 				{"name":"indexCode","type":"cell"},
 				{"name":"json","type":"string"},
 				{"name":"platformCode","type":"cell"},
-				{"name":"dao","type":"address"},
 				{"name":"token","type":"address"},
-				{"components":[{"name":"maxPathLength","type":"uint32"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"components":[{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"}],"name":"prices","type":"tuple"}],"name":"config","type":"tuple"}
+				{"name":"dao","type":"address"},
+				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"}],"name":"config","type":"tuple"},
+				{"components":[{"name":"version","type":"uint16"},{"components":[{"name":"maxDuration","type":"uint32"},{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"times","type":"tuple"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"},{"name":"code","type":"cell"}],"name":"domainDeployConfig","type":"tuple"},
+				{"components":[{"name":"version","type":"uint16"},{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"},{"name":"code","type":"cell"}],"name":"subdomainDeployConfig","type":"tuple"}
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "getDetails",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"tld","type":"string"},
+				{"name":"dao","type":"address"},
+				{"name":"active","type":"bool"}
+			]
+		},
+		{
+			"name": "getConfigs",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"}],"name":"config","type":"tuple"},
+				{"components":[{"name":"version","type":"uint16"},{"components":[{"name":"maxDuration","type":"uint32"},{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"times","type":"tuple"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"},{"name":"code","type":"cell"}],"name":"domainDeployConfig","type":"tuple"},
+				{"components":[{"name":"version","type":"uint16"},{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"},{"name":"code","type":"cell"}],"name":"subdomainDeployConfig","type":"tuple"}
 			]
 		},
 		{
@@ -62,7 +86,7 @@
 			]
 		},
 		{
-			"name": "onProlongReturn",
+			"name": "onRenewReturn",
 			"inputs": [
 				{"name":"path","type":"string"},
 				{"name":"returnAmount","type":"uint128"},
@@ -86,7 +110,7 @@
 			"inputs": [
 				{"name":"path","type":"string"},
 				{"name":"name","type":"string"},
-				{"components":[{"name":"owner","type":"address"},{"name":"expireTime","type":"uint32"},{"name":"parent","type":"address"},{"name":"renewable","type":"bool"},{"name":"callbackTo","type":"address"}],"name":"setup","type":"tuple"}
+				{"components":[{"name":"owner","type":"address"},{"name":"creator","type":"address"},{"name":"expireTime","type":"uint32"},{"name":"parent","type":"address"},{"name":"renewable","type":"bool"},{"name":"callbackTo","type":"address"}],"name":"setup","type":"tuple"}
 			],
 			"outputs": [
 			]
@@ -104,8 +128,7 @@
 		{
 			"name": "reserve",
 			"inputs": [
-				{"name":"names","type":"string[]"},
-				{"name":"ignoreNameCheck","type":"bool"},
+				{"name":"paths","type":"string[]"},
 				{"name":"reason","type":"string"}
 			],
 			"outputs": [
@@ -131,25 +154,6 @@
 			"inputs": [
 			],
 			"outputs": [
-			]
-		},
-		{
-			"name": "_isCorrectName",
-			"inputs": [
-				{"name":"name","type":"string"}
-			],
-			"outputs": [
-				{"name":"value0","type":"bool"}
-			]
-		},
-		{
-			"name": "_calcPrice",
-			"inputs": [
-				{"name":"name","type":"string"}
-			],
-			"outputs": [
-				{"name":"value0","type":"uint128"},
-				{"name":"value1","type":"bool"}
 			]
 		},
 		{
@@ -182,6 +186,33 @@
 				{"name":"wallet","type":"address"}
 			],
 			"outputs": [
+			]
+		},
+		{
+			"name": "getToken",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"token","type":"address"}
+			]
+		},
+		{
+			"name": "getWallet",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"wallet","type":"address"}
+			]
+		},
+		{
+			"name": "getBalance",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"balance","type":"uint128"}
 			]
 		},
 		{
@@ -219,7 +250,8 @@
 			"inputs": [
 				{"name":"id","type":"uint256"},
 				{"name":"owner","type":"address"},
-				{"name":"manager","type":"address"}
+				{"name":"manager","type":"address"},
+				{"name":"creator","type":"address"}
 			],
 			"outputs": [
 			]
@@ -232,15 +264,6 @@
 				{"name":"manager","type":"address"}
 			],
 			"outputs": [
-			]
-		},
-		{
-			"name": "getRoot",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"name":"root","type":"address"}
 			]
 		},
 		{
@@ -374,14 +397,6 @@
 			]
 		},
 		{
-			"name": "_root",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_root","type":"address"}
-			]
-		},
-		{
 			"name": "_platformCode",
 			"inputs": [
 			],
@@ -436,6 +451,14 @@
 			"outputs": [
 				{"name":"_active","type":"bool"}
 			]
+		},
+		{
+			"name": "_config",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"}],"name":"_config","type":"tuple"}
+			]
 		}
 	],
 	"data": [
@@ -465,6 +488,13 @@
 			"name": "DomainCodeUpgraded",
 			"inputs": [
 				{"name":"newVersion","type":"uint16"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "CodeUpgraded",
+			"inputs": [
 			],
 			"outputs": [
 			]
@@ -502,7 +532,6 @@
 		{"name":"_indexBasisCode","type":"cell"},
 		{"name":"_indexCode","type":"cell"},
 		{"name":"_json","type":"string"},
-		{"name":"_root","type":"address"},
 		{"name":"_platformCode","type":"cell"},
 		{"name":"_token","type":"address"},
 		{"name":"_wallet","type":"address"},
@@ -510,7 +539,7 @@
 		{"name":"_tld","type":"string"},
 		{"name":"_dao","type":"address"},
 		{"name":"_active","type":"bool"},
-		{"components":[{"name":"maxPathLength","type":"uint32"},{"name":"maxNameLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"components":[{"name":"price3","type":"uint128"},{"name":"price4","type":"uint128"},{"name":"price5","type":"uint128"},{"name":"priceN","type":"uint128"}],"name":"prices","type":"tuple"}],"name":"_config","type":"tuple"},
+		{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"}],"name":"_config","type":"tuple"},
 		{"components":[{"name":"version","type":"uint16"},{"components":[{"name":"maxDuration","type":"uint32"},{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"times","type":"tuple"},{"name":"graceFinePercent","type":"uint128"},{"name":"expiredFinePercent","type":"uint128"}],"name":"config","type":"tuple"},{"name":"code","type":"cell"}],"name":"_domainDeployConfig","type":"tuple"},
 		{"components":[{"name":"version","type":"uint16"},{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"},{"name":"code","type":"cell"}],"name":"_subdomainDeployConfig","type":"tuple"}
 	]

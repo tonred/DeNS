@@ -2,11 +2,10 @@ pragma ton-solidity >= 0.61.2;
 
 
 struct RootConfig {
-    uint32 maxPathLength;
     uint32 maxNameLength;
+    uint32 maxPathLength;
     uint32 minDuration;
     uint32 maxDuration;
-    PriceConfig prices;
 }
 
 struct PriceConfig {

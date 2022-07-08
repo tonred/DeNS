@@ -9,18 +9,18 @@ import "./abstract/Vault.sol";
 import "./interfaces/IDomain.sol";
 import "./interfaces/IRoot.sol";
 import "./interfaces/ISubdomain.sol";
+import "./interfaces/IUpgradable.sol";
 import "./structures/Action.sol";
-import "./structures/Configs.sol";
 import "./structures/DeployConfigs.sol";
-import "./structures/DomainSetup.sol";
 import "./utils/Constants.sol";
 import "./utils/Converter.sol";
 import "./utils/NameChecker.sol";
-import "./utils/TransferCanselReason.sol";
 import "./utils/TransferKind.sol";
 
+import "@broxus/contracts/contracts/utils/CheckPubKey.sol";
 
-contract Root is Collection, Vault, IRoot {
+
+contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
 
     event Confiscated(string path, address owner, string reason);
     event Reserved(string path, string reason);
@@ -32,9 +32,9 @@ contract Root is Collection, Vault, IRoot {
     address public _dao;
     bool public _active;
 
-    RootConfig _config;  // todo try make public
-    DomainDeployConfig _domainDeployConfig;  // todo install + change
-    SubdomainDeployConfig _subdomainDeployConfig;  // todo install + change
+    RootConfig public _config;
+    DomainDeployConfig _domainDeployConfig;
+    SubdomainDeployConfig _subdomainDeployConfig;
 
 
     modifier onlyDao() {
@@ -56,6 +56,7 @@ contract Root is Collection, Vault, IRoot {
     modifier onlyDomain(string path) {
         address certificate = _certificateAddress(path);
         require(msg.sender == certificate, 69);
+        // todo
         // check if Certificate is Domain (not Subdomain)
 //        require(path.find(Constants.SEPARATOR).get() == path.findLast(Constants.SEPARATOR).get(), 69);
         _;
@@ -68,20 +69,33 @@ contract Root is Collection, Vault, IRoot {
         TvmCell indexCode,
         string json,
         TvmCell platformCode,
-
-        address dao,
         address token,
-        RootConfig config
-//        TvmCell platformCode
-    ) public Collection(nftCode, indexBasisCode, indexCode, json, platformCode) Vault(token) {  // todo checkPubKey
+        address dao,
+        RootConfig config,
+        DomainDeployConfig domainDeployConfig,
+        SubdomainDeployConfig subdomainDeployConfig
+    ) public Collection(nftCode, indexBasisCode, indexCode, json, platformCode) Vault(token) checkPubKey {
         tvm.accept();
         _dao = dao;
         _config = config;
-
-        _root = address(this);
-        _platformCode = platformCode;
+        _domainDeployConfig = domainDeployConfig;
+        _subdomainDeployConfig = subdomainDeployConfig;
     }
 
+
+    function getDetails() public view responsible returns (string tld, address dao, bool active) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_tld, _dao, _active);
+    }
+
+    function getConfigs() public view responsible returns (
+        RootConfig config,
+        DomainDeployConfig domainDeployConfig,
+        SubdomainDeployConfig subdomainDeployConfig
+    ) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (
+            _config, _domainDeployConfig, _subdomainDeployConfig
+        );
+    }
 
     function checkName(string name) public view responsible returns (bool correct) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _isCorrectName(name);
@@ -100,8 +114,7 @@ contract Root is Collection, Vault, IRoot {
         address /*senderWallet*/,
         address /*remainingGasTo*/,
         TvmCell payload
-    ) public override {
-        require(msg.sender == _wallet, 69);
+    ) public override onlyWallet {
         _reserve();
         _balance += amount;
         if (!_active) {
@@ -116,19 +129,18 @@ contract Root is Collection, Vault, IRoot {
                 return;
             }
             string name = abi.decode(data, string);
-            (DomainSetup setup, optional(TransferCanselReason) error) = _buildDomainSetup(name, amount, sender);
+            (string path, DomainSetup setup, optional(TransferCanselReason) error) = _buildDomainParams(name, amount, sender);
             if (error.hasValue()) {
                 _returnToken(amount, sender, error.get());
                 return;
             }
-            _deployDomain(name, setup);
+            _deployDomain(path, setup);
             sender.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
-        } else if (kind == TransferKind.PROLONG) {
-            if (msg.value < Gas.PROLONG_VALUE) {
+        } else if (kind == TransferKind.RENEW) {
+            if (msg.value < Gas.RENEW_VALUE) {
                 _returnToken(amount, sender, TransferCanselReason.LOW_MSG_VALUE);
                 return;
             }
-            // todo is domain (+ for modifier)
             string name = abi.decode(data, string);
             if (!_isCorrectName(name)) {
                 _returnToken(amount, sender, TransferCanselReason.INVALID_NAME);
@@ -137,13 +149,13 @@ contract Root is Collection, Vault, IRoot {
             string path = _createPath(name);
             address domain = _certificateAddress(path);
             _upgradeDomain(domain, Gas.UPGRADE_DOMAIN_VALUE, 0);
-            IDomain(domain).prolong{
+            IDomain(domain).renew{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
                 bounce: false  // todo if domain not exists
             }(amount, sender);
         } else {
-            _returnToken(amount, sender, TransferCanselReason.UNKNOWN_TYPE);
+            _returnToken(amount, sender, TransferCanselReason.UNKNOWN_TRANSFER);
         }
     }
 
@@ -152,7 +164,7 @@ contract Root is Collection, Vault, IRoot {
         _returnToken(amount, sender, TransferCanselReason.ALREADY_EXIST);
     }
 
-    function onProlongReturn(string path, uint128 returnAmount, address sender) public override onlyDomain(path) {
+    function onRenewReturn(string path, uint128 returnAmount, address sender) public override onlyDomain(path) {
         _reserve();
         _returnToken(returnAmount, sender, TransferCanselReason.DURATION_OVERFLOW);
     }
@@ -162,26 +174,19 @@ contract Root is Collection, Vault, IRoot {
     }
 
     function deploySubdomain(string path, string name, SubdomainSetup setup) public view override onlyCertificate(path) {
-        // todo check if active else return tokens
         path = path + "." + name;  // todo Constants.SEPARATOR
-
-//        // todo name and path length
-//        if (!_active || !_isCorrectName(name) || ) {
-//            IOwner(callbackTo).onCreateSubdomain{
-//                value: 0,
-//                flag: MsgFlag.REMAINING_GAS,
-//                bounce: false
-//            });
-//            return;
-//        }
-//        if (path.byteLength() > _config.maxPathLength) {
-//            sender.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
-//            IDomain(msg.sender).onError{
-//                value: 0,
-//                flag: MsgFlag.REMAINING_GAS,
-//                bounce: false
-//            }(Reason.TOO_LONG_PATH);
-//        }
+        optional(TransferCanselReason) error;
+        if (!_active) error.set(TransferCanselReason.IS_NOT_ACTIVE);
+        if (!_isCorrectName(name)) error.set(TransferCanselReason.INVALID_NAME);
+        if (!_isCorrectPathLength(path)) error.set(TransferCanselReason.TOO_LONG_PATH);
+        if (error.hasValue()) {
+            IOwner(setup.callbackTo).onSubdomainCreated{
+                value: 0,
+                flag: MsgFlag.REMAINING_GAS,
+                bounce: false
+            }(path, false, error);
+            return;
+        }
         _deploySubdomain(path, setup);
     }
 
@@ -196,10 +201,9 @@ contract Root is Collection, Vault, IRoot {
         }(owner);
     }
 
-    function reserve(string[] names, bool ignoreNameCheck, string reason) public view onlyDao cashBack {  // todo path
-        for (string name : names) {
-            require(_isCorrectName(name) || ignoreNameCheck, 69);
-            emit Reserved(name, reason);
+    function reserve(string[] paths, string reason) public view onlyDao cashBack {
+        for (string path : paths) {
+            emit Reserved(path, reason);
             DomainSetup setup = DomainSetup({
                 owner: _dao,
                 price: 0,
@@ -208,19 +212,20 @@ contract Root is Collection, Vault, IRoot {
                 expireTime: 0,
                 amount: 0
             });
-            _deployDomain(name, setup);
+            _deployDomain(path, setup);
         }
     }
 
 //    function collect(uint128 amount, address staking) public view onlyDao {
-//        // todo collect while exception in prolong (we must return some tokens):
-//        // 1) use onProlong + dont call "collect" (auto send to dao)
+//        // todo collect while exception in renew (we must return some tokens):
+//        // 1) use onRenew + dont call "collect" (auto send to dao)
 //        // 2) leave as is (maybe return to dao instead of staking)
 //        require(amount <= _balance, 69);
 //        TvmCell payload = abi.encode(reason);
 //        _transferTokens(amount, staking, payload);
 //    }
 
+    // no cash back to have ability to withdraw native EVERs
     function execute(Action[] actions) public pure onlyDao {
         for (Action action : actions) {
             _execute(action);
@@ -236,18 +241,22 @@ contract Root is Collection, Vault, IRoot {
     }
 
 
-    function _buildDomainSetup(string name, uint128 amount, address owner) private view returns (DomainSetup, optional(TransferCanselReason)) {
+    function _buildDomainParams(string name, uint128 amount, address owner) private view returns (string, DomainSetup, optional(TransferCanselReason)) {
         DomainSetup empty;
         if (!_isCorrectName(name)) {
-            return (empty, TransferCanselReason.INVALID_NAME);
+            return ("", empty, TransferCanselReason.INVALID_NAME);
+        }
+        string path = _createPath(name);
+        if (!_isCorrectPathLength(path)) {
+            return ("", empty, TransferCanselReason.TOO_LONG_PATH);
         }
         (uint128 price, bool needZeroAuction) = _calcPrice(name);
         if (price == 0) {
-            return (empty, TransferCanselReason.NOT_FOR_SALE);
+            return ("", empty, TransferCanselReason.NOT_FOR_SALE);
         }
         uint32 duration = Converter.toDuration(amount, price);
         if (duration < _config.minDuration || duration > _config.maxDuration) {
-            return (empty, TransferCanselReason.INVALID_DURATION);
+            return ("", empty, TransferCanselReason.INVALID_DURATION);
         }
         DomainSetup setup = DomainSetup({
             owner: owner,
@@ -257,21 +266,24 @@ contract Root is Collection, Vault, IRoot {
             expireTime: now + duration,
             amount: amount
         });
-        return (setup, null);
+        return (path, setup, null);
     }
 
-    function _isCorrectName(string name) public view returns (bool) {
+    function _isCorrectName(string name) private view inline returns (bool) {
         return NameChecker.isCorrectName(name, _config.maxNameLength);
     }
 
-    function _calcPrice(string name) public view returns (uint128, bool) {
-        name;
-        _config;
-        return (0, true);  // todo
+    function _isCorrectPathLength(string path) private view inline returns (bool) {
+        return path.byteLength() <= _config.maxPathLength;
     }
 
-    function _deployDomain(string name, DomainSetup setup) private view {
-        string path = _createPath(name);
+    function _calcPrice(string name) private view returns (uint128, bool) {
+        name;
+        _config;
+        return (0, true);  // todo price calculation
+    }
+
+    function _deployDomain(string path, DomainSetup setup) private view {
         (uint16 version, DomainConfig config, TvmCell code) = _domainDeployConfig.unpack();
         TvmCell params = abi.encode(path, version, config, setup);
         _deployCertificate(path, Gas.DEPLOY_DOMAIN_VALUE, MsgFlag.SENDER_PAYS_FEES, code, params);
@@ -294,7 +306,7 @@ contract Root is Collection, Vault, IRoot {
         }(code, params);
     }
 
-    function _createPath(string name) internal view returns (string) {
+    function _createPath(string name) internal view inline returns (string) {
         return name + "." + _tld;  // todo Constants.SEPARATOR
     }
 
@@ -339,8 +351,8 @@ contract Root is Collection, Vault, IRoot {
         }(version, config, code);
     }
 
-    function upgrade(TvmCell code) public internalMsg onlyDao {
-//        emit CodeUpgraded();  // todo
+    function upgrade(TvmCell code) public internalMsg override onlyDao {
+        emit CodeUpgraded();
         TvmCell data = abi.encode("values");  // todo values
         tvm.setcode(code);
         tvm.setCurrentCode(code);
@@ -348,7 +360,7 @@ contract Root is Collection, Vault, IRoot {
     }
 
     function onCodeUpgrade(TvmCell input) private {
-        // todo
+        // todo onCodeUpgrade
     }
 
 }

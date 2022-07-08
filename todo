@@ -3,7 +3,7 @@
 ?Expiring
 +mapping todo check if value exists ?
 +Target balance
-+prolong if domain not exists
++renew if domain not exists
 staking
 
 

@@ -7,16 +7,15 @@ pragma AbiHeader pubkey;
 import "./interfaces/IDomain.sol";
 import "./interfaces/outer/IOwner.sol";
 import "./abstract/NFTCertificate.sol";
-import "./structures/DomainSetup.sol";
 import "./utils/Constants.sol";
 import "./utils/Converter.sol";
 
 
-contract Domain is NFTCertificate, IDomain {
+contract Domain is IDomain, NFTCertificate {
 
     event ZeroAuctionStarted();
     event ZeroAuctionFinished();
-    event Prolonged(uint32 time, uint32 duration, uint32 newExpireTime);
+    event Renewed(uint32 time, uint32 duration, uint32 newExpireTime);
 
 
     DomainConfig _config;
@@ -35,9 +34,9 @@ contract Domain is NFTCertificate, IDomain {
         if (_status() == CertificateStatus.EXPIRED) {
             // init as new registration
             if (version != _version) {
-                _upgrade(version, code, config);
+                _upgrade(version, config, code);
             }
-            _init(params);
+            _init(params);  // todo called after `tvm.setCurrentCode`, check
         } else {
             if (setup.reserved) {
                 _root.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
@@ -52,13 +51,19 @@ contract Domain is NFTCertificate, IDomain {
     }
 
     function _init(TvmCell params) internal override {
+        _reserve();
         DomainSetup setup;
         (_path, _version, _config, setup, _indexCode) =
             abi.decode(params, (string, uint16, DomainConfig, DomainSetup, TvmCell));
         (_owner, _defaultPrice, _needZeroAuction, _reserved, _expireTime, /*amount*/) = setup.unpack();
         _auctionPrice = _defaultPrice;
         _initTime = now;
-        _initNFT(_owner, _owner, _indexCode);
+        _initNFT(_owner, _owner, _indexCode, _owner);
+        IOwner(msg.sender).onDomainRegistered{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(_path, setup);
     }
 
 
@@ -93,30 +98,30 @@ contract Domain is NFTCertificate, IDomain {
 //        _auctionPrice = auctionPrice;
     }
 
-    function expectedProlongAmount(uint32 newExpireTime) public view responsible returns (uint128 amount) {
+    function expectedRenewAmount(uint32 newExpireTime) public view responsible returns (uint128 amount) {
         CertificateStatus status = _status();
         if (newExpireTime <= _expireTime || newExpireTime > now + _config.maxDuration || status == CertificateStatus.RESERVED) {
             return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} 0;
         }
         uint32 increase = newExpireTime - _expireTime;
-        uint128 price = _calcProlongPrice(status);
+        uint128 price = _calcRenewPrice(status);
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} Converter.toAmount(increase, price);
     }
 
-    function prolong(uint128 amount, address sender) public override onlyRoot {
+    function renew(uint128 amount, address sender) public override onlyRoot {
+        _reserve();
         CertificateStatus status = _status();
         if (sender != _owner || now + _config.maxDuration <= _expireTime || status == CertificateStatus.RESERVED) {
-            // wrong sender OR already prolonged for max period OR reserved
-            IRoot(_root).onProlongReturn{
+            // wrong sender OR already renewed for max period OR reserved
+            IRoot(_root).onRenewReturn{
                 value: 0,
-                flag: MsgFlag.REMAINING_GAS,
+                flag: MsgFlag.ALL_NOT_RESERVED,
                 bounce: false
             }(_path, amount, sender);
             return;
         }
 
-        _reserve();  // todo move up in case of using target balance
-        uint128 price = _calcProlongPrice(status);
+        uint128 price = _calcRenewPrice(status);
         uint32 maxIncrease = now + _config.maxDuration - _expireTime;
         uint128 maxAmount = Converter.toAmount(maxIncrease, price);
         uint128 returnAmount = (maxAmount < amount) ? (amount - maxAmount) : 0;
@@ -124,10 +129,10 @@ contract Domain is NFTCertificate, IDomain {
 
         uint32 duration = Converter.toDuration(amount, price);
         _expireTime += duration;
-        emit Prolonged(now, duration, _expireTime);
+        emit Renewed(now, duration, _expireTime);
 
         if (returnAmount > 0) {
-            IRoot(_root).onProlongReturn{
+            IRoot(_root).onRenewReturn{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
                 bounce: false
@@ -137,7 +142,7 @@ contract Domain is NFTCertificate, IDomain {
         }
     }
 
-    function unreserve(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) public onlyRoot {
+    function unreserved(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) public onlyRoot {
         _updateIndexes(_owner, owner, _owner);
         _owner = owner;
         _defaultPrice = _auctionPrice = price;
@@ -145,7 +150,7 @@ contract Domain is NFTCertificate, IDomain {
         _reserved = false;
         _initTime = now;
         _expireTime = expireTime;
-        IOwner(_owner).onUnresevre{
+        IOwner(_owner).onUnreserved{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
             bounce: false
@@ -173,7 +178,7 @@ contract Domain is NFTCertificate, IDomain {
         }
     }
 
-    function _calcProlongPrice(CertificateStatus status) private view inline returns (uint128) {
+    function _calcRenewPrice(CertificateStatus status) private view inline returns (uint128) {
         uint128 price = _auctionPrice;  // todo _defaultPrice VS _auctionPrice
         if (status == CertificateStatus.GRACE) {
             price += math.muldiv( _config.graceFinePercent, price, Constants.PERCENT_DENOMINATOR);
@@ -201,10 +206,10 @@ contract Domain is NFTCertificate, IDomain {
             _owner.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
             return;
         }
-        _upgrade(version, code, config);
+        _upgrade(version, config, code);
     }
 
-    function _upgrade(uint16 version, TvmCell code, DomainConfig config) private {
+    function _upgrade(uint16 version, DomainConfig config, TvmCell code) private {
         emit CodeUpgraded(_version, version);
         _version = version;
         _config = config;

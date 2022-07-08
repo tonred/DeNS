@@ -14,36 +14,31 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataBase, Certificate {
         _;
     }
 
-    function _initNFT(address owner, address manager, TvmCell indexCode) internal {
+    function _initNFT(address owner, address manager, TvmCell indexCode, address creator) internal {
         _onInit4_3(owner, manager, indexCode);
         _onInit4_2("");  // todo generate JSON
         Collection(_root).onMint{
             value: Gas.ON_MINT_VALUE,
             flag: MsgFlag.SENDER_PAYS_FEES,
             bounce: false
-        }(_id, _owner, _manager);
+        }(_id, _owner, _manager, creator);
     }
 
 
     // TIP 4.1
     function changeOwner(address newOwner, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager onActive {
         super.changeOwner(newOwner, sendGasTo, callbacks);
-        // todo notify certificate
-        // todo to != current owner
+        // todo disable auction on expiring + also `changeManager` and `transfer`
     }
 
     // TIP 4.1
     function changeManager(address newManager, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager onActive {
         super.changeManager(newManager, sendGasTo, callbacks);_reserve();
-        // todo expiring
     }
 
     // TIP 4.1
     function transfer(address to, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager onActive {
         super.transfer(to, sendGasTo, callbacks);
-        // todo expiring
-        // todo notify certificate
-        // todo to != current owner
     }
 
     // TIP6
@@ -60,8 +55,8 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataBase, Certificate {
         _changeOwner(_owner, newOwner);
     }
 
-    // todo ?
     function expire() public onStatus(CertificateStatus.EXPIRED) {
+        tvm.accept();
         _destroy();
     }
 
@@ -75,10 +70,9 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataBase, Certificate {
     }
 
     function _destroy() internal {
-        // todo gas + TIP4 sample correct is needed
         Collection(_root).onBurn{
-            value: 0,
-            flag: MsgFlag.REMAINING_GAS,
+            value: Gas.ON_BURN_VALUE,
+            flag: MsgFlag.SENDER_PAYS_FEES,
             bounce: false
         }(_id, _owner, _manager);
         _onBurn(_owner);
@@ -87,5 +81,7 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataBase, Certificate {
     function _reserve() internal view override(NFTBase4_1, TransferUtils) {
         TransferUtils._reserve();
     }
+
+    function _targetBalance() internal view inline virtual override returns (uint128);
 
 }

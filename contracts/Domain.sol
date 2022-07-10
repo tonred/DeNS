@@ -59,11 +59,6 @@ contract Domain is IDomain, NFTCertificate {
         _auctionPrice = _defaultPrice;
         _initTime = now;
         _initNFT(_owner, _owner, _indexCode, _owner);
-        IOwner(msg.sender).onDomainRegistered{
-            value: 0,
-            flag: MsgFlag.ALL_NOT_RESERVED,
-            bounce: false
-        }(_path, setup);
     }
 
 

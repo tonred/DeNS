@@ -1,8 +1,8 @@
 pragma ton-solidity >= 0.61.2;
 
+import "../enums/CertificateStatus.sol";
 import "../interfaces/IRoot.sol";
 import "../interfaces/ISubdomain.sol";
-import "../utils/CertificateStatus.sol";
 import "../utils/Gas.sol";
 import "../utils/NameChecker.sol";
 import "../utils/TransferUtils.sol";

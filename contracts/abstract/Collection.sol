@@ -1,9 +1,5 @@
 pragma ton-solidity >= 0.61.2;
 
-pragma AbiHeader time;
-pragma AbiHeader expire;
-pragma AbiHeader pubkey;
-
 import "../interfaces/outer/IOwner.sol";
 import "../platform/PlatformType.sol";
 import "../platform/Platform.sol";

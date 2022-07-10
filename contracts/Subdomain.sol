@@ -37,11 +37,16 @@ contract Subdomain is ISubdomain, NFTCertificate {
             }
             _init(params);  // todo called after `tvm.setCurrentCode`, check
         } else {
-            _notify(setup.callbackTo, true);
+            IOwner(setup.callbackTo).onCreateSubdomainError{
+                value: 0,
+                flag: MsgFlag.REMAINING_GAS,
+                bounce: false
+            }(_path, TransferBackReason.ALREADY_EXIST);
         }
     }
 
     function _init(TvmCell params) internal override {
+        _reserve();
         SubdomainSetup setup;
         address creator;
         address callbackTo;
@@ -50,20 +55,6 @@ contract Subdomain is ISubdomain, NFTCertificate {
         (_owner, creator, _expireTime, _parent, _renewable, callbackTo) = setup.unpack();
         _initTime = now;
         _initNFT(_owner, _owner, _indexCode, creator);
-        _notify(setup.callbackTo, false);
-    }
-
-    function _notify(address callbackTo, bool deployRetry) private view {
-        _reserve();
-        optional(TransferBackReason) reason;
-        if (deployRetry) {
-            reason.set(TransferBackReason.ALREADY_EXIST);
-        }
-        IOwner(callbackTo).onSubdomainCreated{
-            value: 0,
-            flag: MsgFlag.ALL_NOT_RESERVED,
-            bounce: false
-        }(_path, !deployRetry, reason);
     }
 
 

@@ -18,8 +18,8 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataBase, Certificate {
         _onInit4_3(owner, manager, indexCode);
         _onInit4_2("");  // todo generate JSON
         Collection(_root).onMint{
-            value: Gas.ON_MINT_VALUE,
-            flag: MsgFlag.SENDER_PAYS_FEES,
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
             bounce: false
         }(_id, _owner, _manager, creator);
     }

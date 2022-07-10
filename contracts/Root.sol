@@ -6,6 +6,7 @@ pragma AbiHeader pubkey;
 
 import "./abstract/NFTCertificate.sol";
 import "./abstract/Vault.sol";
+import "./enums/TransferKind.sol";
 import "./interfaces/IDomain.sol";
 import "./interfaces/IRoot.sol";
 import "./interfaces/ISubdomain.sol";
@@ -13,7 +14,6 @@ import "./interfaces/IUpgradable.sol";
 import "./utils/Constants.sol";
 import "./utils/Converter.sol";
 import "./utils/NameChecker.sol";
-import "./utils/TransferKind.sol";
 
 import "@broxus/contracts/contracts/utils/CheckPubKey.sol";
 
@@ -125,7 +125,7 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
 
         (TransferKind kind, TvmCell data) = abi.decode(payload, (TransferKind, TvmCell));
         if (kind == TransferKind.REGISTER) {
-            if (msg.value < Gas.REGISTER_VALUE) {
+            if (msg.value < Gas.REGISTER_DOMAIN_VALUE) {
                 _returnToken(amount, sender, TransferBackReason.LOW_MSG_VALUE);
                 return;
             }
@@ -138,7 +138,7 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
             _deployDomain(path, setup);
             sender.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
         } else if (kind == TransferKind.RENEW) {
-            if (msg.value < Gas.RENEW_VALUE) {
+            if (msg.value < Gas.RENEW_DOMAIN_VALUE) {
                 _returnToken(amount, sender, TransferBackReason.LOW_MSG_VALUE);
                 return;
             }
@@ -177,11 +177,11 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
         if (!_isCorrectName(name)) error.set(TransferBackReason.INVALID_NAME);
         if (!_isCorrectPathLength(path)) error.set(TransferBackReason.TOO_LONG_PATH);
         if (error.hasValue()) {
-            IOwner(setup.callbackTo).onSubdomainCreated{
+            IOwner(setup.callbackTo).onCreateSubdomainError{
                 value: 0,
                 flag: MsgFlag.REMAINING_GAS,
                 bounce: false
-            }(path, false, error);
+            }(path, error);
             return;
         }
         _deploySubdomain(path, setup);

@@ -108,7 +108,7 @@ contract Domain is IDomain, NFTCertificate {
         CertificateStatus status = _status();
         if (sender != _owner || now + _config.maxDuration <= _expireTime || status == CertificateStatus.RESERVED) {
             // wrong sender OR already renewed for max period OR reserved
-            IRoot(_root).onRenewReturn{
+            IRoot(_root).onDomainRenewReturn{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
                 bounce: false
@@ -127,7 +127,7 @@ contract Domain is IDomain, NFTCertificate {
         emit Renewed(now, duration, _expireTime);
 
         if (returnAmount > 0) {
-            IRoot(_root).onRenewReturn{
+            IRoot(_root).onDomainRenewReturn{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
                 bounce: false

@@ -19,7 +19,7 @@ interface IRoot {
     function resolve(string path) external view responsible returns (address certificate);
 
     function onDomainDeployRetry(string path, uint128 amount, address sender) external;
-    function onRenewReturn(string path, uint128 returnAmount, address sender) external;
+    function onDomainRenewReturn(string path, uint128 returnAmount, address sender) external;
 
     function deploySubdomain(string path, string name, SubdomainSetup setup) external view;
     function confiscate(string path, address owner, string reason) external view;

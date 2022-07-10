@@ -51,14 +51,6 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
         _;
     }
 
-    modifier onlyDomain(string path) {
-        address certificate = _certificateAddress(path);
-        require(msg.sender == certificate, 69);
-        // check if Certificate is Domain (not Subdomain) - path must have only one dot
-        require(path.find(byte(".")).get() == path.findLast(byte(".")).get(), 69);  // todo Constants.SEPARATOR
-        _;
-    }
-
 
     constructor(
         TvmCell nftCode,
@@ -160,12 +152,12 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
         }
     }
 
-    function onDomainDeployRetry(string path, uint128 amount, address sender) public override onlyDomain(path) {
+    function onDomainDeployRetry(string path, uint128 amount, address sender) public override onlyCertificate(path) {
         _reserve();
         _returnToken(amount, sender, TransferBackReason.ALREADY_EXIST);
     }
 
-    function onRenewReturn(string path, uint128 returnAmount, address sender) public override onlyDomain(path) {
+    function onDomainRenewReturn(string path, uint128 returnAmount, address sender) public override onlyCertificate(path) {
         _reserve();
         _returnToken(returnAmount, sender, TransferBackReason.DURATION_OVERFLOW);
     }

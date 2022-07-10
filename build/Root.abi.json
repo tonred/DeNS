@@ -96,7 +96,7 @@
 			]
 		},
 		{
-			"name": "onRenewReturn",
+			"name": "onDomainRenewReturn",
 			"inputs": [
 				{"name":"path","type":"string"},
 				{"name":"returnAmount","type":"uint128"},

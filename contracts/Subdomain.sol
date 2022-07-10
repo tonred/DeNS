@@ -27,7 +27,7 @@ contract Subdomain is ISubdomain, NFTCertificate {
     }
 
 
-    function onDeployRetry(TvmCell code, TvmCell params) public functionID(0x4A2E4FD6) onlyRoot {
+    function onDeployRetry(TvmCell code, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
         (/*path*/, uint16 version, TimeRangeConfig config, SubdomainSetup setup, /*indexCode*/)
             = abi.decode(params, (string, uint16, TimeRangeConfig, SubdomainSetup, TvmCell));
         if (_status() == CertificateStatus.EXPIRED) {
@@ -55,9 +55,9 @@ contract Subdomain is ISubdomain, NFTCertificate {
 
     function _notify(address callbackTo, bool deployRetry) private view {
         _reserve();
-        optional(TransferCanselReason) reason;  // todo construct in one line
+        optional(TransferBackReason) reason;
         if (deployRetry) {
-            reason.set(TransferCanselReason.ALREADY_EXIST);
+            reason.set(TransferBackReason.ALREADY_EXIST);
         }
         IOwner(callbackTo).onSubdomainCreated{
             value: 0,
@@ -66,12 +66,12 @@ contract Subdomain is ISubdomain, NFTCertificate {
         }(_path, !deployRetry, reason);
     }
 
-    function getConfig() public view responsible returns (TimeRangeConfig config) {
+
+    function getConfig() public view responsible override returns (TimeRangeConfig config) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _config;
     }
 
-
-    function requestRenew() public view onlyRenewable cashBack {
+    function requestRenew() public view override onlyRenewable cashBack {
         Certificate(_parent).renewSubdomain{
             value: Gas.RENEW_SUBDOMAIN_VALUE,
             flag: MsgFlag.SENDER_PAYS_FEES,

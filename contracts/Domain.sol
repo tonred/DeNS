@@ -28,7 +28,7 @@ contract Domain is IDomain, NFTCertificate {
 
 
     // 0x4A2E4FD6 is a Platform constructor functionID
-    function onDeployRetry(TvmCell code, TvmCell params) public functionID(0x4A2E4FD6) onlyRoot {
+    function onDeployRetry(TvmCell code, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
         (/*path*/, uint16 version, DomainConfig config, DomainSetup setup, /*indexCode*/)
             = abi.decode(params, (string, uint16, DomainConfig, DomainSetup, TvmCell));
         if (_status() == CertificateStatus.EXPIRED) {
@@ -67,28 +67,28 @@ contract Domain is IDomain, NFTCertificate {
     }
 
 
-    function getConfig() public view responsible returns (DomainConfig config) {
+    function getConfig() public view responsible override returns (DomainConfig config) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _config;
     }
 
-    function getPrices() public view responsible returns (uint128 defaultPrice, uint128 auctionPrice) {
+    function getPrices() public view responsible override returns (uint128 defaultPrice, uint128 auctionPrice) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_defaultPrice, _auctionPrice);
     }
 
-    function getFlags() public view responsible returns (bool inZeroAuction, bool needZeroAuction, bool reserved) {
+    function getFlags() public view responsible override returns (bool inZeroAuction, bool needZeroAuction, bool reserved) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_inZeroAuction, _needZeroAuction, _reserved);
     }
 
 
-    function startZeroAuction() public onStatus(CertificateStatus.NEW) minValue(Gas.START_ZERO_AUCTION_VALUE) {
-        // todo
+    function startZeroAuction() public override onStatus(CertificateStatus.NEW) minValue(Gas.START_ZERO_AUCTION_VALUE) {
+        // todo startZeroAuction
 
         emit ZeroAuctionStarted();
         _inZeroAuction = true;
     }
 
-    function zeroAuctionFinished() public onStatus(CertificateStatus.IN_ZERO_AUCTION) {
-        // todo
+    function onZeroAuctionFinished() public override onStatus(CertificateStatus.IN_ZERO_AUCTION) {
+        // todo onZeroAuctionFinished
 //        require(msg.sender == _auction, 69);
 
         emit ZeroAuctionFinished();
@@ -98,7 +98,7 @@ contract Domain is IDomain, NFTCertificate {
 //        _auctionPrice = auctionPrice;
     }
 
-    function expectedRenewAmount(uint32 newExpireTime) public view responsible returns (uint128 amount) {
+    function expectedRenewAmount(uint32 newExpireTime) public view responsible override returns (uint128 amount) {
         CertificateStatus status = _status();
         if (newExpireTime <= _expireTime || newExpireTime > now + _config.maxDuration || status == CertificateStatus.RESERVED) {
             return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} 0;
@@ -138,11 +138,15 @@ contract Domain is IDomain, NFTCertificate {
                 bounce: false
             }(_path, returnAmount, sender);
         } else {
-            _owner.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
+            IOwner(_owner).onRenewed{
+                value: 0,
+                flag: MsgFlag.ALL_NOT_RESERVED,
+                bounce: false
+            }(_path, _expireTime);
         }
     }
 
-    function unreserved(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) public onlyRoot {
+    function unreserved(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) public override onlyRoot {
         _updateIndexes(_owner, owner, _owner);
         _owner = owner;
         _defaultPrice = _auctionPrice = price;

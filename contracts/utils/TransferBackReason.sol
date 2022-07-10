@@ -1,7 +1,7 @@
 pragma ton-solidity >= 0.61.2;
 
 
-enum TransferCanselReason {
+enum TransferBackReason {
 
     // General
     IS_NOT_ACTIVE,      // 0

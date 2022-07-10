@@ -1,5 +1,6 @@
 pragma ton-solidity >= 0.61.2;
 
+import "../interfaces/IVault.sol";
 import "../utils/Gas.sol";
 
 import "@broxus/contracts/contracts/libraries/MsgFlag.sol";
@@ -8,7 +9,7 @@ import "ton-eth-bridge-token-contracts/contracts/interfaces/ITokenWallet.sol";
 import "ton-eth-bridge-token-contracts/contracts/interfaces/IAcceptTokensTransferCallback.sol";
 
 
-abstract contract Vault is IAcceptTokensTransferCallback {
+abstract contract Vault is IVault, IAcceptTokensTransferCallback {
 
     address public _token;
     address public _wallet;
@@ -36,19 +37,19 @@ abstract contract Vault is IAcceptTokensTransferCallback {
         });
     }
 
-    function onWalletDeployed(address wallet) public onlyToken {
+    function onWalletDeployed(address wallet) public override onlyToken {
         _wallet = wallet;
     }
 
-    function getToken() public view responsible returns (address token) {
+    function getToken() public view responsible override returns (address token) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _token;
     }
 
-    function getWallet() public view responsible returns (address wallet) {
+    function getWallet() public view responsible override returns (address wallet) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _wallet;
     }
 
-    function getBalance() public view responsible returns (uint128 balance) {
+    function getBalance() public view responsible override returns (uint128 balance) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _balance;
     }
 

@@ -180,9 +180,9 @@ contract Domain is IDomain, NFTCertificate {
     function _calcRenewPrice(CertificateStatus status) private view inline returns (uint128) {
         uint128 price = _auctionPrice;  // todo _defaultPrice VS _auctionPrice
         if (status == CertificateStatus.GRACE) {
-            price += math.muldiv( _config.graceFinePercent, price, Constants.PERCENT_DENOMINATOR);
+            price += math.muldiv(_config.graceFinePercent, price, Constants.PERCENT_DENOMINATOR);
         } else if (status == CertificateStatus.EXPIRED) {
-           price += math.muldiv( _config.expiredFinePercent, price, Constants.PERCENT_DENOMINATOR);
+           price += math.muldiv(_config.expiredFinePercent, price, Constants.PERCENT_DENOMINATOR);
         }
         return price;
     }

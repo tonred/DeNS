@@ -24,7 +24,7 @@ interface IRoot {
     function deploySubdomain(string path, string name, SubdomainSetup setup) external view;
     function confiscate(string path, address owner, string reason) external view;
     function reserve(string[] paths, string reason) external view;
-    function execute(Action[] actions) external pure;
+    function execute(Action[] actions) external view;
     function activate() external;
     function deactivate() external;
 

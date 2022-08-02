@@ -28,6 +28,7 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
     string public static _tld;
 
     address public _dao;
+    address public _admin;
     bool public _active;
 
     RootConfig public _config;
@@ -37,6 +38,11 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
 
     modifier onlyDao() {
         require(msg.sender == _dao, 69);
+        _;
+    }
+
+    modifier onlyAdmin() {
+        require(msg.sender == _admin, 69);
         _;
     }
 
@@ -214,18 +220,18 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
 //        _transferTokens(amount, staking, payload);
 //    }
 
-    // no cash back to have ability to withdraw native EVERs
-    function execute(Action[] actions) public pure override onlyDao {
+    // no cash back in order to have ability to withdraw native EVERs
+    function execute(Action[] actions) public view override onlyDao {
         for (Action action : actions) {
             _execute(action);
         }
     }
 
-    function activate() public override onlyDao cashBack {
+    function activate() public override onlyAdmin cashBack {
         _active = true;
     }
 
-    function deactivate() public override onlyDao cashBack {
+    function deactivate() public override onlyAdmin cashBack {
         _active = false;
     }
 
@@ -340,7 +346,7 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
         }(version, config, code);
     }
 
-    function upgrade(TvmCell code) public internalMsg override onlyDao {
+    function upgrade(TvmCell code) public internalMsg override onlyAdmin {
         emit CodeUpgraded();
         TvmCell data = abi.encode("values");  // todo values
         tvm.setcode(code);

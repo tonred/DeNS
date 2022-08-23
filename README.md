@@ -53,7 +53,7 @@ All domain methods
 
 Anyone can call
 
-1) Get price via `expectedPriceForDuration` in root
+1) Get price via `expectedRegisterAmount` in root
 2) Build payload via `buildRegisterPayload` in root
 3) Send tokens and payload to root's TIP3 wallet with notify
 4) Sender will receive
@@ -83,7 +83,7 @@ todo...
     * `name` - name of subdomain
     * `owner` - owner of new subdomain
     * `renewable` - a flag that marks if owner of subdomain can renew it in any time
-2) `owner` received:  // todo
+2) `owner` received:
     * `onMinted` callback if success
     * `onCreateSubdomainError` with `TransferBackReason.*` reason callback in case of error
 

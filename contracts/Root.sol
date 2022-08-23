@@ -20,8 +20,9 @@ import "@broxus/contracts/contracts/utils/CheckPubKey.sol";
 
 contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
 
-    event Confiscated(string path, address owner, string reason);
+    event Confiscated(string path, string reason, address owner);
     event Reserved(string path, string reason);
+    event Unreserved(string path, string reason, address owner);
     event DomainCodeUpgraded(uint16 newVersion);
 
 
@@ -101,10 +102,28 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} price;
     }
 
+    function expectedRegisterAmount(string name, uint32 duration) public view responsible override returns (uint128 amount) {
+        require(duration >= _config.minDuration && duration <= _config.maxDuration, 69);
+        (uint128 price, /*needZeroAuction*/) = _calcPrice(name);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} Converter.toAmount(duration, price);
+    }
+
     function resolve(string path) public view responsible override returns (address certificate) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _certificateAddress(path);
     }
 
+
+    function buildRegisterPayload(string name) public view responsible override returns (TvmCell payload) {
+        require(_isCorrectName(name), 69);
+        TvmCell data = abi.encode(name);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} abi.encode(TransferKind.REGISTER, data);
+    }
+
+    function buildRenewPayload(string name) public view responsible override returns (TvmCell payload) {
+        require(_isCorrectName(name), 69);
+        TvmCell data = abi.encode(name);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} abi.encode(TransferKind.RENEW, data);
+    }
 
     function onAcceptTokensTransfer(
         address /*tokenRoot*/,
@@ -175,7 +194,7 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
         if (!_isCorrectName(name)) error.set(TransferBackReason.INVALID_NAME);
         if (!_isCorrectPathLength(path)) error.set(TransferBackReason.TOO_LONG_PATH);
         if (error.hasValue()) {
-            IOwner(setup.callbackTo).onCreateSubdomainError{
+            IOwner(setup.creator).onCreateSubdomainError{
                 value: 0,
                 flag: MsgFlag.REMAINING_GAS,
                 bounce: false
@@ -185,9 +204,9 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
         _deploySubdomain(path, setup);
     }
 
-    function confiscate(string path, address owner, string reason) public view override onlyDao {
+    function confiscate(string path, string reason, address owner) public view override onlyDao {
         _reserve();
-        emit Confiscated(path, owner, reason);
+        emit Confiscated(path, reason, owner);
         address certificate = _certificateAddress(path);
         NFTCertificate(certificate).confiscate{
             value: 0,
@@ -209,6 +228,19 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
             });
             _deployDomain(path, setup);
         }
+    }
+
+    function unreserve(
+        string path, string reason, address owner, uint128 price, uint32 expireTime, bool needZeroAuction
+    ) public view override onlyDao minValue(Gas.UNRESERVE_VALUE) {
+        _reserve();
+        emit Unreserved(path, reason, owner);
+        address certificate = _certificateAddress(path);
+        IDomain(certificate).unreserve{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(owner, price, expireTime, needZeroAuction);
     }
 
 //    function collect(uint128 amount, address staking) public view onlyDao {

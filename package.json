@@ -19,7 +19,7 @@
     "mocha": "^9.1.3",
     "mocha-logger": "^1.0.7",
     "ton-eth-bridge-token-contracts": "git://github.com/broxus/ton-eth-bridge-token-contracts#6503e61880c03fb45741c177c25f4955dca5f0df",
-    "tip4": "git://github.com/tonred/TIP4#0dfac7aeada2a4c0221d82d21bf8c3e72c5b34a4"
+    "tip4": "git://github.com/tonred/TIP4#d474a0765afacec3cb2033092fe65bd8a8972d66"
   },
   "devDependencies": {
     "@broxus/contracts": "^1.0.3",

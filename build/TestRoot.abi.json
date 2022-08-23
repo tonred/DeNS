@@ -21,6 +21,16 @@
 			]
 		},
 		{
+			"name": "onAcceptTokensTransferTest",
+			"inputs": [
+				{"name":"amount","type":"uint128"},
+				{"name":"sender","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "getDetails",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}

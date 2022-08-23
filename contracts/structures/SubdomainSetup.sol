@@ -7,5 +7,4 @@ struct SubdomainSetup {
     uint32 expireTime;
     address parent;
     bool renewable;
-    address callbackTo;
 }

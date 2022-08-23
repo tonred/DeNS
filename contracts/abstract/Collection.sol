@@ -48,10 +48,6 @@ abstract contract Collection is CollectionBase4_3, JSONMetadataBase, TransferUti
         );
     }
 
-    function certificateAddressByPath(string path) public view responsible returns (address nft) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _certificateAddress(path);
-    }
-
 
     function onMint(uint256 id, address owner, address manager, address creator) public onlyCertificateByID(id) {
         _reserve();

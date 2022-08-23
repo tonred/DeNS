@@ -95,7 +95,8 @@ contract Domain is IDomain, NFTCertificate {
 
     function expectedRenewAmount(uint32 newExpireTime) public view responsible override returns (uint128 amount) {
         CertificateStatus status = _status();
-        if (newExpireTime <= _expireTime || newExpireTime > now + _config.maxDuration || status == CertificateStatus.RESERVED) {
+        if (newExpireTime <= _expireTime || newExpireTime > now + _config.maxDuration ||
+            status == CertificateStatus.RESERVED || status == CertificateStatus.EXPIRED) {
             return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} 0;
         }
         uint32 increase = newExpireTime - _expireTime;
@@ -106,8 +107,9 @@ contract Domain is IDomain, NFTCertificate {
     function renew(uint128 amount, address sender) public override onlyRoot {
         _reserve();
         CertificateStatus status = _status();
-        if (sender != _owner || now + _config.maxDuration <= _expireTime || status == CertificateStatus.RESERVED) {
-            // wrong sender OR already renewed for max period OR reserved
+        if (sender != _owner || now + _config.maxDuration <= _expireTime ||
+            status == CertificateStatus.RESERVED || status == CertificateStatus.EXPIRED) {
+            // wrong sender OR already renewed for max period OR reserved OR expired
             IRoot(_root).onDomainRenewReturn{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
@@ -141,7 +143,7 @@ contract Domain is IDomain, NFTCertificate {
         }
     }
 
-    function unreserved(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) public override onlyRoot {
+    function unreserve(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) public override onlyRoot {
         _updateIndexes(_owner, owner, _owner);
         _owner = owner;
         _defaultPrice = _auctionPrice = price;
@@ -181,8 +183,6 @@ contract Domain is IDomain, NFTCertificate {
         uint128 price = _auctionPrice;  // todo _defaultPrice VS _auctionPrice
         if (status == CertificateStatus.GRACE) {
             price += math.muldiv(_config.graceFinePercent, price, Constants.PERCENT_DENOMINATOR);
-        } else if (status == CertificateStatus.EXPIRED) {
-           price += math.muldiv(_config.expiredFinePercent, price, Constants.PERCENT_DENOMINATOR);
         }
         return price;
     }

@@ -20,7 +20,6 @@ struct DomainConfig {
     uint32 maxDuration;
     TimeRangeConfig times;
     uint128 graceFinePercent;
-    uint128 expiredFinePercent;
 }
 
 struct TimeRangeConfig {

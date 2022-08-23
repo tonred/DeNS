@@ -15,7 +15,7 @@ interface IDomain {
 
     function expectedRenewAmount(uint32 newExpireTime) external view responsible returns (uint128 amount);
     function renew(uint128 amount, address sender) external;
-    function unreserved(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) external;
+    function unreserve(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) external;
     function acceptUpgrade(uint16 version, DomainConfig config, TvmCell code) external;
 
 }

@@ -37,7 +37,7 @@ contract Subdomain is ISubdomain, NFTCertificate {
             }
             _init(params);  // todo called after `tvm.setCurrentCode`, check
         } else {
-            IOwner(setup.callbackTo).onCreateSubdomainError{
+            IOwner(setup.creator).onCreateSubdomainError{
                 value: 0,
                 flag: MsgFlag.REMAINING_GAS,
                 bounce: false
@@ -49,11 +49,15 @@ contract Subdomain is ISubdomain, NFTCertificate {
         _reserve();
         SubdomainSetup setup;
         address creator;
-        address callbackTo;
         (_path, _version, _config, setup, _indexCode) =
             abi.decode(params, (string, uint16, TimeRangeConfig, SubdomainSetup, TvmCell));
-        (_owner, creator, _expireTime, _parent, _renewable, callbackTo) = setup.unpack();
+        (_owner, creator, _expireTime, _parent, _renewable) = setup.unpack();
         _initTime = now;
+        IOwner(creator).onSubdomainCreated{
+            value: Gas.RENEW_SUBDOMAIN_VALUE,
+            flag: MsgFlag.SENDER_PAYS_FEES,
+            bounce: false
+        }(_path, _owner);
         _initNFT(_owner, _owner, _indexCode, creator);
     }
 

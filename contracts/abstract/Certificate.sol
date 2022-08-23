@@ -76,16 +76,17 @@ abstract contract Certificate is TransferUtils {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _status();
     }
 
+    // todo naming
     function resolve() public view responsible onActive returns (address target) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _target;
     }
 
-    function getRecords() public view responsible onActive returns (mapping(uint32 => bytes) records) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records;
+    function query(uint32 key) public view responsible onActive returns (bytes value) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records[key];
     }
 
-    function getRecord(uint32 key) public view responsible onActive returns (bytes value) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records[key];
+    function getRecords() public view responsible onActive returns (mapping(uint32 => bytes) records) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records;
     }
 
 
@@ -105,7 +106,7 @@ abstract contract Certificate is TransferUtils {
         _records[key] = value;
     }
 
-    function createSubdomain(string name, address owner, bool renewable, address callbackTo) public view onlyOwner cashBack {
+    function createSubdomain(string name, address owner, bool renewable) public view onlyOwner cashBack {
         CertificateStatus status = _status();
         require(status == CertificateStatus.COMMON || status == CertificateStatus.EXPIRING, 69);
         SubdomainSetup setup = SubdomainSetup({
@@ -113,8 +114,7 @@ abstract contract Certificate is TransferUtils {
             creator: msg.sender,
             expireTime: _expireTime,
             parent: address(this),
-            renewable: renewable,
-            callbackTo: callbackTo
+            renewable: renewable
         });
         IRoot(_root).deploySubdomain{
             value: Gas.DEPLOY_SUBDOMAIN_VALUE,

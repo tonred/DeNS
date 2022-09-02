@@ -16,9 +16,10 @@ import "./utils/Converter.sol";
 import "./utils/NameChecker.sol";
 
 import "@broxus/contracts/contracts/utils/CheckPubKey.sol";
+import {BaseMaster} from "versionable/contracts/BaseMaster.sol";
 
 
-contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
+contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey {
 
     event Confiscated(string path, string reason, address owner);
     event Reserved(string path, string reason);
@@ -33,8 +34,8 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
     bool public _active;
 
     RootConfig public _config;
-    DomainDeployConfig _domainDeployConfig;
-    SubdomainDeployConfig _subdomainDeployConfig;
+    DomainConfig public _domainConfig;
+    DurationConfig public _durationConfig;
 
 
     modifier onlyDao() {
@@ -60,22 +61,26 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
 
 
     constructor(
-        TvmCell nftCode,
+        TvmCell domainCode,
+        TvmCell subdomainCode,
         TvmCell indexBasisCode,
         TvmCell indexCode,
         string json,
         TvmCell platformCode,
         address token,
         address dao,
+        address admin,
         RootConfig config,
-        DomainDeployConfig domainDeployConfig,
-        SubdomainDeployConfig subdomainDeployConfig
-    ) public Collection(nftCode, indexBasisCode, indexCode, json, platformCode) Vault(token) checkPubKey {
+        DomainConfig domainConfig,
+        DurationConfig durationConfig
+    ) public Collection(domainCode, indexBasisCode, indexCode, json, platformCode) Vault(token) checkPubKey {
         tvm.accept();
+        _initVersions([Constants.DOMAIN_SID, Constants.SUBDOMAIN_SID], [domainCode, subdomainCode]);
         _dao = dao;
+        _admin = admin;
         _config = config;
-        _domainDeployConfig = domainDeployConfig;
-        _subdomainDeployConfig = subdomainDeployConfig;
+        _domainConfig = domainConfig;
+        _durationConfig = durationConfig;
     }
 
 
@@ -84,13 +89,9 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
     }
 
     function getConfigs() public view responsible override returns (
-        RootConfig config,
-        DomainDeployConfig domainDeployConfig,
-        SubdomainDeployConfig subdomainDeployConfig
+        RootConfig config, DomainConfig domainConfig, DurationConfig durationConfig
     ) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (
-            _config, _domainDeployConfig, _subdomainDeployConfig
-        );
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_config, _domainConfig, _durationConfig);
     }
 
     function checkName(string name) public view responsible override returns (bool correct) {
@@ -166,7 +167,7 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
             }
             string path = _createPath(name);
             address domain = _certificateAddress(path);
-            _upgradeDomain(domain, Gas.UPGRADE_DOMAIN_VALUE, 0);
+            _upgradeToLatest(Constants.DOMAIN_SID, domain, _wallet, Gas.UPGRADE_SLAVE_VALUE, 0);
             IDomain(domain).renew{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
@@ -311,15 +312,15 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
     }
 
     function _deployDomain(string path, DomainSetup setup) private view {
-        (uint16 version, DomainConfig config, TvmCell code) = _domainDeployConfig.unpack();
-        TvmCell params = abi.encode(path, version, config, setup);
+        TvmCell code = _getLatestCode(Constants.DOMAIN_SID);
+        TvmCell params = abi.encode(path, _domainConfig, _durationConfig, setup, _indexCode);
         _deployCertificate(path, Gas.DEPLOY_DOMAIN_VALUE, MsgFlag.SENDER_PAYS_FEES, code, params);
     }
 
     function _deploySubdomain(string path, SubdomainSetup setup) private view {
-        (uint16 version, TimeRangeConfig config, TvmCell code) = _subdomainDeployConfig.unpack();
-        TvmCell params = abi.encode(path, version, config, setup);
-        _deployCertificate(path, 0, MsgFlag.REMAINING_GAS, code, params);
+        TvmCell code = _getLatestCode(Constants.SUBDOMAIN_SID);
+        TvmCell params = abi.encode(path, _durationConfig, setup, _indexCode);
+        _deployCertificate(path, Gas.DEPLOY_DOMAIN_VALUE, MsgFlag.SENDER_PAYS_FEES, code, params);
     }
 
     function _deployCertificate(string path, uint128 value, uint8 flag, TvmCell code, TvmCell params) private view {
@@ -356,26 +357,42 @@ contract Root is IRoot, Collection, Vault, IUpgradable, CheckPubKey {
     }
 
 
-    function upgradeDomain(address domain) public view override minValue(Gas.UPGRADE_DOMAIN_VALUE) {
-        _upgradeDomain(domain, 0, MsgFlag.REMAINING_GAS);
+    function upgradeToLatest(
+        uint16 sid, address destination, address remainingGasTo
+    ) public view override minValue(Gas.UPGRADE_SLAVE_VALUE) {
+        _upgradeToLatest(sid, destination, remainingGasTo, 0, MsgFlag.REMAINING_GAS);
     }
 
-    function _upgradeDomain(address domain, uint128 value, uint8 flag) private view {
-        (uint16 version, DomainConfig config, TvmCell code) = _domainDeployConfig.unpack();
-        IDomain(domain).acceptUpgrade{
-            value: value,
-            flag: flag,
-            bounce: false
-        }(version, config, code);
+    function upgradeToSpecific(
+        uint16 sid, address destination, Version version, TvmCell code, TvmCell params, address remainingGasTo
+    ) public view override minValue(Gas.UPGRADE_SLAVE_VALUE) {
+        _upgradeToSpecific(sid, destination, version, code, params, remainingGasTo, 0, MsgFlag.REMAINING_GAS);
     }
 
-    function upgradeSubdomain(address subdomain) public view override minValue(Gas.UPGRADE_SUBDOMAIN_VALUE) {
-        (uint16 version, TimeRangeConfig config, TvmCell code) = _subdomainDeployConfig.unpack();
-        ISubdomain(subdomain).acceptUpgrade{
-            value: 0,
-            flag: MsgFlag.REMAINING_GAS,
-            bounce: false
-        }(version, config, code);
+    function setVersionActivation(uint16 sid, Version version, bool active) public override onlyAdmin {
+        _setVersionActivation(sid, version, active);
+    }
+
+    function createNewVersion(
+        bool domainMinor,
+        TvmCell domainCode,
+        TvmCell domainParams,
+        bool subdomainMinor,
+        TvmCell subdomainCode,
+        TvmCell subdomainParams,
+        optional(DomainConfig) domainConfig,
+        optional(DurationConfig) durationConfig
+    ) public override onlyAdmin {
+        bool isNewDomain = !domainCode.toSlice().empty();
+        bool isNewSubdomain = !subdomainCode.toSlice().empty();
+        bool isNewDomainConfig = domainConfig.hasValue();
+        bool isNewDurationConfig = durationConfig.hasValue();  // using in domain and subdomain
+        require(!isNewDomainConfig || isNewDomain, 69);
+        require(!isNewDurationConfig || (isNewDomain && isNewSubdomain), 69);
+        if (isNewDomain) _createNewVersion(Constants.DOMAIN_SID, domainMinor, domainCode, domainParams);
+        if (isNewSubdomain) _createNewVersion(Constants.SUBDOMAIN_SID, subdomainMinor, subdomainCode, subdomainParams);
+        if (isNewDomainConfig) _domainConfig = domainConfig.get();
+        if (isNewDurationConfig) _durationConfig = durationConfig.get();
     }
 
     function upgrade(TvmCell code) public internalMsg override onlyAdmin {

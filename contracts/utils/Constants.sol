@@ -1,5 +1,7 @@
 pragma ton-solidity >= 0.61.2;
 
+import {Version} from "versionable/contracts/utils/Structs.sol";
+
 
 library Constants {
 
@@ -12,5 +14,13 @@ library Constants {
 
     // Separator between parts of domain like "sub.domain.tld"
     string constant SEPARATOR = ".";
+
+    // Versionable
+    uint16 constant DOMAIN_SID = 1;
+    uint16 constant DOMAIN_VERSION_MAJOR = 1;
+    uint16 constant DOMAIN_VERSION_MINOR = 1;
+    uint16 constant SUBDOMAIN_SID = 2;
+    uint16 constant SUBDOMAIN_VERSION_MAJOR = 1;
+    uint16 constant SUBDOMAIN_VERSION_MINOR = 1;
 
 }

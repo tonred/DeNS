@@ -18,8 +18,9 @@
     "folder-hash": "^4.0.1",
     "mocha": "^9.1.3",
     "mocha-logger": "^1.0.7",
-    "ton-eth-bridge-token-contracts": "git://github.com/broxus/ton-eth-bridge-token-contracts#6503e61880c03fb45741c177c25f4955dca5f0df",
-    "tip4": "git://github.com/tonred/TIP4#d474a0765afacec3cb2033092fe65bd8a8972d66"
+    "tip3": "git://github.com/broxus/tip3#6503e61880c03fb45741c177c25f4955dca5f0df",
+    "tip4": "git://github.com/tonred/TIP4#d474a0765afacec3cb2033092fe65bd8a8972d66",
+    "versionable": "git://github.com/tonred/Versionable#4c1e301f26e5534b643582632e7dc78b907c31d7"
   },
   "devDependencies": {
     "@broxus/contracts": "^1.0.3",

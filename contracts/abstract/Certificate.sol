@@ -7,13 +7,13 @@ import "../utils/Gas.sol";
 import "../utils/NameChecker.sol";
 import "../utils/TransferUtils.sol";
 
+import {BaseSlave, Version, ErrorCodes as VersionableErrorCodes} from "versionable/contracts/BaseSlave.sol";
 
-abstract contract Certificate is TransferUtils {
+
+abstract contract Certificate is BaseSlave, TransferUtils {
 
     event ChangedTarget(address oldTarget, address newTarget);
     event ChangedOwner(address oldOwner, address newOwner, bool confiscate);
-    event Destroyed(uint32 time);
-    event CodeUpgraded(uint16 oldVersion, uint16 newVersion);
 
 
     uint256 public _id;
@@ -21,7 +21,6 @@ abstract contract Certificate is TransferUtils {
 
     string public _path;
     address private _owner;  // private in order to be compatible with nft  // todo test (in case of bug - use _getOwner() method)
-    uint16 public _version;
 
     uint32 public _initTime;
     uint32 public _expireTime;
@@ -52,13 +51,17 @@ abstract contract Certificate is TransferUtils {
     }
 
 
-    function onCodeUpgrade(TvmCell input) internal {
+    function onCodeUpgrade(TvmCell input, bool upgrade) internal {
         tvm.resetStorage();
-        (address root, TvmCell initialData, TvmCell initialParams) =
-            abi.decode(input, (address, TvmCell, TvmCell));
-        _root = root;
-        _id = abi.decode(initialData, uint256);
-        _init(initialParams);
+        if (!upgrade) {
+            (address root, TvmCell initialData, TvmCell initialParams) =
+                abi.decode(input, (address, TvmCell, TvmCell));
+            _root = root;
+            _id = abi.decode(initialData, uint256);
+            _init(initialParams);
+        } else {
+            revert(VersionableErrorCodes.INVALID_OLD_VERSION);
+        }
     }
 
     function _init(TvmCell params) internal virtual;
@@ -68,8 +71,8 @@ abstract contract Certificate is TransferUtils {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _path;
     }
 
-    function getDetails() public view responsible returns (address owner, uint16 version, uint32 initTime, uint32 expireTime) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_owner, _version, _initTime, _expireTime);
+    function getDetails() public view responsible returns (address owner, uint32 initTime, uint32 expireTime) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_owner, _initTime, _expireTime);
     }
 
     function getStatus() public view responsible returns (CertificateStatus status) {
@@ -132,10 +135,26 @@ abstract contract Certificate is TransferUtils {
         }(_expireTime);
     }
 
-
     function _status() internal view virtual returns (CertificateStatus);
 
-    function requestUpgrade() public virtual;
+
+    function requestUpgrade() public view cashBack {
+        IRoot(_root).upgradeToLatest{
+            value: Gas.UPGRADE_SLAVE_VALUE,
+            flag: MsgFlag.SENDER_PAYS_FEES,
+            bounce: false
+        }(_sid, address(this), msg.sender);
+    }
+
+    function acceptUpgrade(uint16 sid, Version version, TvmCell code, TvmCell params, address remainingGasTo) public override onlyRoot {
+        _acceptUpgrade(sid, version, code, params, remainingGasTo);
+    }
+
+    function _onCodeUpgrade(TvmCell data, Version oldVersion, TvmCell params, address remainingGasTo) internal override {
+        TvmCell input = abi.encode(data, oldVersion, params, remainingGasTo);
+        onCodeUpgrade(input, true);
+    }
+
 
     onBounce(TvmSlice body) external view {
         uint32 functionId = body.decode(uint32);

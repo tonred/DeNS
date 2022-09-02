@@ -18,12 +18,11 @@ struct PriceConfig {
 
 struct DomainConfig {
     uint32 maxDuration;
-    TimeRangeConfig times;
     uint128 graceFinePercent;
 }
 
-struct TimeRangeConfig {
-    uint32 startZeroAuctionTimeRange;
-    uint32 expiringTimeRange;
-    uint32 graceTimeRange;
+struct DurationConfig {
+    uint32 startZeroAuction;
+    uint32 expiring;
+    uint32 grace;
 }

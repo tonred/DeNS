@@ -13,11 +13,10 @@ library Gas {
     // Root
     uint128 constant ROOT_TARGET_BALANCE        = 1 ton;
     uint128 constant REGISTER_DOMAIN_VALUE      = 2.9 ton;  // more than DEPLOY_DOMAIN_VALUE
-    uint128 constant RENEW_DOMAIN_VALUE         = 1.5 ton;  // more than UPGRADE_DOMAIN_VALUE
+    uint128 constant RENEW_DOMAIN_VALUE         = 1.5 ton;  // more than UPGRADE_SLAVE_VALUE
     uint128 constant DEPLOY_DOMAIN_VALUE        = 2.5 ton;  // more than DOMAIN_TARGET_BALANCE + 2 * DEPLOY_INDEX_VALUE (TIP4.3)
     uint128 constant UNRESERVE_VALUE            = 1 ton;
-    uint128 constant UPGRADE_DOMAIN_VALUE       = 1 ton;
-    uint128 constant UPGRADE_SUBDOMAIN_VALUE    = 1 ton;
+    uint128 constant UPGRADE_SLAVE_VALUE        = 1 ton;
 
     // Certificate
     uint128 constant DEPLOY_SUBDOMAIN_VALUE     = 2.5 ton;  // more than SUBDOMAIN_TARGET_BALANCE + CREATOR_NOTIFY_VALUE + 2 * DEPLOY_INDEX_VALUE (TIP4.3)

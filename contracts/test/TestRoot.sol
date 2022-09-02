@@ -10,27 +10,31 @@ import "../Root.sol";
 contract TestRoot is Root {
 
     constructor(
-        TvmCell nftCode,
+        TvmCell domainCode,
+        TvmCell subdomainCode,
         TvmCell indexBasisCode,
         TvmCell indexCode,
         string json,
         TvmCell platformCode,
         address token,
         address dao,
+        address admin,
         RootConfig config,
-        DomainDeployConfig domainDeployConfig,
-        SubdomainDeployConfig subdomainDeployConfig
+        DomainConfig domainConfig,
+        DurationConfig durationConfig
     ) public Root(
-        nftCode,
+        domainCode,
+        subdomainCode,
         indexBasisCode,
         indexCode,
         json,
         platformCode,
         token,
         dao,
+        admin,
         config,
-        domainDeployConfig,
-        subdomainDeployConfig
+        domainConfig,
+        durationConfig
     ) {
         tvm.accept();
     }

@@ -18,7 +18,8 @@ contract Domain is IDomain, NFTCertificate {
     event Renewed(uint32 time, uint32 duration, uint32 newExpireTime);
 
 
-    DomainConfig _config;
+    DomainConfig public _config;
+    DurationConfig public _durationConfig;
     uint128 public _defaultPrice;
     uint128 public _auctionPrice;
 
@@ -28,42 +29,44 @@ contract Domain is IDomain, NFTCertificate {
 
 
     // 0x4A2E4FD6 is a Platform constructor functionID
-    function onDeployRetry(TvmCell code, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
-        (/*path*/, uint16 version, DomainConfig config, DomainSetup setup, /*indexCode*/)
-            = abi.decode(params, (string, uint16, DomainConfig, DomainSetup, TvmCell));
-        if (_status() == CertificateStatus.EXPIRED) {
-            // init as new registration
-            if (version != _version) {
-                _upgrade(version, config, code);
-            }
-            _init(params);  // todo called after `tvm.setCurrentCode`, check
-        } else {
-            if (setup.reserved) {
-                _root.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
-            } else {
-                IRoot(_root).onDomainDeployRetry{
-                    value: 0,
-                    flag: MsgFlag.REMAINING_GAS,
-                    bounce: false
-                }(_path, setup.amount, setup.owner);
-            }
+    function onDeployRetry(TvmCell /*code*/, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
+        (/*path*/, /*config*/, /*durationConfig*/, DomainSetup setup, /*indexCode*/)
+            = abi.decode(params, (string, DomainConfig, DurationConfig, DomainSetup, TvmCell));
+        if (setup.reserved) {
+            _root.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
+            return;
         }
+        if (_status() == CertificateStatus.EXPIRED) {
+            _destroy();
+        }
+        // todo check how it works after destroy
+        IRoot(_root).onDomainDeployRetry{
+            value: 0,
+            flag: MsgFlag.REMAINING_GAS,
+            bounce: false
+        }(_path, setup.amount, setup.owner);
     }
 
     function _init(TvmCell params) internal override {
         _reserve();
+        _initVersion(Constants.DOMAIN_SID, Version(Constants.DOMAIN_VERSION_MAJOR, Constants.DOMAIN_VERSION_MINOR));
         DomainSetup setup;
-        (_path, _version, _config, setup, _indexCode) =
-            abi.decode(params, (string, uint16, DomainConfig, DomainSetup, TvmCell));
+        TvmCell indexCode;
+        (_path, _config, _durationConfig, setup, indexCode) =
+            abi.decode(params, (string, DomainConfig, DurationConfig, DomainSetup, TvmCell));
         (_owner, _defaultPrice, _needZeroAuction, _reserved, _expireTime, /*amount*/) = setup.unpack();
         _auctionPrice = _defaultPrice;
         _initTime = now;
-        _initNFT(_owner, _owner, _indexCode, _owner);
+        _initNFT(_owner, _owner, indexCode, _owner);
     }
 
 
     function getConfig() public view responsible override returns (DomainConfig config) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _config;
+    }
+
+    function getDurationConfig() public view responsible override returns (DurationConfig durationConfig) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _durationConfig;
     }
 
     function getPrices() public view responsible override returns (uint128 defaultPrice, uint128 auctionPrice) {
@@ -166,13 +169,13 @@ contract Domain is IDomain, NFTCertificate {
             return CertificateStatus.RESERVED;
         } else if (_inZeroAuction) {
             return CertificateStatus.IN_ZERO_AUCTION;
-        } else if (passed < _config.times.startZeroAuctionTimeRange && _needZeroAuction) {
+        } else if (passed < _durationConfig.startZeroAuction && _needZeroAuction) {
             return CertificateStatus.NEW;
-        } else if (left < -_config.times.graceTimeRange) {
+        } else if (left < -_durationConfig.grace) {
             return CertificateStatus.EXPIRED;
         } else if (left < 0) {
             return CertificateStatus.GRACE;
-        } else if (left < _config.times.expiringTimeRange) {
+        } else if (left < _durationConfig.expiring) {
             return CertificateStatus.EXPIRING;
         } else {
             return CertificateStatus.COMMON;
@@ -192,30 +195,8 @@ contract Domain is IDomain, NFTCertificate {
     }
 
 
-    function requestUpgrade() public override onlyOwner cashBack {
-        IRoot(_root).upgradeDomain{
-            value: Gas.UPGRADE_DOMAIN_VALUE,
-            flag: MsgFlag.SENDER_PAYS_FEES,
-            bounce: false
-        }(address(this));
-    }
-
-    function acceptUpgrade(uint16 version, DomainConfig config, TvmCell code) public override onlyRoot {
-        if (version == _version) {
-            _owner.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
-            return;
-        }
-        _upgrade(version, config, code);
-    }
-
-    function _upgrade(uint16 version, DomainConfig config, TvmCell code) private {
-        emit CodeUpgraded(_version, version);
-        _version = version;
-        _config = config;
-        TvmCell data = abi.encode("xxx");  // todo values
-        tvm.setcode(code);
-        tvm.setCurrentCode(code);
-        onCodeUpgrade(data);
+    function _encodeContractData() internal override returns (TvmCell) {
+        return abi.encode("xxx");  // todo values
     }
 
 }

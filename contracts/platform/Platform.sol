@@ -13,9 +13,9 @@ contract Platform {
         TvmCell data = abi.encode(_root, _initialData, params);
         tvm.setcode(code);
         tvm.setCurrentCode(code);
-        onCodeUpgrade(data);
+        onCodeUpgrade(data, false);
     }
 
-    function onCodeUpgrade(TvmCell data) private {}
+    function onCodeUpgrade(TvmCell data, bool upgrade) private {}
 
 }

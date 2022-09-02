@@ -11,7 +11,7 @@ contract Subdomain is ISubdomain, NFTCertificate {
 
     event Renewed(uint32 time, uint32 newExpireTime);
 
-    TimeRangeConfig public _config;
+    DurationConfig public _durationConfig;
     address public _parent;
     bool public _renewable;
 
@@ -27,30 +27,26 @@ contract Subdomain is ISubdomain, NFTCertificate {
     }
 
 
-    function onDeployRetry(TvmCell code, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
-        (/*path*/, uint16 version, TimeRangeConfig config, SubdomainSetup setup, /*indexCode*/)
-            = abi.decode(params, (string, uint16, TimeRangeConfig, SubdomainSetup, TvmCell));
+    function onDeployRetry(TvmCell /*code*/, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
+        (/*path*/, /*durationConfig*/, SubdomainSetup setup, /*indexCode*/)
+            = abi.decode(params, (string, DurationConfig, SubdomainSetup, TvmCell));
         if (_status() == CertificateStatus.EXPIRED) {
-            // init as new creation
-            if (version != _version) {
-                _upgrade(version, config, code);
-            }
-            _init(params);  // todo called after `tvm.setCurrentCode`, check
-        } else {
-            IOwner(setup.creator).onCreateSubdomainError{
-                value: 0,
-                flag: MsgFlag.REMAINING_GAS,
-                bounce: false
-            }(_path, TransferBackReason.ALREADY_EXIST);
+            _destroy();
         }
+        // todo check how it works after destroy
+        IOwner(setup.creator).onCreateSubdomainError{
+            value: 0,
+            flag: MsgFlag.REMAINING_GAS,
+            bounce: false
+        }(_path, TransferBackReason.ALREADY_EXIST);
     }
 
     function _init(TvmCell params) internal override {
         _reserve();
         SubdomainSetup setup;
         address creator;
-        (_path, _version, _config, setup, _indexCode) =
-            abi.decode(params, (string, uint16, TimeRangeConfig, SubdomainSetup, TvmCell));
+        (_path, _durationConfig, setup, _indexCode) =
+            abi.decode(params, (string, DurationConfig, SubdomainSetup, TvmCell));
         (_owner, creator, _expireTime, _parent, _renewable) = setup.unpack();
         _initTime = now;
         IOwner(creator).onSubdomainCreated{
@@ -62,8 +58,8 @@ contract Subdomain is ISubdomain, NFTCertificate {
     }
 
 
-    function getConfig() public view responsible override returns (TimeRangeConfig config) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _config;
+    function getDurationConfig() public view responsible override returns (DurationConfig durationConfig) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _durationConfig;
     }
 
     function requestRenew() public view override onlyRenewable cashBack {
@@ -84,11 +80,11 @@ contract Subdomain is ISubdomain, NFTCertificate {
 
     function _status() internal view override returns (CertificateStatus) {
         int64 left = int64(_expireTime) - now;
-        if (left < -_config.graceTimeRange) {
+        if (left < -_durationConfig.grace) {
             return CertificateStatus.EXPIRED;
         } else if (left < 0) {
             return CertificateStatus.GRACE;
-        } else if (left < _config.expiringTimeRange) {
+        } else if (left < _durationConfig.expiring) {
             return CertificateStatus.EXPIRING;
         } else {
             return CertificateStatus.COMMON;
@@ -100,30 +96,8 @@ contract Subdomain is ISubdomain, NFTCertificate {
     }
 
 
-    function requestUpgrade() public override onlyOwner cashBack {
-        IRoot(_root).upgradeSubdomain{
-            value: Gas.UPGRADE_SUBDOMAIN_VALUE,
-            flag: MsgFlag.SENDER_PAYS_FEES,
-            bounce: false
-        }(address(this));
-    }
-
-    function acceptUpgrade(uint16 version, TimeRangeConfig config, TvmCell code) public override onlyRoot {
-        if (version == _version) {
-            _owner.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
-            return;
-        }
-        _upgrade(version, config, code);
-    }
-
-    function _upgrade(uint16 version, TimeRangeConfig config, TvmCell code) private {
-        emit CodeUpgraded(_version, version);
-        _version = version;
-        _config = config;
-        TvmCell data = abi.encode("xxx");  // todo values
-        tvm.setcode(code);
-        tvm.setCurrentCode(code);
-        onCodeUpgrade(data);
+    function _encodeContractData() internal override returns (TvmCell) {
+        return abi.encode("xxx");  // todo values
     }
 
 }

@@ -7,19 +7,19 @@
 			"name": "onDeployRetry",
 			"id": "0x4A2E4FD6",
 			"inputs": [
-				{"name":"code","type":"cell"},
+				{"name":"value0","type":"cell"},
 				{"name":"params","type":"cell"}
 			],
 			"outputs": [
 			]
 		},
 		{
-			"name": "getConfig",
+			"name": "getDurationConfig",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
-				{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"}
+				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"tuple"}
 			]
 		},
 		{
@@ -33,23 +33,6 @@
 			"name": "renew",
 			"inputs": [
 				{"name":"expireTime","type":"uint32"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "requestUpgrade",
-			"inputs": [
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "acceptUpgrade",
-			"inputs": [
-				{"name":"version","type":"uint16"},
-				{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"config","type":"tuple"},
-				{"name":"code","type":"cell"}
 			],
 			"outputs": [
 			]
@@ -134,7 +117,6 @@
 			],
 			"outputs": [
 				{"name":"owner","type":"address"},
-				{"name":"version","type":"uint16"},
 				{"name":"initTime","type":"uint32"},
 				{"name":"expireTime","type":"uint32"}
 			]
@@ -220,6 +202,43 @@
 			]
 		},
 		{
+			"name": "requestUpgrade",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "acceptUpgrade",
+			"inputs": [
+				{"name":"sid","type":"uint16"},
+				{"components":[{"name":"major","type":"uint32"},{"name":"minor","type":"uint32"}],"name":"version","type":"tuple"},
+				{"name":"code","type":"cell"},
+				{"name":"params","type":"cell"},
+				{"name":"remainingGasTo","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getSID",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"sid","type":"uint16"}
+			]
+		},
+		{
+			"name": "getVersion",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"components":[{"name":"major","type":"uint32"},{"name":"minor","type":"uint32"}],"name":"version","type":"tuple"}
+			]
+		},
+		{
 			"name": "indexCode",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}
@@ -292,6 +311,22 @@
 			]
 		},
 		{
+			"name": "_sid",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_sid","type":"uint16"}
+			]
+		},
+		{
+			"name": "_version",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"major","type":"uint32"},{"name":"minor","type":"uint32"}],"name":"_version","type":"tuple"}
+			]
+		},
+		{
 			"name": "_id",
 			"inputs": [
 			],
@@ -313,14 +348,6 @@
 			],
 			"outputs": [
 				{"name":"_path","type":"string"}
-			]
-		},
-		{
-			"name": "_version",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_version","type":"uint16"}
 			]
 		},
 		{
@@ -356,11 +383,11 @@
 			]
 		},
 		{
-			"name": "_config",
+			"name": "_durationConfig",
 			"inputs": [
 			],
 			"outputs": [
-				{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"_config","type":"tuple"}
+				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"_durationConfig","type":"tuple"}
 			]
 		},
 		{
@@ -412,18 +439,10 @@
 			]
 		},
 		{
-			"name": "Destroyed",
-			"inputs": [
-				{"name":"time","type":"uint32"}
-			],
-			"outputs": [
-			]
-		},
-		{
 			"name": "CodeUpgraded",
 			"inputs": [
-				{"name":"oldVersion","type":"uint16"},
-				{"name":"newVersion","type":"uint16"}
+				{"components":[{"name":"major","type":"uint32"},{"name":"minor","type":"uint32"}],"name":"oldVersion","type":"tuple"},
+				{"components":[{"name":"major","type":"uint32"},{"name":"minor","type":"uint32"}],"name":"newVersion","type":"tuple"}
 			],
 			"outputs": [
 			]
@@ -476,16 +495,17 @@
 		{"name":"_owner","type":"address"},
 		{"name":"_manager","type":"address"},
 		{"name":"_indexCode","type":"cell"},
+		{"name":"_sid","type":"uint16"},
+		{"components":[{"name":"major","type":"uint32"},{"name":"minor","type":"uint32"}],"name":"_version","type":"tuple"},
 		{"name":"_id","type":"uint256"},
 		{"name":"_root","type":"address"},
 		{"name":"_path","type":"string"},
 		{"name":"_owner","type":"address"},
-		{"name":"_version","type":"uint16"},
 		{"name":"_initTime","type":"uint32"},
 		{"name":"_expireTime","type":"uint32"},
 		{"name":"_target","type":"address"},
 		{"name":"_records","type":"map(uint32,bytes)"},
-		{"components":[{"name":"startZeroAuctionTimeRange","type":"uint32"},{"name":"expiringTimeRange","type":"uint32"},{"name":"graceTimeRange","type":"uint32"}],"name":"_config","type":"tuple"},
+		{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"_durationConfig","type":"tuple"},
 		{"name":"_parent","type":"address"},
 		{"name":"_renewable","type":"bool"}
 	]

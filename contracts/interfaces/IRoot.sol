@@ -2,17 +2,16 @@ pragma ton-solidity >= 0.61.2;
 
 import "../structures/Action.sol";
 import "../structures/Configs.sol";
-import "../structures/DeployConfigs.sol";
 import "../structures/SubdomainSetup.sol";
+
+import {Version} from "versionable/contracts/utils/Structs.sol";
 
 
 interface IRoot {
 
     function getDetails() external view responsible returns (string tld, address dao, bool active);
     function getConfigs() external view responsible returns (
-        RootConfig config,
-        DomainDeployConfig domainDeployConfig,
-        SubdomainDeployConfig subdomainDeployConfig
+        RootConfig config, DomainConfig domainConfig, DurationConfig durationConfig
     );
     function checkName(string name) external view responsible returns (bool correct);
     function expectedPrice(string name) external view responsible returns (uint128 price);
@@ -33,7 +32,20 @@ interface IRoot {
     function activate() external;
     function deactivate() external;
 
-    function upgradeDomain(address domain) external view;
-    function upgradeSubdomain(address subdomain) external view;
+    function upgradeToLatest(uint16 sid, address destination, address remainingGasTo) external view;
+    function upgradeToSpecific(
+        uint16 sid, address destination, Version version, TvmCell code, TvmCell params, address remainingGasTo
+    ) external view;
+    function setVersionActivation(uint16 sid, Version version, bool active) external;
+    function createNewVersion(
+        bool domainMinor,
+        TvmCell domainCode,
+        TvmCell domainParams,
+        bool subdomainMinor,
+        TvmCell subdomainCode,
+        TvmCell subdomainParams,
+        optional(DomainConfig) domainConfig,
+        optional(DurationConfig) durationConfig
+    ) external;
 
 }

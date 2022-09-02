@@ -4,9 +4,9 @@ import "../interfaces/IVault.sol";
 import "../utils/Gas.sol";
 
 import "@broxus/contracts/contracts/libraries/MsgFlag.sol";
-import "ton-eth-bridge-token-contracts/contracts/interfaces/ITokenRoot.sol";
-import "ton-eth-bridge-token-contracts/contracts/interfaces/ITokenWallet.sol";
-import "ton-eth-bridge-token-contracts/contracts/interfaces/IAcceptTokensTransferCallback.sol";
+import "tip3/contracts/interfaces/ITokenRoot.sol";
+import "tip3/contracts/interfaces/ITokenWallet.sol";
+import "tip3/contracts/interfaces/IAcceptTokensTransferCallback.sol";
 
 
 abstract contract Vault is IVault, IAcceptTokensTransferCallback {

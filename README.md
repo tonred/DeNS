@@ -7,9 +7,46 @@ tonred team
 * Unreserve domain
 * Versionable
 
+## Resolve
+### To get a dns record for a specific domain:
+
+On root contract for specific TLD call:
+
+`resolve(string path) public view responsible returns (address certificate)`.
+
+This method will return the address of the domain certificate. Check if such account exists and then call methods for obtaining DNS records from it:
+
+`query(uint32 key) public view responsible returns (optional(TvmCell))`
+
+| ID | description                                | ABI     |
+|----|--------------------------------------------|---------|
+| 0  | Everscale account address (target address) | address |
+| 1  | ADNL address                               | uint256 |
+|    |                                            |         |
+|    | todo                                       |         |
+|    |                                            |         |
+|    |                                            |         |
+
+### Example
+```solidity
+// fake code
+mapping(string => address) tld;
+tld["ever"] = address(0:abc..);
+string toResolve = "somedomain.ever";
+
+Root root = Root(tld.find(toResolve));
+address certificateAddr = root.resolve(toResolve);
+if (!isAccountActive(certificateAddr)) return;
+// Certificate can be domain or subdomain or just use Certificate interface
+Domain domain = Domain(certificateAddr);
+// id=0 to get Everscale account address record; 
+optional(TvmCell) targetRecord = domain.query(0);
+if(!targetRecord.hasValue()) return;
+address target = targetRecord.get();
+return target
+```
 
 ## Methods
-
 ### Root
 1) Find certificate address by full path
 2) Create new domain

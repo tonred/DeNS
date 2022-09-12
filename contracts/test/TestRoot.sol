@@ -19,6 +19,7 @@ contract TestRoot is Root {
         address dao,
         address admin,
         RootConfig config,
+        PriceConfig priceConfig,
         AuctionConfig auctionConfig,
         DurationConfig durationConfig
     ) public Root(
@@ -31,6 +32,7 @@ contract TestRoot is Root {
         dao,
         admin,
         config,
+        priceConfig,
         auctionConfig,
         durationConfig
     ) {

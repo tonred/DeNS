@@ -11,10 +11,10 @@ interface IRoot {
     function getPath() external view responsible returns (string path);
     function getDetails() external view responsible returns (string tld, address dao, bool active);
     function getConfigs() external view responsible returns (
-        RootConfig config, AuctionConfig auctionConfig, DurationConfig durationConfig
+        RootConfig config, PriceConfig priceConfig, AuctionConfig auctionConfig, DurationConfig durationConfig
     );
     function checkName(string name) external view responsible returns (bool correct);
-    function expectedPrice(string name) external view responsible returns (uint128 price);
+    function expectedPrice(string name) external view responsible returns (uint128 price, bool needZeroAuction);
     function expectedRegisterAmount(string name, uint32 duration) external view responsible returns (uint128 amount);
     function resolve(string path) external view responsible returns (address certificate);
     function expectedCertificateCodeHash(address target, uint16 sid) external view responsible returns (uint256 codeHash);
@@ -33,7 +33,8 @@ interface IRoot {
 
     function activate() external;
     function deactivate() external;
-    function updateConfigs(
+    function changePriceConfig(PriceConfig priceConfig) external;
+    function changeConfigs(
         optional(RootConfig) config,
         optional(AuctionConfig) auctionConfig,
         optional(DurationConfig) durationConfig

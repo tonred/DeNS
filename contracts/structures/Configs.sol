@@ -5,8 +5,8 @@ struct RootConfig {
     uint32 maxNameLength;
     uint32 maxPathLength;
     uint32 minDuration;
-    uint32 maxDuration;  // also used for DomainConfig
-    uint128 graceFinePercent;  // used only for DomainConfig
+    uint32 maxDuration;         // also used for DomainConfig
+    uint128 graceFinePercent;   // used only for DomainConfig
 }
 
 struct AuctionConfig {
@@ -16,20 +16,19 @@ struct AuctionConfig {
 }
 
 struct PriceConfig {
-    // todo price values
-    uint128 price3;
-    uint128 price4;
-    uint128 price5;
-    uint128 priceN;
-}
-
-struct DomainConfig {
-    uint32 maxDuration;
-    uint128 graceFinePercent;
+    uint128 longPrice;
+    uint128[] shortPrices;  // set 0 for NOT_FOR_SALE name length
+    uint128 onlyLettersFeePercent;
+    uint32 noZeroAuctionLength;
 }
 
 struct DurationConfig {
     uint32 startZeroAuction;
     uint32 expiring;
     uint32 grace;
+}
+
+struct DomainConfig {
+    uint32 maxDuration;
+    uint128 graceFinePercent;
 }

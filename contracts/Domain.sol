@@ -100,11 +100,10 @@ contract Domain is IDomain, NFTCertificate {
         mapping(address => CallbackParams) callbacks;
         TvmCell payload = _buildAuctionPayload(config);
         callbacks[config.auctionRoot] = CallbackParams(Gas.CREATE_AUCTION_VALUE, payload);
-        _manager = _root;  // in order to pass `changeManager` modifiers
+        _manager = _root;  // in order to pass `onlyManager` modifier in `changeManager`
         changeManager(config.auctionRoot, remainingGasTo, callbacks);
     }
 
-    // TIP 4.1
     function changeManager(
         address newManager, address sendGasTo, mapping(address => CallbackParams) callbacks
     ) public override onlyManager onActive {
@@ -121,7 +120,6 @@ contract Domain is IDomain, NFTCertificate {
         super.changeManager(newManager, sendGasTo, callbacks);
     }
 
-    // TIP 4.1
     function transfer(
         address to, address sendGasTo, mapping(address => CallbackParams) callbacks
     ) public override onlyManager onActive {

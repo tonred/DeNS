@@ -60,6 +60,7 @@
 				{"name":"dao","type":"address"},
 				{"name":"admin","type":"address"},
 				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"config","type":"tuple"},
+				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"},
 				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"auctionConfig","type":"tuple"},
 				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"tuple"}
 			],

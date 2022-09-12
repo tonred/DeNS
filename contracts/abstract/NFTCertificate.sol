@@ -29,7 +29,6 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataDynamicBase, Certifi
         address newOwner, address sendGasTo, mapping(address => CallbackParams) callbacks
     ) public virtual override onlyManager onActive {
         super.changeOwner(newOwner, sendGasTo, callbacks);
-        // todo disable auction on expiring + also `changeManager` and `transfer`
     }
 
     // TIP 4.1

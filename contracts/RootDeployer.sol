@@ -60,6 +60,7 @@ contract RootDeployer is CheckPubKey {
         address dao,
         address admin,
         RootConfig config,
+        PriceConfig priceConfig,
         AuctionConfig auctionConfig,
         DurationConfig durationConfig
     ) public view checkPubKey returns (address){
@@ -88,6 +89,7 @@ contract RootDeployer is CheckPubKey {
             dao,
             admin,
             config,
+            priceConfig,
             auctionConfig,
             durationConfig
         );

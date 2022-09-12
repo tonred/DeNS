@@ -11,19 +11,17 @@ import "./interfaces/IDomain.sol";
 import "./interfaces/IUpgradable.sol";
 import "./utils/Converter.sol";
 
-import "@broxus/contracts/contracts/utils/CheckPubKey.sol";
+import "@broxus/contracts/contracts/utils/RandomNonce.sol";
 import {BaseMaster} from "versionable/contracts/BaseMaster.sol";
 
 
-contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey {
+contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce {
 
     event ZeroAuctionStarted(string path);
     event Confiscated(string path, string reason, address owner);
     event Reserved(string path, string reason);
     event Unreserved(string path, string reason, address owner);
     event DomainCodeUpgraded(uint16 newVersion);
-
-    uint static _randomNonce;
 
     string public static _tld;
 
@@ -32,6 +30,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
     bool public _active;
 
     RootConfig public _config;
+    PriceConfig public _priceConfig;
     AuctionConfig public _auctionConfig;
     DurationConfig public _durationConfig;
 
@@ -73,19 +72,20 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         address dao,
         address admin,
         RootConfig config,
+        PriceConfig priceConfig,
         AuctionConfig auctionConfig,
         DurationConfig durationConfig
     )
         public
         Collection(domainCode, indexBasisCode, indexCode, json, platformCode)
         Vault(auctionConfig.tokenRoot)
-//        checkPubKey
     {
         tvm.accept();
         _initVersions([Constants.DOMAIN_SID, Constants.SUBDOMAIN_SID], [domainCode, subdomainCode]);
         _dao = dao;
         _admin = admin;
         _config = config;
+        _priceConfig = priceConfig;
         _auctionConfig = auctionConfig;
         _durationConfig = durationConfig;
     }
@@ -99,18 +99,20 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
     }
 
     function getConfigs() public view responsible override returns (
-        RootConfig config, AuctionConfig auctionConfig, DurationConfig durationConfig
+        RootConfig config, PriceConfig priceConfig, AuctionConfig auctionConfig, DurationConfig durationConfig
     ) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_config, _auctionConfig, _durationConfig);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (
+            _config, _priceConfig, _auctionConfig, _durationConfig
+        );
     }
 
     function checkName(string name) public view responsible override returns (bool correct) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _isCorrectName(name);
     }
 
-    function expectedPrice(string name) public view responsible override returns (uint128 price) {
-        (price, /*needZeroAuction*/) = _calcPrice(name);
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} price;
+    function expectedPrice(string name) public view responsible override returns (uint128 price, bool needZeroAuction) {
+        // returns 0 for NOT_FOR_SALE name length
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _calcPrice(name);
     }
 
     function expectedRegisterAmount(string name, uint32 duration) public view responsible override returns (uint128 amount) {
@@ -283,7 +285,11 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         _active = false;
     }
 
-    function updateConfigs(
+    function changePriceConfig(PriceConfig priceConfig) public override onlyDao cashBack {
+        _priceConfig = priceConfig;
+    }
+
+    function changeConfigs(
         optional(RootConfig) config,
         optional(AuctionConfig) auctionConfig,
         optional(DurationConfig) durationConfig
@@ -338,10 +344,18 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         return path.byteLength() <= _config.maxPathLength;
     }
 
-    function _calcPrice(string name) private view returns (uint128, bool) {
-        name;
-        _config;
-        return (0, true);  // todo price calculation
+    function _calcPrice(string name) private view returns (uint128 price, bool needZeroAuction) {
+        uint32 length = name.byteLength();
+        if (length < _priceConfig.shortPrices.length) {
+            price = _priceConfig.shortPrices[length];
+        } else {
+            price = _priceConfig.longPrice;
+        }
+        if (NameChecker.isOnlyLetters(name)) {
+            price += math.muldiv(_priceConfig.onlyLettersFeePercent, price, Constants.PERCENT_DENOMINATOR);
+        }
+        needZeroAuction = length >= _priceConfig.noZeroAuctionLength;
+        return (price, needZeroAuction);
     }
 
     function _deployDomain(string path, DomainSetup setup) private view {

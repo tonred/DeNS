@@ -15,6 +15,7 @@
 				{"name":"dao","type":"address"},
 				{"name":"admin","type":"address"},
 				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"config","type":"tuple"},
+				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"},
 				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"auctionConfig","type":"tuple"},
 				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"tuple"}
 			],
@@ -48,6 +49,7 @@
 			],
 			"outputs": [
 				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"config","type":"tuple"},
+				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"},
 				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"auctionConfig","type":"tuple"},
 				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"tuple"}
 			]
@@ -69,7 +71,8 @@
 				{"name":"name","type":"string"}
 			],
 			"outputs": [
-				{"name":"price","type":"uint128"}
+				{"name":"price","type":"uint128"},
+				{"name":"needZeroAuction","type":"bool"}
 			]
 		},
 		{
@@ -223,7 +226,15 @@
 			]
 		},
 		{
-			"name": "updateConfigs",
+			"name": "changePriceConfig",
+			"inputs": [
+				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "changeConfigs",
 			"inputs": [
 				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"config","type":"optional(tuple)"},
 				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"auctionConfig","type":"optional(tuple)"},
@@ -591,6 +602,14 @@
 			]
 		},
 		{
+			"name": "_randomNonce",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_randomNonce","type":"uint256"}
+			]
+		},
+		{
 			"name": "_tld",
 			"inputs": [
 			],
@@ -628,6 +647,14 @@
 			],
 			"outputs": [
 				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"_config","type":"tuple"}
+			]
+		},
+		{
+			"name": "_priceConfig",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"_priceConfig","type":"tuple"}
 			]
 		},
 		{
@@ -768,6 +795,7 @@
 		{"name":"_admin","type":"address"},
 		{"name":"_active","type":"bool"},
 		{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"_config","type":"tuple"},
+		{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"_priceConfig","type":"tuple"},
 		{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"_auctionConfig","type":"tuple"},
 		{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"_durationConfig","type":"tuple"}
 	]

@@ -17,12 +17,12 @@ contract Subdomain is ISubdomain, NFTCertificate {
 
 
     modifier onlyParent() {
-        require(msg.sender == _parent, 69);
+        require(msg.sender == _parent, ErrorCodes.IS_NOT_PARENT);
         _;
     }
 
     modifier onlyRenewable() {
-        require(_renewable, 69);
+        require(_renewable, ErrorCodes.IS_NOT_RENEWABLE);
         _;
     }
 

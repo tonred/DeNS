@@ -1,5 +1,7 @@
 pragma ever-solidity ^0.63.0;
 
+import "../utils/ErrorCodes.sol";
+
 
 contract Platform {
 
@@ -9,7 +11,7 @@ contract Platform {
 
 
     constructor(TvmCell code, TvmCell params) public functionID(0x4A2E4FD6) {
-        require(msg.sender == _root, 69);
+        require(msg.sender == _root, ErrorCodes.IS_NOT_ROOT);
         TvmCell data = abi.encode(_root, _initialData, params);
         tvm.setcode(code);
         tvm.setCurrentCode(code);

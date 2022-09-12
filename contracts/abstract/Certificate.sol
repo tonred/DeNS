@@ -4,6 +4,7 @@ import "../enums/CertificateStatus.sol";
 import "../interfaces/IRoot.sol";
 import "../interfaces/ISubdomain.sol";
 import "../utils/Constants.sol";
+import "../utils/ErrorCodes.sol";
 import "../utils/Gas.sol";
 import "../utils/NameChecker.sol";
 import "../utils/TransferUtils.sol";
@@ -31,23 +32,23 @@ abstract contract Certificate is BaseSlave, TransferUtils {
 
 
     modifier onlyRoot() {
-        require(msg.sender == _root, 69);
+        require(msg.sender == _root, ErrorCodes.IS_NOT_ROOT);
         _;
     }
 
     modifier onlyOwner() {
-        require(msg.sender == _owner, 69);
+        require(msg.sender == _owner, ErrorCodes.IS_NOT_OWNER);
         _;
     }
 
     modifier onStatus(CertificateStatus status) {
-        require(_status() == status, 69);
+        require(_status() == status, ErrorCodes.WRONG_STATUS);
         _;
     }
 
     modifier onActive() {
         CertificateStatus status = _status();
-        require(status != CertificateStatus.EXPIRED && status != CertificateStatus.GRACE, 69);
+        require(status != CertificateStatus.EXPIRED && status != CertificateStatus.GRACE, ErrorCodes.IS_NOT_ACTIVE);
         _;
     }
 
@@ -112,17 +113,17 @@ abstract contract Certificate is BaseSlave, TransferUtils {
     function _setRecord(uint32 key, TvmCell value) private {
         if (key == Constants.TARGET_RECORD_ID) {
             (uint16 bits, uint8 refs) = value.toSlice().size();
-            require(bits == Constants.ADDRESS_SIZE && refs == 0, 69);
+            require(bits == Constants.ADDRESS_SIZE && refs == 0, ErrorCodes.INVALID_ADDRESS_CELL);
             _setTarget(abi.decode(value, address));
         } else {
-            require(value.depth() <= Constants.MAX_DEPTH, 69);
+            require(value.depth() <= Constants.MAX_DEPTH, ErrorCodes.TOO_BIG_CELL);
             value.dataSize(Constants.MAX_CELLS);  // can raise exception 8 (cell overflow)
             _records[key] = value;
         }
     }
 
     function _setTarget(address target) private {
-        require(target.isStdAddrWithoutAnyCast(), 69);
+        require(target.isStdAddrWithoutAnyCast(), ErrorCodes.INVALID_ADDRESS_TYPE);
         if (target == _target) {
             return;
         }
@@ -137,7 +138,7 @@ abstract contract Certificate is BaseSlave, TransferUtils {
 
     function createSubdomain(string name, address owner, bool renewable) public view onlyOwner cashBack {
         CertificateStatus status = _status();
-        require(status == CertificateStatus.COMMON || status == CertificateStatus.EXPIRING, 69);
+        require(status == CertificateStatus.COMMON || status == CertificateStatus.EXPIRING, ErrorCodes.WRONG_STATUS);
         SubdomainSetup setup = SubdomainSetup({
             owner: owner,
             creator: msg.sender,

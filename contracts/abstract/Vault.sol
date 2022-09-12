@@ -1,6 +1,7 @@
 pragma ever-solidity ^0.63.0;
 
 import "../interfaces/IVault.sol";
+import "../utils/ErrorCodes.sol";
 import "../utils/Gas.sol";
 
 import "@broxus/contracts/contracts/libraries/MsgFlag.sol";
@@ -17,12 +18,12 @@ abstract contract Vault is IVault, IAcceptTokensTransferCallback {
     uint128 public _balance;
 
     modifier onlyToken() {
-        require(msg.sender == _token && _token.value != 0, 69);
+        require(msg.sender == _token && _token.value != 0, ErrorCodes.IS_NOT_TOKEN_ROOT);
         _;
     }
 
     modifier onlyWallet() {
-        require(msg.sender == _wallet && _wallet.value != 0, 69);
+        require(msg.sender == _wallet && _wallet.value != 0, ErrorCodes.IS_NOT_TOKEN_WALLET);
         _;
     }
 

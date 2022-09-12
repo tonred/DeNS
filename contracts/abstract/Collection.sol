@@ -15,7 +15,7 @@ abstract contract Collection is CollectionBase4_3, JSONMetadataBase, TransferUti
 
     modifier onlyCertificateByID(uint256 id) {
         address nft = _certificateAddressByID(id);
-        require(msg.sender == nft, 69);
+        require(msg.sender == nft, ErrorCodes.IS_NOT_CERTIFICATE);
         _;
     }
 

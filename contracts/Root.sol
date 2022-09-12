@@ -37,28 +37,28 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUp
 
 
     modifier onlyDao() {
-        require(msg.sender == _dao, 69);
+        require(msg.sender == _dao, ErrorCodes.IS_NOT_DAO);
         _;
     }
 
     modifier onlyAdmin() {
-        require(msg.sender == _admin, 69);
+        require(msg.sender == _admin, ErrorCodes.IS_NOT_ADMIN);
         _;
     }
 
     modifier onActive() {
-        require(_active, 69);
+        require(_active, ErrorCodes.IS_NOT_ACTIVE);
         _;
     }
 
     modifier onlyCertificate(string path) {
         address certificate = _certificateAddress(path);
-        require(msg.sender == certificate, 69);
+        require(msg.sender == certificate, ErrorCodes.IS_NOT_CERTIFICATE);
         _;
     }
 
     modifier onlyAuctionRoot() {
-        require(msg.sender == _auctionConfig.auctionRoot, 69);
+        require(msg.sender == _auctionConfig.auctionRoot, ErrorCodes.IS_NOT_AUCTION_ROOT);
         _;
     }
 
@@ -111,7 +111,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUp
     }
 
     function expectedRegisterAmount(string name, uint32 duration) public view responsible override returns (uint128 amount) {
-        require(duration >= _config.minDuration && duration <= _config.maxDuration, 69);
+        require(duration >= _config.minDuration && duration <= _config.maxDuration, ErrorCodes.INVALID_DURATION);
         (uint128 price, /*needZeroAuction*/) = _calcPrice(name);
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} Converter.toAmount(duration, price);
     }
@@ -121,7 +121,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUp
     }
 
     function expectedCertificateCodeHash(address target, uint16 sid) public view responsible override returns (uint256 codeHash) {
-        require(sid == Constants.DOMAIN_SID || sid == Constants.SUBDOMAIN_SID, 69);
+        require(sid == Constants.DOMAIN_SID || sid == Constants.SUBDOMAIN_SID, ErrorCodes.INVALID_SID);
         TvmCell salt = abi.encode(target);
         TvmCell originalCode = _getLatestCode(sid);
         TvmCell code = tvm.setCodeSalt(originalCode, salt);
@@ -130,13 +130,13 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUp
 
 
     function buildRegisterPayload(string name) public view responsible override returns (TvmCell payload) {
-        require(_isCorrectName(name), 69);
+        require(_isCorrectName(name), ErrorCodes.INVALID_NAME);
         TvmCell data = abi.encode(name);
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} abi.encode(TransferKind.REGISTER, data);
     }
 
     function buildRenewPayload(string name) public view responsible override returns (TvmCell payload) {
-        require(_isCorrectName(name), 69);
+        require(_isCorrectName(name), ErrorCodes.INVALID_NAME);
         TvmCell data = abi.encode(name);
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} abi.encode(TransferKind.RENEW, data);
     }

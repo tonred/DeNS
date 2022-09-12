@@ -10,7 +10,7 @@ import "tip4/contracts/implementation/4_3/NFTBase4_3.sol";
 abstract contract NFTCertificate is NFTBase4_3, JSONMetadataDynamicBase, Certificate {
 
     modifier onlyManager() {
-        require(msg.sender == _manager, 69);
+        require(msg.sender == _manager, ErrorCodes.IS_NOT_MANAGER);
         _;
     }
 

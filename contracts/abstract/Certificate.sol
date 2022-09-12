@@ -110,9 +110,9 @@ abstract contract Certificate is BaseSlave, TransferUtils {
 
     function createSubdomain(string name, address owner, bool renewable) public view onlyOwner cashBack {
         CertificateStatus status = _status();
-        require(status == CertificateStatus.COMMON
-                || status == CertificateStatus.EXPIRING
-                || status == CertificateStatus.RESERVED, ErrorCodes.WRONG_STATUS);
+        require(status == CertificateStatus.COMMON ||
+                status == CertificateStatus.EXPIRING ||
+                status == CertificateStatus.RESERVED, ErrorCodes.WRONG_STATUS);
         SubdomainSetup setup = SubdomainSetup({
             owner: owner,
             creator: msg.sender,

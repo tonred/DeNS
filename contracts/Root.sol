@@ -12,7 +12,7 @@ import "./interfaces/IUpgradable.sol";
 import "./utils/Converter.sol";
 
 import "@broxus/contracts/contracts/utils/RandomNonce.sol";
-import {BaseMaster} from "versionable/contracts/BaseMaster.sol";
+import {BaseMaster, SlaveData} from "versionable/contracts/BaseMaster.sol";
 
 
 contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce {
@@ -422,14 +422,36 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
 
     function upgrade(TvmCell code) public internalMsg override onlyAdmin {
         emit CodeUpgraded();
-        TvmCell data = abi.encode("values");  // todo values
+        TvmCell data = abi.encode(
+            _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
+            _platformCode,  // Collection
+            _token, _wallet, _balance,  // Vault
+            _slaves,  // BaseMaster
+            _randomNonce,  // RandomNonce
+            _tld, _dao, _admin, _active, _config, _priceConfig, _auctionConfig, _durationConfig  // Root
+        );
         tvm.setcode(code);
         tvm.setCurrentCode(code);
         onCodeUpgrade(data);
     }
 
     function onCodeUpgrade(TvmCell input) private {
-        // todo onCodeUpgrade
+        tvm.resetStorage();
+        (
+            _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
+            _platformCode,  // Collection
+            _token, _wallet, _balance,  // Vault
+            _slaves,  // BaseMaster
+            _randomNonce,  // RandomNonce
+            _tld, _dao, _admin, _active, _config, _priceConfig, _auctionConfig, _durationConfig  // Root
+        ) = abi.decode(input, (
+            uint128, TvmCell, TvmCell, TvmCell,  // CollectionBase4_1 + CollectionBase4_3
+            TvmCell,  // Collection
+            address, address, uint128,  // Vault
+            mapping(uint16 => SlaveData),  // BaseMaster
+            uint,  // RandomNonce
+            string, address, address, bool, RootConfig, PriceConfig, AuctionConfig, DurationConfig  // Root
+        ));
     }
 
 }

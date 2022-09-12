@@ -6,8 +6,8 @@ import "../structures/Configs.sol";
 interface IDomain {
 
     function onDeployRetry(TvmCell code, TvmCell params) external functionID(0x4A2E4FD6);
-    function getConfig() external view responsible returns (DomainConfig config);
     function getDurationConfig() external view responsible returns (DurationConfig durationConfig);
+    function getConfig() external view responsible returns (DomainConfig config);
     function getPrice() external view responsible returns (uint128 price);
     function getFlags() external view responsible returns (bool inZeroAuction, bool needZeroAuction, bool reserved);
     function getZeroAuction() external view responsible returns (optional(address) zeroAuction);

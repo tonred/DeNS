@@ -19,8 +19,8 @@ contract Domain is IDomain, NFTCertificate {
     event Renewed(uint32 time, uint32 duration, uint32 newExpireTime);
 
 
-    DomainConfig public _config;
     DurationConfig public _durationConfig;
+    DomainConfig public _config;
 
     uint128 public _price;
     bool public _reserved;
@@ -57,17 +57,17 @@ contract Domain is IDomain, NFTCertificate {
         (_path, _durationConfig, _config, setup, indexCode) =
             abi.decode(params, (string, DurationConfig, DomainConfig, DomainSetup, TvmCell));
         (_owner, _price, _reserved, _needZeroAuction, _expireTime, /*amount*/) = setup.unpack();
-        _zeroAuction = address.makeAddrNone();
+        _auctionRoot = _zeroAuction = address.makeAddrNone();
         _initNFT(_owner, _owner, indexCode, _owner);
     }
 
 
-    function getConfig() public view responsible override returns (DomainConfig config) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _config;
-    }
-
     function getDurationConfig() public view responsible override returns (DurationConfig durationConfig) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _durationConfig;
+    }
+
+    function getConfig() public view responsible override returns (DomainConfig config) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _config;
     }
 
     function getPrice() public view responsible override returns (uint128 price) {
@@ -243,7 +243,12 @@ contract Domain is IDomain, NFTCertificate {
 
 
     function _encodeContractData() internal override returns (TvmCell) {
-        return abi.encode("xxx");  // todo values
+        return abi.encode(
+            _owner, _manager, _indexCode,  // NFTBase4_1 + NFTBase4_3
+            _sid, _version,  // BaseSlave
+            _id, _root, _path, _initTime, _expireTime, _target, _records,  // Certificate
+            _durationConfig, _config, _price, _reserved, _inZeroAuction, _needZeroAuction, _auctionRoot, _zeroAuction  // Domain
+        );
     }
 
 }

@@ -95,7 +95,12 @@ contract Subdomain is ISubdomain, NFTCertificate {
 
 
     function _encodeContractData() internal override returns (TvmCell) {
-        return abi.encode("xxx");  // todo values
+        return abi.encode(
+            _owner, _manager, _indexCode,  // NFTBase4_1 + NFTBase4_3
+            _sid, _version,  // BaseSlave
+            _id, _root, _path, _initTime, _expireTime, _target, _records,  // Certificate
+            _durationConfig, _parent, _renewable  // Subdomain
+        );
     }
 
 }

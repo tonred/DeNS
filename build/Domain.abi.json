@@ -14,21 +14,21 @@
 			]
 		},
 		{
-			"name": "getConfig",
-			"inputs": [
-				{"name":"answerId","type":"uint32"}
-			],
-			"outputs": [
-				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"config","type":"tuple"}
-			]
-		},
-		{
 			"name": "getDurationConfig",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
 				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"tuple"}
+			]
+		},
+		{
+			"name": "getConfig",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"config","type":"tuple"}
 			]
 		},
 		{
@@ -452,19 +452,19 @@
 			]
 		},
 		{
-			"name": "_config",
-			"inputs": [
-			],
-			"outputs": [
-				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"_config","type":"tuple"}
-			]
-		},
-		{
 			"name": "_durationConfig",
 			"inputs": [
 			],
 			"outputs": [
 				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"_durationConfig","type":"tuple"}
+			]
+		},
+		{
+			"name": "_config",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"_config","type":"tuple"}
 			]
 		},
 		{
@@ -630,8 +630,8 @@
 		{"name":"_expireTime","type":"uint32"},
 		{"name":"_target","type":"address"},
 		{"name":"_records","type":"map(uint32,cell)"},
-		{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"_config","type":"tuple"},
 		{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"_durationConfig","type":"tuple"},
+		{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"_config","type":"tuple"},
 		{"name":"_price","type":"uint128"},
 		{"name":"_reserved","type":"bool"},
 		{"name":"_inZeroAuction","type":"bool"},

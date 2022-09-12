@@ -14,8 +14,6 @@ interface IDomain {
 
     function requestZeroAuction() external view;
     function startZeroAuction(AuctionConfig config, address remainingGasTo) external;
-    function onZeroAuctionStarted(address zeroAuction) external;
-    function onZeroAuctionFinished() external;
 
     function expectedRenewAmount(uint32 newExpireTime) external view responsible returns (uint128 amount);
     function renew(uint128 amount, address sender) external;

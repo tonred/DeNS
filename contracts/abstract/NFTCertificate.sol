@@ -25,18 +25,24 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataDynamicBase, Certifi
 
 
     // TIP 4.1
-    function changeOwner(address newOwner, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager onActive {
+    function changeOwner(
+        address newOwner, address sendGasTo, mapping(address => CallbackParams) callbacks
+    ) public virtual override onlyManager onActive {
         super.changeOwner(newOwner, sendGasTo, callbacks);
         // todo disable auction on expiring + also `changeManager` and `transfer`
     }
 
     // TIP 4.1
-    function changeManager(address newManager, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager onActive {
+    function changeManager(
+        address newManager, address sendGasTo, mapping(address => CallbackParams) callbacks
+    ) public virtual override onlyManager onActive {
         super.changeManager(newManager, sendGasTo, callbacks);
     }
 
     // TIP 4.1
-    function transfer(address to, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager onActive {
+    function transfer(
+        address to, address sendGasTo, mapping(address => CallbackParams) callbacks
+    ) public virtual override onlyManager onActive {
         super.transfer(to, sendGasTo, callbacks);
     }
 

@@ -15,7 +15,7 @@ import "./auction/MarketOffer.sol";
 contract Domain is IDomain, NFTCertificate {
 
     event ZeroAuctionStarted(address zeroAuction);
-    event ZeroAuctionFinished(address winner);
+    event ZeroAuctionFinished(address newOwner);
     event Renewed(uint32 time, uint32 duration, uint32 newExpireTime);
 
 
@@ -27,6 +27,7 @@ contract Domain is IDomain, NFTCertificate {
 
     bool public _inZeroAuction;
     bool public _needZeroAuction;
+    address public _auctionRoot;
     address public _zeroAuction;
 
 
@@ -95,27 +96,48 @@ contract Domain is IDomain, NFTCertificate {
 
     function startZeroAuction(AuctionConfig config, address remainingGasTo) public override onlyRoot onStatus(CertificateStatus.NEW) {
         _inZeroAuction = true;
-        _owner = _manager = _root;  // in order to integrate with auction root
+        _auctionRoot = config.auctionRoot;
         mapping(address => CallbackParams) callbacks;
         TvmCell payload = _buildAuctionPayload(config);
         callbacks[config.auctionRoot] = CallbackParams(Gas.CREATE_AUCTION_VALUE, payload);
+        _manager = _root;  // in order to pass `changeManager` modifiers
         changeManager(config.auctionRoot, remainingGasTo, callbacks);
     }
 
-    function onZeroAuctionStarted(address zeroAuction) public override onlyRoot {
-        emit ZeroAuctionStarted(zeroAuction);
-        _zeroAuction = zeroAuction;
+    // TIP 4.1
+    function changeManager(
+        address newManager, address sendGasTo, mapping(address => CallbackParams) callbacks
+    ) public override onlyManager onActive {
+        if (_inZeroAuction) {
+            if (msg.sender == _auctionRoot) {
+                // Auction started
+                _zeroAuction = newManager;
+                emit ZeroAuctionStarted(_zeroAuction);
+            } else if (msg.sender == _zeroAuction) {
+                // Auction canceled
+                _finishZeroAuction(newManager);
+            }
+        }
+        super.changeManager(newManager, sendGasTo, callbacks);
     }
 
-    function onZeroAuctionFinished() public override onStatus(CertificateStatus.IN_ZERO_AUCTION) {
-        // todo onZeroAuctionFinished
-//        require(msg.sender == _auction, 69);
+    // TIP 4.1
+    function transfer(
+        address to, address sendGasTo, mapping(address => CallbackParams) callbacks
+    ) public override onlyManager onActive {
+        if (msg.sender == _zeroAuction) {
+            // Auction completed
+            _finishZeroAuction(to);
+        }
+        super.transfer(to, sendGasTo, callbacks);
+    }
 
-//        emit ZeroAuctionFinished(winner);
-//        _auction = address.makeAddrNone();
+    function _finishZeroAuction(address newOwner) private {
+        emit ZeroAuctionFinished(newOwner);
         _inZeroAuction = false;
         _needZeroAuction = false;
     }
+
 
     function expectedRenewAmount(uint32 newExpireTime) public view responsible override returns (uint128 amount) {
         CertificateStatus status = _status();

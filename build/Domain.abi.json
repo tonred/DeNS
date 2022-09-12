@@ -77,16 +77,21 @@
 			]
 		},
 		{
-			"name": "onZeroAuctionStarted",
+			"name": "changeManager",
 			"inputs": [
-				{"name":"zeroAuction","type":"address"}
+				{"name":"newManager","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"components":[{"name":"value","type":"uint128"},{"name":"payload","type":"cell"}],"name":"callbacks","type":"map(address,tuple)"}
 			],
 			"outputs": [
 			]
 		},
 		{
-			"name": "onZeroAuctionFinished",
+			"name": "transfer",
 			"inputs": [
+				{"name":"to","type":"address"},
+				{"name":"sendGasTo","type":"address"},
+				{"components":[{"name":"value","type":"uint128"},{"name":"payload","type":"cell"}],"name":"callbacks","type":"map(address,tuple)"}
 			],
 			"outputs": [
 			]
@@ -125,26 +130,6 @@
 			"name": "changeOwner",
 			"inputs": [
 				{"name":"newOwner","type":"address"},
-				{"name":"sendGasTo","type":"address"},
-				{"components":[{"name":"value","type":"uint128"},{"name":"payload","type":"cell"}],"name":"callbacks","type":"map(address,tuple)"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "changeManager",
-			"inputs": [
-				{"name":"newManager","type":"address"},
-				{"name":"sendGasTo","type":"address"},
-				{"components":[{"name":"value","type":"uint128"},{"name":"payload","type":"cell"}],"name":"callbacks","type":"map(address,tuple)"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "transfer",
-			"inputs": [
-				{"name":"to","type":"address"},
 				{"name":"sendGasTo","type":"address"},
 				{"components":[{"name":"value","type":"uint128"},{"name":"payload","type":"cell"}],"name":"callbacks","type":"map(address,tuple)"}
 			],
@@ -515,6 +500,14 @@
 			]
 		},
 		{
+			"name": "_auctionRoot",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_auctionRoot","type":"address"}
+			]
+		},
+		{
 			"name": "_zeroAuction",
 			"inputs": [
 			],
@@ -537,7 +530,7 @@
 		{
 			"name": "ZeroAuctionFinished",
 			"inputs": [
-				{"name":"winner","type":"address"}
+				{"name":"newOwner","type":"address"}
 			],
 			"outputs": [
 			]
@@ -643,6 +636,7 @@
 		{"name":"_reserved","type":"bool"},
 		{"name":"_inZeroAuction","type":"bool"},
 		{"name":"_needZeroAuction","type":"bool"},
+		{"name":"_auctionRoot","type":"address"},
 		{"name":"_zeroAuction","type":"address"}
 	]
 }

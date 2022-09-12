@@ -168,15 +168,6 @@
 			]
 		},
 		{
-			"name": "auctionTip3DeployedCallback",
-			"inputs": [
-				{"name":"auction","type":"address"},
-				{"components":[{"name":"collection","type":"address"},{"name":"nftOwner","type":"address"},{"name":"nft","type":"address"},{"name":"offer","type":"address"},{"name":"price","type":"uint128"},{"name":"auctionDuration","type":"uint128"},{"name":"deployNonce","type":"uint64"}],"name":"info","type":"tuple"}
-			],
-			"outputs": [
-			]
-		},
-		{
 			"name": "deploySubdomain",
 			"inputs": [
 				{"name":"path","type":"string"},

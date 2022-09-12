@@ -6,7 +6,6 @@ pragma AbiHeader pubkey;
 
 import "./abstract/NFTCertificate.sol";
 import "./abstract/Vault.sol";
-import "./auction/IAuctionRootCallback.sol";
 import "./enums/TransferKind.sol";
 import "./interfaces/IDomain.sol";
 import "./interfaces/IUpgradable.sol";
@@ -16,7 +15,7 @@ import "@broxus/contracts/contracts/utils/CheckPubKey.sol";
 import {BaseMaster} from "versionable/contracts/BaseMaster.sol";
 
 
-contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUpgradable, CheckPubKey {
+contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey {
 
     event ZeroAuctionStarted(string path);
     event Confiscated(string path, string reason, address owner);
@@ -212,14 +211,6 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUp
             flag: MsgFlag.ALL_NOT_RESERVED,
             bounce: false
         }(_auctionConfig, remainingGasTo);
-    }
-
-    function auctionTip3DeployedCallback(address auction, MarketOffer info) public override onlyAuctionRoot {
-        IDomain(info.nft).onZeroAuctionStarted{
-            value: 0,
-            flag: MsgFlag.ALL_NOT_RESERVED,
-            bounce: false
-        }(auction);
     }
 
 

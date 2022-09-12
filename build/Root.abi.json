@@ -22,6 +22,15 @@
 			]
 		},
 		{
+			"name": "getPath",
+			"inputs": [
+				{"name":"answerId","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"path","type":"string"}
+			]
+		},
+		{
 			"name": "getDetails",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}

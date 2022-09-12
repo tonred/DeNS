@@ -91,6 +91,9 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUp
         _durationConfig = durationConfig;
     }
 
+    function getPath() public view responsible override returns (string path) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _tld;
+    }
 
     function getDetails() public view responsible override returns (string tld, address dao, bool active) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_tld, _dao, _active);

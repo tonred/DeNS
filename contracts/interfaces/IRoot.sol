@@ -8,6 +8,7 @@ import {Version} from "versionable/contracts/utils/Structs.sol";
 
 interface IRoot {
 
+    function getPath() external view responsible returns (string path);
     function getDetails() external view responsible returns (string tld, address dao, bool active);
     function getConfigs() external view responsible returns (
         RootConfig config, AuctionConfig auctionConfig, DurationConfig durationConfig

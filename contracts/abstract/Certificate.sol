@@ -110,7 +110,9 @@ abstract contract Certificate is BaseSlave, TransferUtils {
 
     function createSubdomain(string name, address owner, bool renewable) public view onlyOwner cashBack {
         CertificateStatus status = _status();
-        require(status == CertificateStatus.COMMON || status == CertificateStatus.EXPIRING, ErrorCodes.WRONG_STATUS);
+        require(status == CertificateStatus.COMMON
+                || status == CertificateStatus.EXPIRING
+                || status == CertificateStatus.RESERVED, ErrorCodes.WRONG_STATUS);
         SubdomainSetup setup = SubdomainSetup({
             owner: owner,
             creator: msg.sender,
@@ -120,7 +122,7 @@ abstract contract Certificate is BaseSlave, TransferUtils {
         });
         IRoot(_root).deploySubdomain{
             value: Gas.DEPLOY_SUBDOMAIN_VALUE,
-            flag: MsgFlag.ALL_NOT_RESERVED,
+            flag: MsgFlag.SENDER_PAYS_FEES,
             bounce: false
         }(_path, name, setup);
     }

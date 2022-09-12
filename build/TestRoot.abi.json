@@ -658,7 +658,8 @@
 		}
 	],
 	"data": [
-		{"key":1,"name":"_tld","type":"string"}
+		{"key":1,"name":"_randomNonce","type":"uint256"},
+		{"key":2,"name":"_tld","type":"string"}
 	],
 	"events": [
 		{
@@ -771,6 +772,7 @@
 		{"name":"_wallet","type":"address"},
 		{"name":"_balance","type":"uint128"},
 		{"name":"_slaves","type":"optional(cell)"},
+		{"name":"_randomNonce","type":"uint256"},
 		{"name":"_tld","type":"string"},
 		{"name":"_dao","type":"address"},
 		{"name":"_admin","type":"address"},

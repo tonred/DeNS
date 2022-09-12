@@ -24,6 +24,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUp
     event Unreserved(string path, string reason, address owner);
     event DomainCodeUpgraded(uint16 newVersion);
 
+    uint static _randomNonce;
 
     string public static _tld;
 
@@ -79,7 +80,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUp
         public
         Collection(domainCode, indexBasisCode, indexCode, json, platformCode)
         Vault(auctionConfig.tokenRoot)
-        checkPubKey
+//        checkPubKey
     {
         tvm.accept();
         _initVersions([Constants.DOMAIN_SID, Constants.SUBDOMAIN_SID], [domainCode, subdomainCode]);
@@ -224,7 +225,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUp
 
 
     function deploySubdomain(string path, string name, SubdomainSetup setup) public view override onlyCertificate(path) {
-        path = path + "." + name;  // todo Constants.SEPARATOR
+        path = name + "." + path;  // todo Constants.SEPARATOR
         optional(TransferBackReason) error;
         if (!_active) error.set(TransferBackReason.IS_NOT_ACTIVE);
         if (!_isCorrectName(name)) error.set(TransferBackReason.INVALID_NAME);

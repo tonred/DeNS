@@ -86,6 +86,10 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataDynamicBase, Certifi
         return _root;
     }
 
+    function _getOwner() internal view override returns (address) {
+        return _owner;
+    }
+
     function _destroy() internal {
         Collection(_root).onBurn{
             value: Gas.ON_BURN_VALUE,

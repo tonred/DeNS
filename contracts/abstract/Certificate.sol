@@ -22,8 +22,6 @@ abstract contract Certificate is BaseSlave, TransferUtils {
     address public _root;
 
     string public _path;
-    address private _owner;  // private in order to be compatible with nft  // todo test (in case of bug - use _getOwner() method)
-
     uint32 public _initTime;
     uint32 public _expireTime;
 
@@ -37,7 +35,7 @@ abstract contract Certificate is BaseSlave, TransferUtils {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == _owner, ErrorCodes.IS_NOT_OWNER);
+        require(msg.sender == _getOwner(), ErrorCodes.IS_NOT_OWNER);
         _;
     }
 
@@ -76,7 +74,7 @@ abstract contract Certificate is BaseSlave, TransferUtils {
     }
 
     function getDetails() public view responsible returns (address owner, uint32 initTime, uint32 expireTime) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_owner, _initTime, _expireTime);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_getOwner(), _initTime, _expireTime);
     }
 
     function getStatus() public view responsible returns (CertificateStatus status) {
@@ -110,32 +108,6 @@ abstract contract Certificate is BaseSlave, TransferUtils {
         _setRecord(key, value);
     }
 
-    function _setRecord(uint32 key, TvmCell value) private {
-        if (key == Constants.TARGET_RECORD_ID) {
-            (uint16 bits, uint8 refs) = value.toSlice().size();
-            require(bits == Constants.ADDRESS_SIZE && refs == 0, ErrorCodes.INVALID_ADDRESS_CELL);
-            _setTarget(abi.decode(value, address));
-        } else {
-            require(value.depth() <= Constants.MAX_DEPTH, ErrorCodes.TOO_BIG_CELL);
-            value.dataSize(Constants.MAX_CELLS);  // can raise exception 8 (cell overflow)
-            _records[key] = value;
-        }
-    }
-
-    function _setTarget(address target) private {
-        require(target.isStdAddrWithoutAnyCast(), ErrorCodes.INVALID_ADDRESS_TYPE);
-        if (target == _target) {
-            return;
-        }
-        emit ChangedTarget(_target, target);
-        TvmCell encoded = abi.encode(target);
-        _target = target;
-        _records[Constants.TARGET_RECORD_ID] = encoded;
-        TvmCell code = tvm.setCodeSalt(tvm.code(), encoded);
-        tvm.setcode(code);
-    }
-
-
     function createSubdomain(string name, address owner, bool renewable) public view onlyOwner cashBack {
         CertificateStatus status = _status();
         require(status == CertificateStatus.COMMON || status == CertificateStatus.EXPIRING, ErrorCodes.WRONG_STATUS);
@@ -162,6 +134,34 @@ abstract contract Certificate is BaseSlave, TransferUtils {
         }(_expireTime);
     }
 
+
+    function _setRecord(uint32 key, TvmCell value) private {
+        if (key == Constants.TARGET_RECORD_ID) {
+            (uint16 bits, uint8 refs) = value.toSlice().size();
+            require(bits == Constants.ADDRESS_SIZE && refs == 0, ErrorCodes.INVALID_ADDRESS_CELL);
+            _setTarget(abi.decode(value, address));
+        } else {
+            require(value.depth() <= Constants.MAX_DEPTH, ErrorCodes.TOO_BIG_CELL);
+            value.dataSize(Constants.MAX_CELLS);  // can raise exception 8 (cell overflow)
+            _records[key] = value;
+        }
+    }
+
+    function _setTarget(address target) private {
+        require(target.isStdAddrWithoutAnyCast(), ErrorCodes.INVALID_ADDRESS_TYPE);
+        if (target == _target) {
+            return;
+        }
+        emit ChangedTarget(_target, target);
+        TvmCell encoded = abi.encode(target);
+        _target = target;
+        _records[Constants.TARGET_RECORD_ID] = encoded;
+        TvmCell code = tvm.setCodeSalt(tvm.code(), encoded);
+        tvm.setcode(code);
+    }
+
+    function _getOwner() internal view virtual returns (address);
+
     function _status() internal view virtual returns (CertificateStatus);
 
 
@@ -187,7 +187,7 @@ abstract contract Certificate is BaseSlave, TransferUtils {
         uint32 functionId = body.decode(uint32);
         if (functionId == tvm.functionId(renewSubdomain)) {
             // subdomain is not exist
-            _owner.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
+            _getOwner().transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
         }
     }
 

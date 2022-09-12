@@ -3,6 +3,7 @@ pragma ton-solidity >= 0.61.2;
 import "../enums/CertificateStatus.sol";
 import "../interfaces/IRoot.sol";
 import "../interfaces/ISubdomain.sol";
+import "../utils/Constants.sol";
 import "../utils/Gas.sol";
 import "../utils/NameChecker.sol";
 import "../utils/TransferUtils.sol";
@@ -26,7 +27,7 @@ abstract contract Certificate is BaseSlave, TransferUtils {
     uint32 public _expireTime;
 
     address public _target;
-    mapping(uint32 => bytes) public _records;
+    mapping(uint32 => TvmCell) public _records;
 
 
     modifier onlyRoot() {
@@ -58,6 +59,8 @@ abstract contract Certificate is BaseSlave, TransferUtils {
                 abi.decode(input, (address, TvmCell, TvmCell));
             _root = root;
             _id = abi.decode(initialData, uint256);
+            _initTime = now;
+            _target = address.makeAddrNone();
             _init(initialParams);
         } else {
             revert(VersionableErrorCodes.INVALID_OLD_VERSION);
@@ -79,35 +82,58 @@ abstract contract Certificate is BaseSlave, TransferUtils {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _status();
     }
 
-    // todo naming
     function resolve() public view responsible onActive returns (address target) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _target;
     }
 
-    function query(uint32 key) public view responsible onActive returns (bytes value) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records[key];
+    function query(uint32 key) public view responsible onActive returns (optional(TvmCell) value) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records.fetch(key);
     }
 
-    function getRecords() public view responsible onActive returns (mapping(uint32 => bytes) records) {
+    function getRecords() public view responsible onActive returns (mapping(uint32 => TvmCell) records) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records;
     }
 
 
     function setTarget(address target) public onActive onlyOwner cashBack {
+        _setTarget(target);
+    }
+
+    function setRecords(mapping(uint32 => TvmCell) records) public onActive onlyOwner cashBack {
+        for ((uint32 key, TvmCell value) : records) {
+            _setRecord(key, value);
+        }
+    }
+
+    function setRecord(uint32 key, TvmCell value) public onActive onlyOwner cashBack {
+        _setRecord(key, value);
+    }
+
+    function _setRecord(uint32 key, TvmCell value) private {
+        if (key == Constants.TARGET_RECORD_ID) {
+            (uint16 bits, uint8 refs) = value.toSlice().size();
+            require(bits == Constants.ADDRESS_SIZE && refs == 0, 69);
+            _setTarget(abi.decode(value, address));
+        } else {
+            require(value.depth() <= Constants.MAX_DEPTH, 69);
+            value.dataSize(Constants.MAX_CELLS);  // can raise exception 8 (cell overflow)
+            _records[key] = value;
+        }
+    }
+
+    function _setTarget(address target) private {
+        require(target.isStdAddrWithoutAnyCast(), 69);
+        if (target == _target) {
+            return;
+        }
         emit ChangedTarget(_target, target);
+        TvmCell encoded = abi.encode(target);
         _target = target;
-        TvmCell salt = abi.encode(target);
-        TvmCell code = tvm.setCodeSalt(tvm.code(), salt);
+        _records[Constants.TARGET_RECORD_ID] = encoded;
+        TvmCell code = tvm.setCodeSalt(tvm.code(), encoded);
         tvm.setcode(code);
     }
 
-    function setRecords(mapping(uint32 => bytes) records) public onActive onlyOwner cashBack {
-        _records = records;
-    }
-
-    function setRecord(uint32 key, bytes value) public onActive onlyOwner cashBack {
-        _records[key] = value;
-    }
 
     function createSubdomain(string name, address owner, bool renewable) public view onlyOwner cashBack {
         CertificateStatus status = _status();

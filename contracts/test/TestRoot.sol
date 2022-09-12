@@ -16,11 +16,10 @@ contract TestRoot is Root {
         TvmCell indexCode,
         string json,
         TvmCell platformCode,
-        address token,
         address dao,
         address admin,
         RootConfig config,
-        DomainConfig domainConfig,
+        AuctionConfig auctionConfig,
         DurationConfig durationConfig
     ) public Root(
         domainCode,
@@ -29,11 +28,10 @@ contract TestRoot is Root {
         indexCode,
         json,
         platformCode,
-        token,
         dao,
         admin,
         config,
-        domainConfig,
+        auctionConfig,
         durationConfig
     ) {
         tvm.accept();

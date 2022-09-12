@@ -15,7 +15,16 @@ library Constants {
     // Separator between parts of domain like "sub.domain.tld"
     string constant SEPARATOR = ".";
 
-    // Versionable
+    // CERTIFICATE (see Certificate.sol)
+    // Max record size
+    uint16 constant MAX_DEPTH = 8;
+    uint16 constant MAX_CELLS = 8;
+    // Exact address size
+    uint16 constant ADDRESS_SIZE = 267;
+    // Target record id
+    uint32 constant TARGET_RECORD_ID = 0;
+
+    // VERSIONABLE
     uint16 constant DOMAIN_SID = 1;
     uint16 constant DOMAIN_VERSION_MAJOR = 1;
     uint16 constant DOMAIN_VERSION_MINOR = 1;

@@ -30,15 +30,14 @@ contract Subdomain is ISubdomain, NFTCertificate {
     function onDeployRetry(TvmCell /*code*/, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
         (/*path*/, /*durationConfig*/, SubdomainSetup setup, /*indexCode*/)
             = abi.decode(params, (string, DurationConfig, SubdomainSetup, TvmCell));
-        if (_status() == CertificateStatus.EXPIRED) {
-            _destroy();
-        }
-        // todo check how it works after destroy
         IOwner(setup.creator).onCreateSubdomainError{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
             bounce: false
         }(_path, TransferBackReason.ALREADY_EXIST);
+        if (_status() == CertificateStatus.EXPIRED) {
+            _destroy();
+        }
     }
 
     function _init(TvmCell params) internal override {
@@ -48,7 +47,6 @@ contract Subdomain is ISubdomain, NFTCertificate {
         (_path, _durationConfig, setup, _indexCode) =
             abi.decode(params, (string, DurationConfig, SubdomainSetup, TvmCell));
         (_owner, creator, _expireTime, _parent, _renewable) = setup.unpack();
-        _initTime = now;
         IOwner(creator).onSubdomainCreated{
             value: Gas.RENEW_SUBDOMAIN_VALUE,
             flag: MsgFlag.SENDER_PAYS_FEES,

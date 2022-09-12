@@ -32,7 +32,7 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataDynamicBase, Certifi
 
     // TIP 4.1
     function changeManager(address newManager, address sendGasTo, mapping(address => CallbackParams) callbacks) public override onlyManager onActive {
-        super.changeManager(newManager, sendGasTo, callbacks);_reserve();
+        super.changeManager(newManager, sendGasTo, callbacks);
     }
 
     // TIP 4.1

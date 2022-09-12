@@ -146,7 +146,7 @@
 				{"name":"key","type":"uint32"}
 			],
 			"outputs": [
-				{"name":"value","type":"bytes"}
+				{"name":"value","type":"optional(cell)"}
 			]
 		},
 		{
@@ -155,7 +155,7 @@
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
-				{"name":"records","type":"map(uint32,bytes)"}
+				{"name":"records","type":"map(uint32,cell)"}
 			]
 		},
 		{
@@ -169,7 +169,7 @@
 		{
 			"name": "setRecords",
 			"inputs": [
-				{"name":"records","type":"map(uint32,bytes)"}
+				{"name":"records","type":"map(uint32,cell)"}
 			],
 			"outputs": [
 			]
@@ -178,7 +178,7 @@
 			"name": "setRecord",
 			"inputs": [
 				{"name":"key","type":"uint32"},
-				{"name":"value","type":"bytes"}
+				{"name":"value","type":"cell"}
 			],
 			"outputs": [
 			]
@@ -379,7 +379,7 @@
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_records","type":"map(uint32,bytes)"}
+				{"name":"_records","type":"map(uint32,cell)"}
 			]
 		},
 		{
@@ -504,7 +504,7 @@
 		{"name":"_initTime","type":"uint32"},
 		{"name":"_expireTime","type":"uint32"},
 		{"name":"_target","type":"address"},
-		{"name":"_records","type":"map(uint32,bytes)"},
+		{"name":"_records","type":"map(uint32,cell)"},
 		{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"_durationConfig","type":"tuple"},
 		{"name":"_parent","type":"address"},
 		{"name":"_renewable","type":"bool"}

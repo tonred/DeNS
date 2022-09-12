@@ -6,21 +6,19 @@ pragma AbiHeader pubkey;
 
 import "./abstract/NFTCertificate.sol";
 import "./abstract/Vault.sol";
+import "./auction/IAuctionRootCallback.sol";
 import "./enums/TransferKind.sol";
 import "./interfaces/IDomain.sol";
-import "./interfaces/IRoot.sol";
-import "./interfaces/ISubdomain.sol";
 import "./interfaces/IUpgradable.sol";
-import "./utils/Constants.sol";
 import "./utils/Converter.sol";
-import "./utils/NameChecker.sol";
 
 import "@broxus/contracts/contracts/utils/CheckPubKey.sol";
 import {BaseMaster} from "versionable/contracts/BaseMaster.sol";
 
 
-contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey {
+contract Root is IRoot, Collection, Vault, BaseMaster, IAuctionRootCallback, IUpgradable, CheckPubKey {
 
+    event ZeroAuctionStarted(string path);
     event Confiscated(string path, string reason, address owner);
     event Reserved(string path, string reason);
     event Unreserved(string path, string reason, address owner);
@@ -34,7 +32,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
     bool public _active;
 
     RootConfig public _config;
-    DomainConfig public _domainConfig;
+    AuctionConfig public _auctionConfig;
     DurationConfig public _durationConfig;
 
 
@@ -59,6 +57,11 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         _;
     }
 
+    modifier onlyAuctionRoot() {
+        require(msg.sender == _auctionConfig.auctionRoot, 69);
+        _;
+    }
+
 
     constructor(
         TvmCell domainCode,
@@ -67,19 +70,23 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         TvmCell indexCode,
         string json,
         TvmCell platformCode,
-        address token,
         address dao,
         address admin,
         RootConfig config,
-        DomainConfig domainConfig,
+        AuctionConfig auctionConfig,
         DurationConfig durationConfig
-    ) public Collection(domainCode, indexBasisCode, indexCode, json, platformCode) Vault(token) checkPubKey {
+    )
+        public
+        Collection(domainCode, indexBasisCode, indexCode, json, platformCode)
+        Vault(auctionConfig.tokenRoot)
+        checkPubKey
+    {
         tvm.accept();
         _initVersions([Constants.DOMAIN_SID, Constants.SUBDOMAIN_SID], [domainCode, subdomainCode]);
         _dao = dao;
         _admin = admin;
         _config = config;
-        _domainConfig = domainConfig;
+        _auctionConfig = auctionConfig;
         _durationConfig = durationConfig;
     }
 
@@ -89,9 +96,9 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
     }
 
     function getConfigs() public view responsible override returns (
-        RootConfig config, DomainConfig domainConfig, DurationConfig durationConfig
+        RootConfig config, AuctionConfig auctionConfig, DurationConfig durationConfig
     ) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_config, _domainConfig, _durationConfig);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_config, _auctionConfig, _durationConfig);
     }
 
     function checkName(string name) public view responsible override returns (bool correct) {
@@ -111,6 +118,14 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
 
     function resolve(string path) public view responsible override returns (address certificate) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _certificateAddress(path);
+    }
+
+    function expectedCertificateCodeHash(address target, uint16 sid) public view responsible override returns (uint256 codeHash) {
+        require(sid == Constants.DOMAIN_SID || sid == Constants.SUBDOMAIN_SID, 69);
+        TvmCell salt = abi.encode(target);
+        TvmCell originalCode = _getLatestCode(sid);
+        TvmCell code = tvm.setCodeSalt(originalCode, salt);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} tvm.hash(code);
     }
 
 
@@ -188,6 +203,26 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         _returnToken(returnAmount, sender, TransferBackReason.DURATION_OVERFLOW);
     }
 
+    function startZeroAuction(string path, address remainingGasTo) public override onlyCertificate(path) minValue(Gas.START_ZERO_AUCTION_VALUE) {
+        _reserve();
+        emit ZeroAuctionStarted(path);
+        address domain = _certificateAddress(path);
+        IDomain(domain).startZeroAuction{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(_auctionConfig, remainingGasTo);
+    }
+
+    function auctionTip3DeployedCallback(address auction, MarketOffer info) public override onlyAuctionRoot {
+        IDomain(info.nft).onZeroAuctionStarted{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(auction);
+    }
+
+
     function deploySubdomain(string path, string name, SubdomainSetup setup) public view override onlyCertificate(path) {
         path = path + "." + name;  // todo Constants.SEPARATOR
         optional(TransferBackReason) error;
@@ -222,8 +257,8 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
             DomainSetup setup = DomainSetup({
                 owner: _dao,
                 price: 0,
-                needZeroAuction: false,
                 reserved: true,
+                needZeroAuction: false,
                 expireTime: 0,
                 amount: 0
             });
@@ -244,21 +279,6 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         }(owner, price, expireTime, needZeroAuction);
     }
 
-//    function collect(uint128 amount, address staking) public view onlyDao {
-//        // todo collect while exception in renew (we must return some tokens):
-//        // 1) use onRenew + dont call "collect" (auto send to dao)
-//        // 2) leave as is (maybe return to dao instead of staking)
-//        require(amount <= _balance, 69);
-//        TvmCell payload = abi.encode(reason);
-//        _transferTokens(amount, staking, payload);
-//    }
-
-    // no cash back in order to have ability to withdraw native EVERs
-    function execute(Action[] actions) public view override onlyDao {
-        for (Action action : actions) {
-            _execute(action);
-        }
-    }
 
     function activate() public override onlyAdmin cashBack {
         _active = true;
@@ -266,6 +286,24 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
 
     function deactivate() public override onlyAdmin cashBack {
         _active = false;
+    }
+
+    function updateConfigs(
+        optional(RootConfig) config,
+        optional(AuctionConfig) auctionConfig,
+        optional(DurationConfig) durationConfig
+    ) public override onlyDao cashBack {
+        if (config.hasValue()) _config = config.get();
+        if (auctionConfig.hasValue()) _auctionConfig = auctionConfig.get();
+        if (durationConfig.hasValue()) _durationConfig = durationConfig.get();
+    }
+
+    function changeAdmin(address admin) public override onlyAdmin {
+        _admin = admin;
+    }
+
+    function changeDao(address dao) public override onlyDao {
+        _dao = dao;
     }
 
 
@@ -289,8 +327,8 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         DomainSetup setup = DomainSetup({
             owner: owner,
             price: price,
-            needZeroAuction: needZeroAuction,
             reserved: false,
+            needZeroAuction: needZeroAuction,
             expireTime: now + duration,
             amount: amount
         });
@@ -313,7 +351,8 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
 
     function _deployDomain(string path, DomainSetup setup) private view {
         TvmCell code = _getLatestCode(Constants.DOMAIN_SID);
-        TvmCell params = abi.encode(path, _domainConfig, _durationConfig, setup, _indexCode);
+        DomainConfig domainConfig = DomainConfig(_config.maxDuration, _config.graceFinePercent);
+        TvmCell params = abi.encode(path, _durationConfig, domainConfig, setup, _indexCode);
         _deployCertificate(path, Gas.DEPLOY_DOMAIN_VALUE, MsgFlag.SENDER_PAYS_FEES, code, params);
     }
 
@@ -336,15 +375,6 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
 
     function _createPath(string name) internal view inline returns (string) {
         return name + "." + _tld;  // todo Constants.SEPARATOR
-    }
-
-    function _execute(Action action) private pure {
-        action.target.transfer({
-            value: action.value,
-            flag: MsgFlag.SENDER_PAYS_FEES,
-            bounce: false,
-            body: action.payload
-        });
     }
 
     function _returnToken(uint128 amount, address recipient, TransferBackReason reason) private {
@@ -373,26 +403,12 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         _setVersionActivation(sid, version, active);
     }
 
-    function createNewVersion(
-        bool domainMinor,
-        TvmCell domainCode,
-        TvmCell domainParams,
-        bool subdomainMinor,
-        TvmCell subdomainCode,
-        TvmCell subdomainParams,
-        optional(DomainConfig) domainConfig,
-        optional(DurationConfig) durationConfig
-    ) public override onlyAdmin {
-        bool isNewDomain = !domainCode.toSlice().empty();
-        bool isNewSubdomain = !subdomainCode.toSlice().empty();
-        bool isNewDomainConfig = domainConfig.hasValue();
-        bool isNewDurationConfig = durationConfig.hasValue();  // using in domain and subdomain
-        require(!isNewDomainConfig || isNewDomain, 69);
-        require(!isNewDurationConfig || (isNewDomain && isNewSubdomain), 69);
-        if (isNewDomain) _createNewVersion(Constants.DOMAIN_SID, domainMinor, domainCode, domainParams);
-        if (isNewSubdomain) _createNewVersion(Constants.SUBDOMAIN_SID, subdomainMinor, subdomainCode, subdomainParams);
-        if (isNewDomainConfig) _domainConfig = domainConfig.get();
-        if (isNewDurationConfig) _durationConfig = durationConfig.get();
+    function createNewDomainVersion(bool minor, TvmCell code, TvmCell params) public override onlyAdmin {
+        _createNewVersion(Constants.DOMAIN_SID, minor, code, params);
+    }
+
+    function createNewSubdomainVersion(bool minor, TvmCell code, TvmCell params) public override onlyAdmin {
+        _createNewVersion(Constants.SUBDOMAIN_SID, minor, code, params);
     }
 
     function upgrade(TvmCell code) public internalMsg override onlyAdmin {

@@ -7,6 +7,9 @@ library Gas {
     // uint128 constant DEPLOY_INDEX_VALUE = 0.2 ton;
     // uint128 constant DESTROY_INDEX_VALUE = 0.1 ton;
 
+    // From Auction
+    // uint128 constant DEPLOY_AUCTION_VALUE = 3 ever;  // todo replace all ton -> ever
+
     // Vault
     uint128 constant DEPLOY_WALLET_VALUE        = 0.1 ton;
 
@@ -27,7 +30,8 @@ library Gas {
 
     // Domain
     uint128 constant DOMAIN_TARGET_BALANCE      = 1 ton;
-    uint128 constant START_ZERO_AUCTION_VALUE   = 10 ton;  // todo START_ZERO_AUCTION_VALUE
+    uint128 constant START_ZERO_AUCTION_VALUE   = 5 ton;  // more than CREATE_AUCTION_VALUE + 2 * DEPLOY_INDEX_VALUE (TIP4.3)
+    uint128 constant CREATE_AUCTION_VALUE       = 4 ton;  // more than DEPLOY_AUCTION_VALUE (Auction) + 2 * DEPLOY_INDEX_VALUE (TIP4.3)
 
     // Subdomain
     uint128 constant SUBDOMAIN_TARGET_BALANCE   = 1 ton;

@@ -12,11 +12,10 @@
 				{"name":"indexCode","type":"cell"},
 				{"name":"json","type":"string"},
 				{"name":"platformCode","type":"cell"},
-				{"name":"token","type":"address"},
 				{"name":"dao","type":"address"},
 				{"name":"admin","type":"address"},
-				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"}],"name":"config","type":"tuple"},
-				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"domainConfig","type":"tuple"},
+				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"config","type":"tuple"},
+				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"auctionConfig","type":"tuple"},
 				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"tuple"}
 			],
 			"outputs": [
@@ -49,8 +48,8 @@
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
-				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"}],"name":"config","type":"tuple"},
-				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"domainConfig","type":"tuple"},
+				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"config","type":"tuple"},
+				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"auctionConfig","type":"tuple"},
 				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"tuple"}
 			]
 		},
@@ -93,6 +92,17 @@
 			],
 			"outputs": [
 				{"name":"certificate","type":"address"}
+			]
+		},
+		{
+			"name": "expectedCertificateCodeHash",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"target","type":"address"},
+				{"name":"sid","type":"uint16"}
+			],
+			"outputs": [
+				{"name":"codeHash","type":"uint256"}
 			]
 		},
 		{
@@ -149,6 +159,24 @@
 			]
 		},
 		{
+			"name": "startZeroAuction",
+			"inputs": [
+				{"name":"path","type":"string"},
+				{"name":"remainingGasTo","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "auctionTip3DeployedCallback",
+			"inputs": [
+				{"name":"auction","type":"address"},
+				{"components":[{"name":"collection","type":"address"},{"name":"nftOwner","type":"address"},{"name":"nft","type":"address"},{"name":"offer","type":"address"},{"name":"price","type":"uint128"},{"name":"auctionDuration","type":"uint128"},{"name":"deployNonce","type":"uint64"}],"name":"info","type":"tuple"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "deploySubdomain",
 			"inputs": [
 				{"name":"path","type":"string"},
@@ -191,14 +219,6 @@
 			]
 		},
 		{
-			"name": "execute",
-			"inputs": [
-				{"components":[{"name":"target","type":"address"},{"name":"value","type":"uint128"},{"name":"payload","type":"cell"},{"name":"abi","type":"cell"}],"name":"actions","type":"tuple[]"}
-			],
-			"outputs": [
-			]
-		},
-		{
 			"name": "activate",
 			"inputs": [
 			],
@@ -208,6 +228,32 @@
 		{
 			"name": "deactivate",
 			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "updateConfigs",
+			"inputs": [
+				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"config","type":"optional(tuple)"},
+				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"auctionConfig","type":"optional(tuple)"},
+				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"optional(tuple)"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "changeAdmin",
+			"inputs": [
+				{"name":"admin","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "changeDao",
+			"inputs": [
+				{"name":"dao","type":"address"}
 			],
 			"outputs": [
 			]
@@ -246,16 +292,21 @@
 			]
 		},
 		{
-			"name": "createNewVersion",
+			"name": "createNewDomainVersion",
 			"inputs": [
-				{"name":"domainMinor","type":"bool"},
-				{"name":"domainCode","type":"cell"},
-				{"name":"domainParams","type":"cell"},
-				{"name":"subdomainMinor","type":"bool"},
-				{"name":"subdomainCode","type":"cell"},
-				{"name":"subdomainParams","type":"cell"},
-				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"domainConfig","type":"optional(tuple)"},
-				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"optional(tuple)"}
+				{"name":"minor","type":"bool"},
+				{"name":"code","type":"cell"},
+				{"name":"params","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "createNewSubdomainVersion",
+			"inputs": [
+				{"name":"minor","type":"bool"},
+				{"name":"code","type":"cell"},
+				{"name":"params","type":"cell"}
 			],
 			"outputs": [
 			]
@@ -586,15 +637,15 @@
 			"inputs": [
 			],
 			"outputs": [
-				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"}],"name":"_config","type":"tuple"}
+				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"_config","type":"tuple"}
 			]
 		},
 		{
-			"name": "_domainConfig",
+			"name": "_auctionConfig",
 			"inputs": [
 			],
 			"outputs": [
-				{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"_domainConfig","type":"tuple"}
+				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"_auctionConfig","type":"tuple"}
 			]
 		},
 		{
@@ -610,6 +661,14 @@
 		{"key":1,"name":"_tld","type":"string"}
 	],
 	"events": [
+		{
+			"name": "ZeroAuctionStarted",
+			"inputs": [
+				{"name":"path","type":"string"}
+			],
+			"outputs": [
+			]
+		},
 		{
 			"name": "Confiscated",
 			"inputs": [
@@ -716,8 +775,8 @@
 		{"name":"_dao","type":"address"},
 		{"name":"_admin","type":"address"},
 		{"name":"_active","type":"bool"},
-		{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"}],"name":"_config","type":"tuple"},
-		{"components":[{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"_domainConfig","type":"tuple"},
+		{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"}],"name":"_config","type":"tuple"},
+		{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"_auctionConfig","type":"tuple"},
 		{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"_durationConfig","type":"tuple"}
 	]
 }

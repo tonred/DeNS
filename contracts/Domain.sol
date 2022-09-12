@@ -7,44 +7,45 @@ pragma AbiHeader pubkey;
 import "./interfaces/IDomain.sol";
 import "./interfaces/outer/IOwner.sol";
 import "./abstract/NFTCertificate.sol";
-import "./utils/Constants.sol";
 import "./utils/Converter.sol";
+
+import "./auction/MarketOffer.sol";
 
 
 contract Domain is IDomain, NFTCertificate {
 
-    event ZeroAuctionStarted();
-    event ZeroAuctionFinished();
+    event ZeroAuctionStarted(address zeroAuction);
+    event ZeroAuctionFinished(address winner);
     event Renewed(uint32 time, uint32 duration, uint32 newExpireTime);
 
 
     DomainConfig public _config;
     DurationConfig public _durationConfig;
-    uint128 public _defaultPrice;
-    uint128 public _auctionPrice;
+
+    uint128 public _price;
+    bool public _reserved;
 
     bool public _inZeroAuction;
     bool public _needZeroAuction;
-    bool public _reserved;
+    address public _zeroAuction;
 
 
     // 0x4A2E4FD6 is a Platform constructor functionID
     function onDeployRetry(TvmCell /*code*/, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
-        (/*path*/, /*config*/, /*durationConfig*/, DomainSetup setup, /*indexCode*/)
-            = abi.decode(params, (string, DomainConfig, DurationConfig, DomainSetup, TvmCell));
+        (/*path*/, /*durationConfig*/, /*config*/, DomainSetup setup, /*indexCode*/)
+            = abi.decode(params, (string, DurationConfig, DomainConfig, DomainSetup, TvmCell));
         if (setup.reserved) {
             _root.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
             return;
         }
-        if (_status() == CertificateStatus.EXPIRED) {
-            _destroy();
-        }
-        // todo check how it works after destroy
         IRoot(_root).onDomainDeployRetry{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
             bounce: false
         }(_path, setup.amount, setup.owner);
+        if (_status() == CertificateStatus.EXPIRED) {
+            _destroy();
+        }
     }
 
     function _init(TvmCell params) internal override {
@@ -52,11 +53,10 @@ contract Domain is IDomain, NFTCertificate {
         _initVersion(Constants.DOMAIN_SID, Version(Constants.DOMAIN_VERSION_MAJOR, Constants.DOMAIN_VERSION_MINOR));
         DomainSetup setup;
         TvmCell indexCode;
-        (_path, _config, _durationConfig, setup, indexCode) =
-            abi.decode(params, (string, DomainConfig, DurationConfig, DomainSetup, TvmCell));
-        (_owner, _defaultPrice, _needZeroAuction, _reserved, _expireTime, /*amount*/) = setup.unpack();
-        _auctionPrice = _defaultPrice;
-        _initTime = now;
+        (_path, _durationConfig, _config, setup, indexCode) =
+            abi.decode(params, (string, DurationConfig, DomainConfig, DomainSetup, TvmCell));
+        (_owner, _price, _reserved, _needZeroAuction, _expireTime, /*amount*/) = setup.unpack();
+        _zeroAuction = address.makeAddrNone();
         _initNFT(_owner, _owner, indexCode, _owner);
     }
 
@@ -69,31 +69,52 @@ contract Domain is IDomain, NFTCertificate {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _durationConfig;
     }
 
-    function getPrices() public view responsible override returns (uint128 defaultPrice, uint128 auctionPrice) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_defaultPrice, _auctionPrice);
+    function getPrice() public view responsible override returns (uint128 price) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _price;
     }
 
     function getFlags() public view responsible override returns (bool inZeroAuction, bool needZeroAuction, bool reserved) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_inZeroAuction, _needZeroAuction, _reserved);
     }
 
+    function getZeroAuction() public view responsible override returns (optional(address) zeroAuction) {
+        if (!_zeroAuction.isNone()) {
+            zeroAuction.set(_zeroAuction);
+        }
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} zeroAuction;
+    }
 
-    function startZeroAuction() public override onStatus(CertificateStatus.NEW) minValue(Gas.START_ZERO_AUCTION_VALUE) {
-        // todo startZeroAuction
 
-        emit ZeroAuctionStarted();
+    function requestZeroAuction() public view override onStatus(CertificateStatus.NEW) cashBack {
+        IRoot(_root).startZeroAuction{
+            value: Gas.START_ZERO_AUCTION_VALUE,
+            flag: MsgFlag.SENDER_PAYS_FEES,
+            bounce: false
+        }(_path, msg.sender);
+    }
+
+    function startZeroAuction(AuctionConfig config, address remainingGasTo) public override onlyRoot onStatus(CertificateStatus.NEW) {
         _inZeroAuction = true;
+        _owner = _manager = _root;  // in order to integrate with auction root
+        mapping(address => CallbackParams) callbacks;
+        TvmCell payload = _buildAuctionPayload(config);
+        callbacks[config.auctionRoot] = CallbackParams(Gas.CREATE_AUCTION_VALUE, payload);
+        changeManager(config.auctionRoot, remainingGasTo, callbacks);
+    }
+
+    function onZeroAuctionStarted(address zeroAuction) public override onlyRoot {
+        emit ZeroAuctionStarted(zeroAuction);
+        _zeroAuction = zeroAuction;
     }
 
     function onZeroAuctionFinished() public override onStatus(CertificateStatus.IN_ZERO_AUCTION) {
         // todo onZeroAuctionFinished
 //        require(msg.sender == _auction, 69);
 
-        emit ZeroAuctionFinished();
+//        emit ZeroAuctionFinished(winner);
 //        _auction = address.makeAddrNone();
         _inZeroAuction = false;
         _needZeroAuction = false;
-//        _auctionPrice = auctionPrice;
     }
 
     function expectedRenewAmount(uint32 newExpireTime) public view responsible override returns (uint128 amount) {
@@ -149,7 +170,7 @@ contract Domain is IDomain, NFTCertificate {
     function unreserve(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) public override onlyRoot {
         _updateIndexes(_owner, owner, _owner);
         _owner = owner;
-        _defaultPrice = _auctionPrice = price;
+        _price = price;
         _needZeroAuction = needZeroAuction;
         _reserved = false;
         _initTime = now;
@@ -183,11 +204,17 @@ contract Domain is IDomain, NFTCertificate {
     }
 
     function _calcRenewPrice(CertificateStatus status) private view inline returns (uint128) {
-        uint128 price = _auctionPrice;  // todo _defaultPrice VS _auctionPrice
+        uint128 price = _price;
         if (status == CertificateStatus.GRACE) {
             price += math.muldiv(_config.graceFinePercent, price, Constants.PERCENT_DENOMINATOR);
         }
         return price;
+    }
+
+    function _buildAuctionPayload(AuctionConfig config) private view inline returns (TvmCell) {
+        TvmBuilder builder;
+        builder.store(config.tokenRoot, _price, now, config.duration);
+        return builder.toCell();
     }
 
     function _targetBalance() internal view inline override returns (uint128) {

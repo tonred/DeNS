@@ -23,6 +23,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
     event Unreserved(string path, string reason, address owner);
     event DomainCodeUpgraded(uint16 newVersion);
 
+    uint static _randomNonce;
 
     string public static _tld;
 
@@ -78,7 +79,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         public
         Collection(domainCode, indexBasisCode, indexCode, json, platformCode)
         Vault(auctionConfig.tokenRoot)
-        checkPubKey
+//        checkPubKey
     {
         tvm.accept();
         _initVersions([Constants.DOMAIN_SID, Constants.SUBDOMAIN_SID], [domainCode, subdomainCode]);
@@ -89,6 +90,9 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
         _durationConfig = durationConfig;
     }
 
+    function getPath() public view responsible override returns (string path) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _tld;
+    }
 
     function getDetails() public view responsible override returns (string tld, address dao, bool active) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_tld, _dao, _active);
@@ -215,7 +219,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, CheckPubKey 
 
 
     function deploySubdomain(string path, string name, SubdomainSetup setup) public view override onlyCertificate(path) {
-        path = path + "." + name;  // todo Constants.SEPARATOR
+        path = name + "." + path;  // todo Constants.SEPARATOR
         optional(TransferBackReason) error;
         if (!_active) error.set(TransferBackReason.IS_NOT_ACTIVE);
         if (!_isCorrectName(name)) error.set(TransferBackReason.INVALID_NAME);

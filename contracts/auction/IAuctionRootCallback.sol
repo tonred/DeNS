@@ -1,4 +1,4 @@
-pragma ever-solidity >= 0.62.0;  // todo all to one standard
+pragma ever-solidity ^0.63.0;
 
 import "./MarketOffer.sol";
 

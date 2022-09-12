@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.61.2;
+pragma ever-solidity ^0.63.0;
 
 import {Version} from "versionable/contracts/utils/Structs.sol";
 

@@ -1,4 +1,4 @@
-pragma ton-solidity >= 0.61.2;
+pragma ever-solidity ^0.63.0;
 
 import "../../enums/TransferBackReason.sol";
 import "../../structures/DomainSetup.sol";

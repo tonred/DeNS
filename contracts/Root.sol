@@ -256,7 +256,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
                 price: 0,
                 reserved: true,
                 needZeroAuction: false,
-                expireTime: 0,
+                expireTime: Constants.RESERVED_EXPIRE_TIME,
                 amount: 0
             });
             _deployDomain(path, setup);

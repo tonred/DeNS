@@ -15,6 +15,9 @@ library Constants {
     // Separator between parts of domain like "sub.domain.tld"
     string constant SEPARATOR = ".";
 
+    // Expire time for reserved certificates (max uint32 value)
+    uint32 constant RESERVED_EXPIRE_TIME = 2 ** 32 - 1;
+
     // CERTIFICATE (see Certificate.sol)
     // Max record size
     uint16 constant MAX_DEPTH = 8;

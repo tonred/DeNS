@@ -413,7 +413,7 @@
 		{
 			"name": "Renewed",
 			"inputs": [
-				{"name":"time","type":"uint32"},
+				{"name":"now","type":"uint32"},
 				{"name":"newExpireTime","type":"uint32"}
 			],
 			"outputs": [

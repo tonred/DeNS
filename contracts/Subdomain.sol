@@ -9,7 +9,7 @@ import "./abstract/NFTCertificate.sol";
 
 contract Subdomain is ISubdomain, NFTCertificate {
 
-    event Renewed(uint32 time, uint32 newExpireTime);
+    event Renewed(uint32 now, uint32 newExpireTime);
 
     DurationConfig public _durationConfig;
     address public _parent;
@@ -70,8 +70,10 @@ contract Subdomain is ISubdomain, NFTCertificate {
 
     function renew(uint32 expireTime) public override onlyParent onlyRenewable {
         _reserve();
-        _expireTime = expireTime;
-        emit Renewed(now, _expireTime);
+        if (_expireTime != expireTime) {
+            _expireTime = expireTime;
+            emit Renewed(now, _expireTime);
+        }
         _owner.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
     }
 

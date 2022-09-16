@@ -9,7 +9,7 @@ interface IDomain {
     function getDurationConfig() external view responsible returns (DurationConfig durationConfig);
     function getConfig() external view responsible returns (DomainConfig config);
     function getPrice() external view responsible returns (uint128 price);
-    function getFlags() external view responsible returns (bool inZeroAuction, bool needZeroAuction, bool reserved);
+    function getFlags() external view responsible returns (bool reserved, bool inZeroAuction, bool needZeroAuction);
     function getZeroAuction() external view responsible returns (optional(address) zeroAuction);
 
     function requestZeroAuction() external view;

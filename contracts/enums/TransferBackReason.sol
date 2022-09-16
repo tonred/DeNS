@@ -14,11 +14,15 @@ enum TransferBackReason {
     NOT_FOR_SALE,       // 5
     LOW_TOKENS_AMOUNT,  // 6
     INVALID_DURATION,   // 7
+    AUCTION_BUYOUT,     // 8
 
     // Renew
-    DURATION_OVERFLOW,  // 8
+    INVALID_SENDER,     // 9
+    INVALID_STATUS,     // 10
+    ALREADY_RENEWED,    // 11
+    DURATION_OVERFLOW,  // 12
 
     // Other
-    UNKNOWN_TRANSFER    // 9
+    UNKNOWN_TRANSFER    // 13
 
 }

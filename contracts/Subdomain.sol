@@ -60,21 +60,26 @@ contract Subdomain is ISubdomain, NFTCertificate {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _durationConfig;
     }
 
-    function requestRenew() public view override onlyRenewable cashBack {
+    function requestRenew() public view override onlyOwner onlyRenewable cashBack {
         Certificate(_parent).renewSubdomain{
             value: Gas.RENEW_SUBDOMAIN_VALUE,
             flag: MsgFlag.SENDER_PAYS_FEES,
             bounce: false
-        }(address(this));
+        }(address(this), msg.sender);
     }
 
-    function renew(uint32 expireTime) public override onlyParent onlyRenewable {
+    function renew(address owner, uint32 expireTime) public override onlyParent onlyRenewable {
+        require(owner == _owner, ErrorCodes.IS_NOT_OWNER);
         _reserve();
         if (_expireTime != expireTime) {
             _expireTime = expireTime;
             emit Renewed(now, _expireTime);
         }
-        _owner.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
+        IOwner(_owner).onRenewed{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(_path, _expireTime);
     }
 
 

@@ -157,32 +157,32 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         _reserve();
         _balance += amount;
         if (!_active) {
-            _returnToken(amount, sender, TransferBackReason.IS_NOT_ACTIVE);
+            _returnTokens(amount, sender, TransferBackReason.IS_NOT_ACTIVE);
             return;
         }
 
         (TransferKind kind, TvmCell data) = abi.decode(payload, (TransferKind, TvmCell));
         if (kind == TransferKind.REGISTER) {
             if (msg.value < Gas.REGISTER_DOMAIN_VALUE) {
-                _returnToken(amount, sender, TransferBackReason.LOW_MSG_VALUE);
+                _returnTokens(amount, sender, TransferBackReason.LOW_MSG_VALUE);
                 return;
             }
             string name = abi.decode(data, string);
             (string path, DomainSetup setup, optional(TransferBackReason) error) = _buildDomainParams(name, amount, sender);
             if (error.hasValue()) {
-                _returnToken(amount, sender, error.get());
+                _returnTokens(amount, sender, error.get());
                 return;
             }
             _deployDomain(path, setup);
             sender.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
         } else if (kind == TransferKind.RENEW) {
             if (msg.value < Gas.RENEW_DOMAIN_VALUE) {
-                _returnToken(amount, sender, TransferBackReason.LOW_MSG_VALUE);
+                _returnTokens(amount, sender, TransferBackReason.LOW_MSG_VALUE);
                 return;
             }
             string name = abi.decode(data, string);
             if (!_isCorrectName(name)) {
-                _returnToken(amount, sender, TransferBackReason.INVALID_NAME);
+                _returnTokens(amount, sender, TransferBackReason.INVALID_NAME);
                 return;
             }
             string path = _createPath(name);
@@ -194,21 +194,20 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
                 bounce: false  // todo if domain not exists
             }(amount, sender);
         } else {
-            _returnToken(amount, sender, TransferBackReason.UNKNOWN_TRANSFER);
+            _returnTokens(amount, sender, TransferBackReason.UNKNOWN_TRANSFER);
         }
     }
 
-    function onDomainDeployRetry(string path, uint128 amount, address sender) public override onlyCertificate(path) {
+    function returnTokensFromDomain(
+        string path, uint128 amount, address recipient, TransferBackReason reason
+    ) public override onlyCertificate(path) {
         _reserve();
-        _returnToken(amount, sender, TransferBackReason.ALREADY_EXIST);
+        _returnTokens(amount, recipient, reason);
     }
 
-    function onDomainRenewReturn(string path, uint128 returnAmount, address sender) public override onlyCertificate(path) {
-        _reserve();
-        _returnToken(returnAmount, sender, TransferBackReason.DURATION_OVERFLOW);
-    }
-
-    function startZeroAuction(string path, address remainingGasTo) public override onlyCertificate(path) minValue(Gas.START_ZERO_AUCTION_VALUE) {
+    function startZeroAuction(
+        string path, address remainingGasTo
+    ) public override onlyCertificate(path) minValue(Gas.START_ZERO_AUCTION_VALUE) {
         _reserve();
         emit ZeroAuctionStarted(path);
         address domain = _certificateAddress(path);
@@ -308,7 +307,9 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
     }
 
 
-    function _buildDomainParams(string name, uint128 amount, address owner) private view returns (string, DomainSetup, optional(TransferBackReason)) {
+    function _buildDomainParams(
+        string name, uint128 amount, address owner
+    ) private view returns (string, DomainSetup, optional(TransferBackReason)) {
         DomainSetup empty;
         if (!_isCorrectName(name)) {
             return ("", empty, TransferBackReason.INVALID_NAME);
@@ -386,7 +387,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         return name + "." + _tld;  // todo Constants.SEPARATOR
     }
 
-    function _returnToken(uint128 amount, address recipient, TransferBackReason reason) private {
+    function _returnTokens(uint128 amount, address recipient, TransferBackReason reason) private {
         TvmCell payload = abi.encode(reason);
         _transferTokens(amount, recipient, payload);
     }

@@ -1,5 +1,6 @@
 pragma ever-solidity ^0.63.0;
 
+import "../enums/TransferBackReason.sol";
 import "../structures/Configs.sol";
 import "../structures/SubdomainSetup.sol";
 
@@ -21,9 +22,7 @@ interface IRoot {
 
     function buildRegisterPayload(string name) external view responsible returns (TvmCell payload);
     function buildRenewPayload(string name) external view responsible returns (TvmCell payload);
-
-    function onDomainDeployRetry(string path, uint128 amount, address sender) external;
-    function onDomainRenewReturn(string path, uint128 returnAmount, address sender) external;
+    function returnTokensFromDomain(string path, uint128 amount, address recipient, TransferBackReason reason) external;
     function startZeroAuction(string path, address remainingGasTo) external;
 
     function deploySubdomain(string path, string name, SubdomainSetup setup) external view;

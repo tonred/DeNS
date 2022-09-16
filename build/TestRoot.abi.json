@@ -151,21 +151,12 @@
 			]
 		},
 		{
-			"name": "onDomainDeployRetry",
+			"name": "returnTokensFromDomain",
 			"inputs": [
 				{"name":"path","type":"string"},
 				{"name":"amount","type":"uint128"},
-				{"name":"sender","type":"address"}
-			],
-			"outputs": [
-			]
-		},
-		{
-			"name": "onDomainRenewReturn",
-			"inputs": [
-				{"name":"path","type":"string"},
-				{"name":"returnAmount","type":"uint128"},
-				{"name":"sender","type":"address"}
+				{"name":"recipient","type":"address"},
+				{"name":"reason","type":"uint8"}
 			],
 			"outputs": [
 			]

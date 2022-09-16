@@ -46,9 +46,9 @@
 				{"name":"answerId","type":"uint32"}
 			],
 			"outputs": [
+				{"name":"reserved","type":"bool"},
 				{"name":"inZeroAuction","type":"bool"},
-				{"name":"needZeroAuction","type":"bool"},
-				{"name":"reserved","type":"bool"}
+				{"name":"needZeroAuction","type":"bool"}
 			]
 		},
 		{
@@ -265,7 +265,8 @@
 		{
 			"name": "renewSubdomain",
 			"inputs": [
-				{"name":"subdomain","type":"address"}
+				{"name":"subdomain","type":"address"},
+				{"name":"owner","type":"address"}
 			],
 			"outputs": [
 			]
@@ -514,6 +515,22 @@
 			"outputs": [
 				{"name":"_zeroAuction","type":"address"}
 			]
+		},
+		{
+			"name": "_paybackAmount",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_paybackAmount","type":"uint128"}
+			]
+		},
+		{
+			"name": "_paybackOwner",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_paybackOwner","type":"address"}
+			]
 		}
 	],
 	"data": [
@@ -637,6 +654,8 @@
 		{"name":"_inZeroAuction","type":"bool"},
 		{"name":"_needZeroAuction","type":"bool"},
 		{"name":"_auctionRoot","type":"address"},
-		{"name":"_zeroAuction","type":"address"}
+		{"name":"_zeroAuction","type":"address"},
+		{"name":"_paybackAmount","type":"uint128"},
+		{"name":"_paybackOwner","type":"address"}
 	]
 }

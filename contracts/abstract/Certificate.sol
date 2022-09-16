@@ -130,13 +130,13 @@ abstract contract Certificate is BaseSlave, TransferUtils {
         }(_path, name, setup);
     }
 
-    // can renew only direct child, no sender check needed
-    function renewSubdomain(address subdomain) public view onActive minValue(Gas.RENEW_SUBDOMAIN_VALUE) {
+    // can renew only direct child
+    function renewSubdomain(address subdomain, address owner) public view onActive minValue(Gas.RENEW_SUBDOMAIN_VALUE) {
         ISubdomain(subdomain).renew{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
             bounce: true
-        }(_expireTime);
+        }(owner, _expireTime);
     }
 
 

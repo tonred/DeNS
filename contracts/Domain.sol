@@ -29,7 +29,14 @@ contract Domain is IDomain, NFTCertificate {
     bool public _needZeroAuction;
     address public _auctionRoot;
     address public _zeroAuction;
+    uint128 public _paybackAmount;
+    address public _paybackOwner;
 
+
+    modifier onlyManagerOrRoot() {
+        require(msg.sender == _manager || msg.sender == _root, ErrorCodes.IS_NOT_MANAGER);
+        _;
+    }
 
     // 0x4A2E4FD6 is a Platform constructor functionID
     function onDeployRetry(TvmCell /*code*/, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
@@ -39,11 +46,11 @@ contract Domain is IDomain, NFTCertificate {
             _root.transfer({value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false});
             return;
         }
-        IRoot(_root).onDomainDeployRetry{
+        IRoot(_root).returnTokensFromDomain{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
             bounce: false
-        }(_path, setup.amount, setup.owner);
+        }(_path, setup.amount, setup.owner, TransferBackReason.ALREADY_EXIST);
         if (_status() == CertificateStatus.EXPIRED) {
             _destroy();
         }
@@ -56,8 +63,8 @@ contract Domain is IDomain, NFTCertificate {
         TvmCell indexCode;
         (_path, _durationConfig, _config, setup, indexCode) =
             abi.decode(params, (string, DurationConfig, DomainConfig, DomainSetup, TvmCell));
-        (_owner, _price, _reserved, _needZeroAuction, _expireTime, /*amount*/) = setup.unpack();
-        _auctionRoot = _zeroAuction = address.makeAddrNone();
+        (_owner, _price, _reserved, _needZeroAuction, _expireTime, _paybackAmount) = setup.unpack();
+        _auctionRoot = _zeroAuction = _paybackOwner = address.makeAddrNone();
         _initNFT(_owner, _owner, indexCode, _owner);
     }
 
@@ -74,8 +81,8 @@ contract Domain is IDomain, NFTCertificate {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _price;
     }
 
-    function getFlags() public view responsible override returns (bool inZeroAuction, bool needZeroAuction, bool reserved) {
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_inZeroAuction, _needZeroAuction, _reserved);
+    function getFlags() public view responsible override returns (bool reserved, bool inZeroAuction, bool needZeroAuction) {
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_reserved, _inZeroAuction, _needZeroAuction);
     }
 
     function getZeroAuction() public view responsible override returns (optional(address) zeroAuction) {
@@ -100,16 +107,18 @@ contract Domain is IDomain, NFTCertificate {
         mapping(address => CallbackParams) callbacks;
         TvmCell payload = _buildAuctionPayload(config);
         callbacks[config.auctionRoot] = CallbackParams(Gas.CREATE_AUCTION_VALUE, payload);
-        _manager = _root;  // in order to pass `onlyManager` modifier in `changeManager`
+        _paybackOwner = _owner;
+        _owner = _root;  // in order to receive tokens on Root from Auction
         changeManager(config.auctionRoot, remainingGasTo, callbacks);
     }
 
     function changeManager(
         address newManager, address sendGasTo, mapping(address => CallbackParams) callbacks
-    ) public override onlyManager onActive {
+    ) public override onlyManagerOrRoot onActive {
         if (_inZeroAuction) {
             if (msg.sender == _auctionRoot) {
                 // Auction started
+                _owner = _paybackOwner;
                 _zeroAuction = newManager;
                 emit ZeroAuctionStarted(_zeroAuction);
             } else if (msg.sender == _zeroAuction) {
@@ -126,6 +135,11 @@ contract Domain is IDomain, NFTCertificate {
         if (msg.sender == _zeroAuction) {
             // Auction completed
             _finishZeroAuction(to);
+            IRoot(_root).returnTokensFromDomain{
+                value: Gas.RETURN_TOKENS_VALUE,
+                flag: MsgFlag.SENDER_PAYS_FEES,
+                bounce: false
+            }(_path, _paybackAmount, _paybackOwner, TransferBackReason.AUCTION_BUYOUT);
         }
         super.transfer(to, sendGasTo, callbacks);
     }
@@ -138,53 +152,54 @@ contract Domain is IDomain, NFTCertificate {
 
 
     function expectedRenewAmount(uint32 newExpireTime) public view responsible override returns (uint128 amount) {
-        CertificateStatus status = _status();
-        if (newExpireTime <= _expireTime || newExpireTime > now + _config.maxDuration ||
-            status == CertificateStatus.RESERVED || status == CertificateStatus.EXPIRED) {
+        if (newExpireTime <= _expireTime || newExpireTime > now + _config.maxDuration || !_isRenewAllowedForStatus()) {
             return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} 0;
         }
         uint32 increase = newExpireTime - _expireTime;
-        uint128 price = _calcRenewPrice(status);
+        uint128 price = _calcRenewPrice();
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} Converter.toAmount(increase, price);
     }
 
     function renew(uint128 amount, address sender) public override onlyRoot {
         _reserve();
-        CertificateStatus status = _status();
-        if (sender != _owner || now + _config.maxDuration <= _expireTime ||
-            status == CertificateStatus.RESERVED || status == CertificateStatus.EXPIRED) {
-            // wrong sender OR already renewed for max period OR reserved OR expired
-            IRoot(_root).onDomainRenewReturn{
+        optional(TransferBackReason) error = _isRenewAllowed(sender);
+        if (error.hasValue()) {
+            // invalid status OR invalid sender OR already renewed for max period
+            IRoot(_root).returnTokensFromDomain{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
                 bounce: false
-            }(_path, amount, sender);
+            }(_path, amount, sender, error.get());
             return;
         }
 
-        uint128 price = _calcRenewPrice(status);
+        uint128 price = _calcRenewPrice();
         uint32 maxIncrease = now + _config.maxDuration - _expireTime;
         uint128 maxAmount = Converter.toAmount(maxIncrease, price);
         uint128 returnAmount = (maxAmount < amount) ? (amount - maxAmount) : 0;
-        amount = math.max(amount, maxAmount);
+        amount = math.min(amount, maxAmount);
 
         uint32 duration = Converter.toDuration(amount, price);
         _expireTime += duration;
         emit Renewed(now, duration, _expireTime);
 
-        if (returnAmount > 0) {
-            IRoot(_root).onDomainRenewReturn{
-                value: 0,
-                flag: MsgFlag.ALL_NOT_RESERVED,
-                bounce: false
-            }(_path, returnAmount, sender);
-        } else {
-            IOwner(_owner).onRenewed{
-                value: 0,
-                flag: MsgFlag.ALL_NOT_RESERVED,
-                bounce: false
-            }(_path, _expireTime);
+        CertificateStatus status = _status();
+        if (status == CertificateStatus.NEW || status == CertificateStatus.IN_ZERO_AUCTION) {
+            _paybackAmount += amount;
         }
+
+        if (returnAmount > 0) {
+            IRoot(_root).returnTokensFromDomain{
+                value: Gas.RETURN_TOKENS_VALUE,
+                flag: MsgFlag.SENDER_PAYS_FEES,
+                bounce: false
+            }(_path, returnAmount, sender, TransferBackReason.DURATION_OVERFLOW);
+        }
+        IOwner(_owner).onRenewed{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(_path, _expireTime);
     }
 
     function unreserve(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) public override onlyRoot {
@@ -202,6 +217,23 @@ contract Domain is IDomain, NFTCertificate {
         }(_path, expireTime);
     }
 
+
+    function _isRenewAllowed(address sender) private view inline returns(optional(TransferBackReason)) {
+        if (!_isRenewAllowedForStatus()) {
+            return TransferBackReason.INVALID_STATUS;
+        } else if (sender != _owner) {
+            return TransferBackReason.INVALID_SENDER;
+        } else if (now + _config.maxDuration <= _expireTime) {
+            return TransferBackReason.ALREADY_RENEWED;
+        } else {
+            return null;
+        }
+    }
+
+    function _isRenewAllowedForStatus() private view inline returns(bool) {
+        CertificateStatus status = _status();
+        return status != CertificateStatus.RESERVED && status != CertificateStatus.EXPIRED;
+    }
 
     function _status() internal view override returns (CertificateStatus) {
         int64 passed = int64(now) - _initTime;
@@ -223,9 +255,9 @@ contract Domain is IDomain, NFTCertificate {
         }
     }
 
-    function _calcRenewPrice(CertificateStatus status) private view inline returns (uint128) {
+    function _calcRenewPrice() private view inline returns (uint128) {
         uint128 price = _price;
-        if (status == CertificateStatus.GRACE) {
+        if (_status() == CertificateStatus.GRACE) {
             price += math.muldiv(_config.graceFinePercent, price, Constants.PERCENT_DENOMINATOR);
         }
         return price;

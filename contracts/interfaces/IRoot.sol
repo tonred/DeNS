@@ -23,7 +23,6 @@ interface IRoot {
     function buildRegisterPayload(string name) external view responsible returns (TvmCell payload);
     function buildRenewPayload(string name) external view responsible returns (TvmCell payload);
     function returnTokensFromDomain(string path, uint128 amount, address recipient, TransferBackReason reason) external;
-    function startZeroAuction(string path, address remainingGasTo) external;
 
     function deploySubdomain(string path, string name, SubdomainSetup setup) external view;
     function confiscate(string path, string reason, address owner) external view;

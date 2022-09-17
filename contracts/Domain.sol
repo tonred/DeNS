@@ -93,15 +93,15 @@ contract Domain is IDomain, NFTCertificate {
     }
 
 
-    function requestZeroAuction() public view override onStatus(CertificateStatus.NEW) cashBack {
-        IRoot(_root).startZeroAuction{
-            value: Gas.START_ZERO_AUCTION_VALUE,
-            flag: MsgFlag.SENDER_PAYS_FEES,
-            bounce: false
-        }(_path, msg.sender);
-    }
-
-    function startZeroAuction(AuctionConfig config, address remainingGasTo) public override onlyRoot onStatus(CertificateStatus.NEW) {
+    function startZeroAuction(AuctionConfig config, uint128 amount, address sender) public override onlyRoot {
+        if (_status() != CertificateStatus.NEW) {
+            IRoot(_root).returnTokensFromDomain{
+                value: 0,
+                flag: MsgFlag.REMAINING_GAS,
+                bounce: false
+            }(_path, amount, sender, TransferBackReason.INVALID_STATUS);
+            return;
+        }
         _inZeroAuction = true;
         _auctionRoot = config.auctionRoot;
         mapping(address => CallbackParams) callbacks;
@@ -109,7 +109,7 @@ contract Domain is IDomain, NFTCertificate {
         callbacks[config.auctionRoot] = CallbackParams(Gas.CREATE_AUCTION_VALUE, payload);
         _paybackOwner = _owner;
         _owner = _root;  // in order to receive tokens on Root from Auction
-        changeManager(config.auctionRoot, remainingGasTo, callbacks);
+        changeManager(config.auctionRoot, sender, callbacks);
     }
 
     function changeManager(

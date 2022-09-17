@@ -17,6 +17,7 @@ import {BaseMaster, SlaveData} from "versionable/contracts/BaseMaster.sol";
 
 contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce {
 
+    event Renewed(string path);
     event ZeroAuctionStarted(string path);
     event Confiscated(string path, string reason, address owner);
     event Reserved(string path, string reason);
@@ -163,12 +164,10 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
 
         (TransferKind kind, TvmCell data) = abi.decode(payload, (TransferKind, TvmCell));
         if (kind == TransferKind.REGISTER) {
-            if (msg.value < Gas.REGISTER_DOMAIN_VALUE) {
-                _returnTokens(amount, sender, TransferBackReason.LOW_MSG_VALUE);
-                return;
-            }
             string name = abi.decode(data, string);
-            (string path, DomainSetup setup, optional(TransferBackReason) error) = _buildDomainParams(name, amount, sender);
+            (string path, DomainSetup setup, optional(TransferBackReason) error) = _buildRegisterParams(
+                amount, sender, name, Gas.REGISTER_DOMAIN_VALUE
+            );
             if (error.hasValue()) {
                 _returnTokens(amount, sender, error.get());
                 return;
@@ -176,23 +175,33 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
             _deployDomain(path, setup);
             sender.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
         } else if (kind == TransferKind.RENEW) {
-            if (msg.value < Gas.RENEW_DOMAIN_VALUE) {
-                _returnTokens(amount, sender, TransferBackReason.LOW_MSG_VALUE);
+            optional(string, address) params = _buildDomainCallParams(amount, sender, data, Gas.RENEW_DOMAIN_VALUE);
+            if (!params.hasValue()) {
                 return;
             }
-            string name = abi.decode(data, string);
-            if (!_isCorrectName(name)) {
-                _returnTokens(amount, sender, TransferBackReason.INVALID_NAME);
-                return;
-            }
-            string path = _createPath(name);
-            address domain = _certificateAddress(path);
-            _upgradeToLatest(Constants.DOMAIN_SID, domain, _wallet, Gas.UPGRADE_SLAVE_VALUE, 0);
+            (string path, address domain) = params.get();
+            emit Renewed(path);
             IDomain(domain).renew{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
                 bounce: false  // todo if domain not exists
             }(amount, sender);
+        } else if (kind == TransferKind.START_ZERO_AUCTION) {
+            if (amount < _config.startZeroAuctionFee) {
+                _returnTokens(amount, sender, TransferBackReason.LOW_TOKENS_AMOUNT);
+                return;
+            }
+            optional(string, address) params = _buildDomainCallParams(amount, sender, data, Gas.START_ZERO_AUCTION_VALUE);
+            if (!params.hasValue()) {
+                return;
+            }
+            (string path, address domain) = params.get();
+            emit ZeroAuctionStarted(path);
+            IDomain(domain).startZeroAuction{
+                value: 0,
+                flag: MsgFlag.ALL_NOT_RESERVED,
+                bounce: false  // todo if domain not exists
+            }(_auctionConfig, amount, sender);
         } else {
             _returnTokens(amount, sender, TransferBackReason.UNKNOWN_TRANSFER);
         }
@@ -203,19 +212,6 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
     ) public override onlyCertificate(path) {
         _reserve();
         _returnTokens(amount, recipient, reason);
-    }
-
-    function startZeroAuction(
-        string path, address remainingGasTo
-    ) public override onlyCertificate(path) minValue(Gas.START_ZERO_AUCTION_VALUE) {
-        _reserve();
-        emit ZeroAuctionStarted(path);
-        address domain = _certificateAddress(path);
-        IDomain(domain).startZeroAuction{
-            value: 0,
-            flag: MsgFlag.ALL_NOT_RESERVED,
-            bounce: false
-        }(_auctionConfig, remainingGasTo);
     }
 
 
@@ -307,16 +303,13 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
     }
 
 
-    function _buildDomainParams(
-        string name, uint128 amount, address owner
+    function _buildRegisterParams(
+        uint128 amount, address sender, string name, uint128 minValue
     ) private view returns (string, DomainSetup, optional(TransferBackReason)) {
         DomainSetup empty;
-        if (!_isCorrectName(name)) {
-            return ("", empty, TransferBackReason.INVALID_NAME);
-        }
-        string path = _createPath(name);
-        if (!_isCorrectPathLength(path)) {
-            return ("", empty, TransferBackReason.TOO_LONG_PATH);
+        (string path, optional(TransferBackReason) error) = _buildPathParams(name, minValue);
+        if (error.hasValue()) {
+            return ("", empty, error.get());
         }
         (uint128 price, bool needZeroAuction) = _calcPrice(name);
         if (price == 0) {
@@ -327,7 +320,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
             return ("", empty, TransferBackReason.INVALID_DURATION);
         }
         DomainSetup setup = DomainSetup({
-            owner: owner,
+            owner: sender,
             price: price,
             reserved: false,
             needZeroAuction: needZeroAuction,
@@ -337,8 +330,40 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         return (path, setup, null);
     }
 
+    function _buildDomainCallParams(
+        uint128 amount, address sender, TvmCell data, uint128 minValue
+    ) private returns (optional(string, address)) {
+        string name = abi.decode(data, string);
+        (string path, optional(TransferBackReason) error) = _buildPathParams(name, minValue);
+        if (error.hasValue()) {
+            _returnTokens(amount, sender, error.get());
+            return null;
+        }
+        address domain = _certificateAddress(path);
+        _upgradeToLatest(Constants.DOMAIN_SID, domain, _wallet, Gas.UPGRADE_SLAVE_VALUE, 0);
+        return optional(string, address)((path, domain));
+    }
+
+    function _buildPathParams(string name, uint128 minValue) private view returns (string, optional(TransferBackReason)) {
+        if (msg.value < minValue) {
+            return ("", TransferBackReason.LOW_MSG_VALUE);
+        }
+        if (!_isCorrectName(name)) {
+            return ("", TransferBackReason.INVALID_NAME);
+        }
+        string path = _createPath(name);
+        if (!_isCorrectPathLength(path)) {
+            return ("", TransferBackReason.TOO_LONG_PATH);
+        }
+        return (path, null);
+    }
+
     function _isCorrectName(string name) private view inline returns (bool) {
         return NameChecker.isCorrectName(name, _config.maxNameLength);
+    }
+
+    function _createPath(string name) internal view inline returns (string) {
+        return name + "." + _tld;  // todo Constants.SEPARATOR
     }
 
     function _isCorrectPathLength(string path) private view inline returns (bool) {
@@ -381,10 +406,6 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
             flag: flag,
             bounce: false
         }(code, params);
-    }
-
-    function _createPath(string name) internal view inline returns (string) {
-        return name + "." + _tld;  // todo Constants.SEPARATOR
     }
 
     function _returnTokens(uint128 amount, address recipient, TransferBackReason reason) private {

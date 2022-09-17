@@ -61,17 +61,11 @@
 			]
 		},
 		{
-			"name": "requestZeroAuction",
-			"inputs": [
-			],
-			"outputs": [
-			]
-		},
-		{
 			"name": "startZeroAuction",
 			"inputs": [
 				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"config","type":"tuple"},
-				{"name":"remainingGasTo","type":"address"}
+				{"name":"amount","type":"uint128"},
+				{"name":"sender","type":"address"}
 			],
 			"outputs": [
 			]

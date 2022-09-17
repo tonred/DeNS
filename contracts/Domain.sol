@@ -184,7 +184,7 @@ contract Domain is IDomain, NFTCertificate {
         emit Renewed(now, duration, _expireTime);
 
         CertificateStatus status = _status();
-        if (status == CertificateStatus.NEW || status == CertificateStatus.IN_ZERO_AUCTION) {
+        if (status == CertificateStatus.NEW) {
             _paybackAmount += amount;
         }
 
@@ -232,7 +232,11 @@ contract Domain is IDomain, NFTCertificate {
 
     function _isRenewAllowedForStatus() private view inline returns(bool) {
         CertificateStatus status = _status();
-        return status != CertificateStatus.RESERVED && status != CertificateStatus.EXPIRED;
+        return (
+            status != CertificateStatus.RESERVED &&
+            status != CertificateStatus.EXPIRED &&
+            status != CertificateStatus.IN_ZERO_AUCTION
+        );
     }
 
     function _status() internal view override returns (CertificateStatus) {
@@ -265,7 +269,7 @@ contract Domain is IDomain, NFTCertificate {
 
     function _buildAuctionPayload(AuctionConfig config) private view inline returns (TvmCell) {
         TvmBuilder builder;
-        builder.store(config.tokenRoot, _price, now, config.duration);
+        builder.store(config.tokenRoot, _paybackAmount, now, config.duration);
         return builder.toCell();
     }
 

@@ -136,15 +136,18 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
 
 
     function buildRegisterPayload(string name) public view responsible override returns (TvmCell payload) {
-        require(_isCorrectName(name), ErrorCodes.INVALID_NAME);
-        TvmCell data = abi.encode(name);
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} abi.encode(TransferKind.REGISTER, data);
+        payload = _buildTokensTransferPayload(name, TransferKind.REGISTER);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} payload;
     }
 
     function buildRenewPayload(string name) public view responsible override returns (TvmCell payload) {
-        require(_isCorrectName(name), ErrorCodes.INVALID_NAME);
-        TvmCell data = abi.encode(name);
-        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} abi.encode(TransferKind.RENEW, data);
+        payload = _buildTokensTransferPayload(name, TransferKind.RENEW);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} payload;
+    }
+
+    function buildStartZeroAuctionPayload(string name) public view responsible override returns (TvmCell payload) {
+        payload = _buildTokensTransferPayload(name, TransferKind.START_ZERO_AUCTION);
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} payload;
     }
 
     function onAcceptTokensTransfer(
@@ -302,6 +305,12 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         _dao = dao;
     }
 
+
+    function _buildTokensTransferPayload(string name, TransferKind kind) private view inline returns (TvmCell) {
+        require(_isCorrectName(name), ErrorCodes.INVALID_NAME);
+        TvmCell data = abi.encode(name);
+        return abi.encode(kind, data);
+    }
 
     function _buildRegisterParams(
         uint128 amount, address sender, string name, uint128 minValue

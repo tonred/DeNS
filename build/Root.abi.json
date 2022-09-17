@@ -128,6 +128,16 @@
 			]
 		},
 		{
+			"name": "buildStartZeroAuctionPayload",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"name","type":"string"}
+			],
+			"outputs": [
+				{"name":"payload","type":"cell"}
+			]
+		},
+		{
 			"name": "onAcceptTokensTransfer",
 			"inputs": [
 				{"name":"value0","type":"address"},

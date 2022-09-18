@@ -8,7 +8,12 @@ library NameChecker {
         if (length == 0 || length > maxNameLength) {
             return false;
         }
-        for (byte char : bytes(name)) {
+        bytes nameAsBytes = bytes(name);
+        if (nameAsBytes[0] == 0x2d || nameAsBytes[length - 1] == 0x2d) {
+            // starts or ends with char '-'
+            return false;
+        }
+        for (byte char : nameAsBytes) {
             bool ok = (char >= 0x61 && char <= 0x7a) || (char >= 0x30 && char <= 0x39) || (char == 0x2d);  // a-z0-9-
             if (!ok) {
                 return false;

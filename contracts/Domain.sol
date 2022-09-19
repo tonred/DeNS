@@ -33,11 +33,6 @@ contract Domain is IDomain, NFTCertificate {
     address public _paybackOwner;
 
 
-    modifier onlyManagerOrRoot() {
-        require(msg.sender == _manager || msg.sender == _root, ErrorCodes.IS_NOT_MANAGER);
-        _;
-    }
-
     // 0x4A2E4FD6 is a Platform constructor functionID
     function onDeployRetry(TvmCell /*code*/, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
         (/*path*/, /*durationConfig*/, /*config*/, DomainSetup setup, /*indexCode*/)
@@ -105,16 +100,17 @@ contract Domain is IDomain, NFTCertificate {
         _inZeroAuction = true;
         _auctionRoot = config.auctionRoot;
         mapping(address => CallbackParams) callbacks;
-        TvmCell payload = _buildAuctionPayload(config);
+        TvmCell payload = _buildZeroAuctionPayload(config);
         callbacks[config.auctionRoot] = CallbackParams(Gas.CREATE_AUCTION_VALUE, payload);
         _paybackOwner = _owner;
-        _owner = _root;  // in order to receive tokens on Root from Auction
+        _manager = _root;   // in order to pass `onlyManager` modifier in `changeManager`
+        _owner = _root;     // in order to receive tokens on Root from Auction
         changeManager(config.auctionRoot, sender, callbacks);
     }
 
     function changeManager(
         address newManager, address sendGasTo, mapping(address => CallbackParams) callbacks
-    ) public override onlyManagerOrRoot onActive {
+    ) public override onlyManager onActive {
         if (_inZeroAuction) {
             if (msg.sender == _auctionRoot) {
                 // Auction started
@@ -142,12 +138,6 @@ contract Domain is IDomain, NFTCertificate {
             }(_path, _paybackAmount, _paybackOwner, TransferBackReason.AUCTION_BUYOUT);
         }
         super.transfer(to, sendGasTo, callbacks);
-    }
-
-    function _finishZeroAuction(address newOwner) private {
-        emit ZeroAuctionFinished(newOwner);
-        _inZeroAuction = false;
-        _needZeroAuction = false;
     }
 
 
@@ -218,6 +208,38 @@ contract Domain is IDomain, NFTCertificate {
     }
 
 
+    function _status() internal view override returns (CertificateStatus) {
+        int64 passed = int64(now) - _initTime;
+        int64 left = int64(_expireTime) - now;
+        if (_reserved) {
+            return CertificateStatus.RESERVED;
+        } else if (_inZeroAuction) {
+            return CertificateStatus.IN_ZERO_AUCTION;
+        } else if (passed < _durationConfig.startZeroAuction && _needZeroAuction) {
+            return CertificateStatus.NEW;
+        } else if (left < -_durationConfig.grace) {
+            return CertificateStatus.EXPIRED;
+        } else if (left < 0) {
+            return CertificateStatus.GRACE;
+        } else if (left < _durationConfig.expiring) {
+            return CertificateStatus.EXPIRING;
+        } else {
+            return CertificateStatus.COMMON;
+        }
+    }
+
+    function _buildZeroAuctionPayload(AuctionConfig config) private view inline returns (TvmCell) {
+        TvmBuilder builder;
+        builder.store(config.tokenRoot, _paybackAmount, now, config.duration);
+        return builder.toCell();
+    }
+
+    function _finishZeroAuction(address newOwner) private {
+        emit ZeroAuctionFinished(newOwner);
+        _inZeroAuction = false;
+        _needZeroAuction = false;
+    }
+
     function _isRenewAllowed(address sender) private view inline returns(optional(TransferBackReason)) {
         if (!_isRenewAllowedForStatus()) {
             return TransferBackReason.INVALID_STATUS;
@@ -239,38 +261,12 @@ contract Domain is IDomain, NFTCertificate {
         );
     }
 
-    function _status() internal view override returns (CertificateStatus) {
-        int64 passed = int64(now) - _initTime;
-        int64 left = int64(_expireTime) - now;
-        if (_reserved) {
-            return CertificateStatus.RESERVED;
-        } else if (_inZeroAuction) {
-            return CertificateStatus.IN_ZERO_AUCTION;
-        } else if (passed < _durationConfig.startZeroAuction && _needZeroAuction) {
-            return CertificateStatus.NEW;
-        } else if (left < -_durationConfig.grace) {
-            return CertificateStatus.EXPIRED;
-        } else if (left < 0) {
-            return CertificateStatus.GRACE;
-        } else if (left < _durationConfig.expiring) {
-            return CertificateStatus.EXPIRING;
-        } else {
-            return CertificateStatus.COMMON;
-        }
-    }
-
     function _calcRenewPrice() private view inline returns (uint128) {
         uint128 price = _price;
         if (_status() == CertificateStatus.GRACE) {
             price += math.muldiv(_config.graceFinePercent, price, Constants.PERCENT_DENOMINATOR);
         }
         return price;
-    }
-
-    function _buildAuctionPayload(AuctionConfig config) private view inline returns (TvmCell) {
-        TvmBuilder builder;
-        builder.store(config.tokenRoot, _paybackAmount, now, config.duration);
-        return builder.toCell();
     }
 
     function _targetBalance() internal view inline override returns (uint128) {

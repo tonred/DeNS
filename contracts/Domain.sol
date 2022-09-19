@@ -118,7 +118,7 @@ contract Domain is IDomain, NFTCertificate {
                 _zeroAuction = newManager;
                 emit ZeroAuctionStarted(_zeroAuction);
             } else if (msg.sender == _zeroAuction) {
-                // Auction canceled
+                // Auction finished (canceled)
                 _finishZeroAuction(newManager);
             }
         }
@@ -129,7 +129,7 @@ contract Domain is IDomain, NFTCertificate {
         address to, address sendGasTo, mapping(address => CallbackParams) callbacks
     ) public override onlyManager onActive {
         if (msg.sender == _zeroAuction) {
-            // Auction completed
+            // Auction finished (completed)
             _finishZeroAuction(to);
             IRoot(_root).returnTokensFromDomain{
                 value: Gas.RETURN_TOKENS_VALUE,

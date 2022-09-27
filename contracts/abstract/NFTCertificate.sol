@@ -68,7 +68,7 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataDynamicBase, Certifi
     function supportsInterface(
         bytes4 interfaceID
     ) public view responsible override(NFTBase4_3, JSONMetadataDynamicBase) returns (bool support) {
-        return {value: 0, flag: 64, bounce: false} (
+        return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (
             NFTBase4_3.supportsInterface(interfaceID) ||
             JSONMetadataDynamicBase.supportsInterface(interfaceID)
         );

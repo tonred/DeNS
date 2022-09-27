@@ -69,6 +69,14 @@
 			]
 		},
 		{
+			"name": "_randomNonce",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_randomNonce","type":"uint256"}
+			]
+		},
+		{
 			"name": "_platformCode",
 			"inputs": [
 			],

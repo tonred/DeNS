@@ -1,4 +1,4 @@
-pragma ton -solidity >= 0.61.2;
+pragma ever-solidity ^0.63.0;
 
 pragma AbiHeader time;
 pragma AbiHeader expire;
@@ -10,8 +10,8 @@ import "./Root.sol";
 
 import "@broxus/contracts/contracts/utils/CheckPubKey.sol";
 
-contract RootDeployer is CheckPubKey {
-    uint static _randomNonce;
+
+contract RootDeployer is CheckPubKey, RandomNonce {
 
     TvmCell public _platformCode;
     TvmCell public _rootCode;
@@ -56,7 +56,6 @@ contract RootDeployer is CheckPubKey {
         uint randomNonce,
         string tld,
         string json,
-//        address token,
         address dao,
         address admin,
         RootConfig config,
@@ -75,8 +74,8 @@ contract RootDeployer is CheckPubKey {
         });
         return new Root{
             stateInit: stateInit,
-            value: 1 ton,
-            flag: 1,
+            value: 1 ever,
+            flag: MsgFlag.SENDER_PAYS_FEES,
             bounce: true
         }(
             _domainCode,
@@ -85,7 +84,6 @@ contract RootDeployer is CheckPubKey {
             _indexCode,
             json,
             _platformCode,
-//            token,
             dao,
             admin,
             config,

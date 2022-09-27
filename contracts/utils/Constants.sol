@@ -12,19 +12,15 @@ library Constants {
     // Denominator of all percents (see Configs.sol)
     uint128 constant PERCENT_DENOMINATOR = 100_000;
 
-    // Separator between parts of domain like "sub.domain.tld"
-    string constant SEPARATOR = ".";
-
     // Expire time for reserved certificates (max uint32 value)
     uint32 constant RESERVED_EXPIRE_TIME = 2 ** 32 - 1;
 
     // CERTIFICATE (see Certificate.sol)
-    // Max record size
-    uint16 constant MAX_DEPTH = 8;
+    // Max record cell size
     uint16 constant MAX_CELLS = 8;
-    // Exact address size
+    // Exact size of address var
     uint16 constant ADDRESS_SIZE = 267;
-    // Target record id
+    // Record id of "target" record
     uint32 constant TARGET_RECORD_ID = 0;
 
     // VERSIONABLE

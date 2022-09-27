@@ -13,7 +13,6 @@ library ErrorCodes {
     uint16 constant WRONG_STATUS            = 2001;
     uint16 constant INVALID_ADDRESS_CELL    = 2002;
     uint16 constant INVALID_ADDRESS_TYPE    = 2003;
-    uint16 constant TOO_BIG_CELL            = 2004;
 
     // NFT Certificate
     uint16 constant IS_NOT_MANAGER          = 3001;

@@ -16,6 +16,8 @@ import {BaseMaster, SlaveData} from "versionable/contracts/BaseMaster.sol";
 
 
 contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce {
+    // Separator between parts of domain like "sub.domain.tld"
+    string constant SEPARATOR = ".";  // cant be in Constants due to tvm limitations
 
     event Renewed(string path);
     event ZeroAuctionStarted(string path);
@@ -219,7 +221,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
 
 
     function deploySubdomain(string path, string name, SubdomainSetup setup) public view override onlyCertificate(path) {
-        path = name + "." + path;  // todo Constants.SEPARATOR
+        path = name + SEPARATOR + path;
         optional(TransferBackReason) error;
         if (!_active) error.set(TransferBackReason.IS_NOT_ACTIVE);
         if (!_isCorrectName(name)) error.set(TransferBackReason.INVALID_NAME);
@@ -372,7 +374,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
     }
 
     function _createPath(string name) internal view inline returns (string) {
-        return name + "." + _tld;  // todo Constants.SEPARATOR
+        return name + SEPARATOR + _tld;
     }
 
     function _isCorrectPathLength(string path) private view inline returns (bool) {

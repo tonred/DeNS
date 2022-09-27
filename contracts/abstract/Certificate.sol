@@ -146,7 +146,6 @@ abstract contract Certificate is BaseSlave, TransferUtils {
             require(bits == Constants.ADDRESS_SIZE && refs == 0, ErrorCodes.INVALID_ADDRESS_CELL);
             _setTarget(abi.decode(value, address));
         } else {
-            require(value.depth() <= Constants.MAX_DEPTH, ErrorCodes.TOO_BIG_CELL);
             value.dataSize(Constants.MAX_CELLS);  // can raise exception 8 (cell overflow)
             _records[key] = value;
         }

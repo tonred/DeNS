@@ -80,7 +80,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         DurationConfig durationConfig
     )
         public
-        Collection(domainCode, indexBasisCode, indexCode, json, platformCode)
+        Collection(platformCode, indexBasisCode, indexCode, json)
         Vault(auctionConfig.tokenRoot)
     {
         tvm.accept();
@@ -457,7 +457,6 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         emit CodeUpgraded();
         TvmCell data = abi.encode(
             _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
-            _platformCode,  // Collection
             _token, _wallet, _balance,  // Vault
             _slaves,  // BaseMaster
             _randomNonce,  // RandomNonce
@@ -472,14 +471,12 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         tvm.resetStorage();
         (
             _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
-            _platformCode,  // Collection
             _token, _wallet, _balance,  // Vault
             _slaves,  // BaseMaster
             _randomNonce,  // RandomNonce
             _tld, _dao, _admin, _active, _config, _priceConfig, _auctionConfig, _durationConfig  // Root
         ) = abi.decode(input, (
             uint128, TvmCell, TvmCell, TvmCell,  // CollectionBase4_1 + CollectionBase4_3
-            TvmCell,  // Collection
             address, address, uint128,  // Vault
             mapping(uint16 => SlaveData),  // BaseMaster
             uint,  // RandomNonce

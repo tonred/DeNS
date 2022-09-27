@@ -52,8 +52,8 @@ abstract contract Certificate is BaseSlave, TransferUtils {
 
 
     function onCodeUpgrade(TvmCell input, bool upgrade) internal {
-        tvm.resetStorage();
         if (!upgrade) {
+            tvm.resetStorage();
             (address root, TvmCell initialData, TvmCell initialParams) =
                 abi.decode(input, (address, TvmCell, TvmCell));
             _root = root;

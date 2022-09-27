@@ -11,8 +11,6 @@ import "tip4/contracts/implementation/4_3/CollectionBase4_3.sol";
 
 abstract contract Collection is CollectionBase4_3, JSONMetadataBase, TransferUtils {
 
-    TvmCell public _platformCode;
-
     modifier onlyCertificateByID(uint256 id) {
         address nft = _certificateAddressByID(id);
         require(msg.sender == nft, ErrorCodes.IS_NOT_CERTIFICATE);
@@ -21,15 +19,13 @@ abstract contract Collection is CollectionBase4_3, JSONMetadataBase, TransferUti
 
 
     constructor(
-        TvmCell nftCode,
+        TvmCell platformCode,
         TvmCell indexBasisCode,
         TvmCell indexCode,
-        string json,
-        TvmCell platformCode
+        string json
     ) public {
-        _onInit4_3(nftCode, indexBasisCode, indexCode);
+        _onInit4_3(platformCode, indexBasisCode, indexCode);
         _onInit4_2(json);
-        _platformCode = platformCode;
     }
 
 
@@ -93,7 +89,7 @@ abstract contract Collection is CollectionBase4_3, JSONMetadataBase, TransferUti
                 _platformType: uint8(platformType),
                 _initialData: initialData
             },
-            code: _platformCode
+            code: _nftCode  // which is platformCode
         });
     }
 

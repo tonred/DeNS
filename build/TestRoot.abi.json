@@ -572,14 +572,6 @@
 			]
 		},
 		{
-			"name": "_platformCode",
-			"inputs": [
-			],
-			"outputs": [
-				{"name":"_platformCode","type":"cell"}
-			]
-		},
-		{
 			"name": "_token",
 			"inputs": [
 			],
@@ -794,7 +786,6 @@
 		{"name":"_indexBasisCode","type":"cell"},
 		{"name":"_indexCode","type":"cell"},
 		{"name":"_json","type":"string"},
-		{"name":"_platformCode","type":"cell"},
 		{"name":"_token","type":"address"},
 		{"name":"_wallet","type":"address"},
 		{"name":"_balance","type":"uint128"},

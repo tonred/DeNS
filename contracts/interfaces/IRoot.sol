@@ -32,6 +32,7 @@ interface IRoot {
 
     function activate() external;
     function deactivate() external;
+    function burnBalance(uint128 amount) external;
     function changePriceConfig(PriceConfig priceConfig) external;
     function changeConfigs(
         optional(RootConfig) config,

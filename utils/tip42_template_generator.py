@@ -6,7 +6,7 @@ data = {
     "description": "None",
     "preview": {
         "source": "None",
-        "mimetype": "image/png"
+        "mimetype": "image/jpg"
     },
     "files": [],
     "external_url": "None",

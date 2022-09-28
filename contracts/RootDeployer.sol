@@ -74,7 +74,7 @@ contract RootDeployer is CheckPubKey, RandomNonce {
         });
         return new Root{
             stateInit: stateInit,
-            value: 1 ever,
+            value: 3 ever,
             flag: MsgFlag.SENDER_PAYS_FEES,
             bounce: true
         }(

@@ -49,10 +49,10 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataDynamicBase, Certifi
     function getJson() public view responsible override returns (string json) {
         string targetStr = _target.isNone() ? "<Target is not set>" : format("{}", _target);
         string description = format("Everscale Domain '{}' → {}", _path, targetStr);
-        string source = "https://dens.ton.red/image/" + _path;
-        string external_url = "https://dens.ton.red/" + _path;
+        string source = "https://img.evername.io/image/" + _path;
+        string external_url = "https://evername.io/" + _path;
         json = format(
-            "{\"type\":\"Everscale Domain\",\"name\":\"{}\",\"description\":\"{}\",\"preview\":{\"source\":\"{}\",\"mimetype\":\"image/png\"},\"files\":[],\"external_url\":\"{}\",\"target\":\"{}\",\"init_time\":{},\"expire_time\":{}}",
+            "{\"type\":\"Everscale Domain\",\"name\":\"{}\",\"description\":\"{}\",\"preview\":{\"source\":\"{}\",\"mimetype\":\"image/jpg\"},\"files\":[],\"external_url\":\"{}\",\"target\":\"{}\",\"init_time\":{},\"expire_time\":{}}",
             _path,          // name
             description,    // description
             source,         // source

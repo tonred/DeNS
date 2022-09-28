@@ -15,7 +15,7 @@
 				{"name":"dao","type":"address"},
 				{"name":"admin","type":"address"},
 				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"},{"name":"startZeroAuctionFee","type":"uint128"}],"name":"config","type":"tuple"},
-				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"},
+				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"needZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"},
 				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"auctionConfig","type":"tuple"},
 				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"tuple"}
 			],
@@ -59,7 +59,7 @@
 			],
 			"outputs": [
 				{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"},{"name":"startZeroAuctionFee","type":"uint128"}],"name":"config","type":"tuple"},
-				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"},
+				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"needZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"},
 				{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"auctionConfig","type":"tuple"},
 				{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"durationConfig","type":"tuple"}
 			]
@@ -228,9 +228,17 @@
 			]
 		},
 		{
+			"name": "burnBalance",
+			"inputs": [
+				{"name":"amount","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "changePriceConfig",
 			"inputs": [
-				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"}
+				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"needZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"}
 			],
 			"outputs": [
 			]
@@ -648,7 +656,7 @@
 			"inputs": [
 			],
 			"outputs": [
-				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"_priceConfig","type":"tuple"}
+				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"needZeroAuctionLength","type":"uint32"}],"name":"_priceConfig","type":"tuple"}
 			]
 		},
 		{
@@ -796,7 +804,7 @@
 		{"name":"_admin","type":"address"},
 		{"name":"_active","type":"bool"},
 		{"components":[{"name":"maxNameLength","type":"uint32"},{"name":"maxPathLength","type":"uint32"},{"name":"minDuration","type":"uint32"},{"name":"maxDuration","type":"uint32"},{"name":"graceFinePercent","type":"uint128"},{"name":"startZeroAuctionFee","type":"uint128"}],"name":"_config","type":"tuple"},
-		{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"noZeroAuctionLength","type":"uint32"}],"name":"_priceConfig","type":"tuple"},
+		{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"needZeroAuctionLength","type":"uint32"}],"name":"_priceConfig","type":"tuple"},
 		{"components":[{"name":"auctionRoot","type":"address"},{"name":"tokenRoot","type":"address"},{"name":"duration","type":"uint32"}],"name":"_auctionConfig","type":"tuple"},
 		{"components":[{"name":"startZeroAuction","type":"uint32"},{"name":"expiring","type":"uint32"},{"name":"grace","type":"uint32"}],"name":"_durationConfig","type":"tuple"}
 	]

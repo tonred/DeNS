@@ -84,6 +84,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         Vault(auctionConfig.tokenRoot)
     {
         tvm.accept();
+        _reserve();
         _initVersions([Constants.DOMAIN_SID, Constants.SUBDOMAIN_SID], [domainCode, subdomainCode]);
         _dao = dao;
         _admin = admin;
@@ -285,6 +286,11 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         _active = false;
     }
 
+    function burnBalance(uint128 amount)  public override onlyDao {
+        _reserve();
+        _burn(amount, _dao);
+    }
+
     function changePriceConfig(PriceConfig priceConfig) public override onlyDao cashBack {
         _priceConfig = priceConfig;
     }
@@ -391,7 +397,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         if (NameChecker.isOnlyLetters(name)) {
             price += math.muldiv(_priceConfig.onlyLettersFeePercent, price, Constants.PERCENT_DENOMINATOR);
         }
-        needZeroAuction = length >= _priceConfig.noZeroAuctionLength;
+        needZeroAuction = length <= _priceConfig.needZeroAuctionLength;
         return (price, needZeroAuction);
     }
 
@@ -405,7 +411,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
     function _deploySubdomain(string path, SubdomainSetup setup) private view {
         TvmCell code = _getLatestCode(Constants.SUBDOMAIN_SID);
         TvmCell params = abi.encode(path, _durationConfig, setup, _indexCode);
-        _deployCertificate(path, Gas.DEPLOY_DOMAIN_VALUE, MsgFlag.SENDER_PAYS_FEES, code, params);
+        _deployCertificate(path, Gas.DEPLOY_SUBDOMAIN_VALUE, MsgFlag.SENDER_PAYS_FEES, code, params);
     }
 
     function _deployCertificate(string path, uint128 value, uint8 flag, TvmCell code, TvmCell params) private view {

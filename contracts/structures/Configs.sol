@@ -20,7 +20,7 @@ struct PriceConfig {
     uint128 longPrice;
     uint128[] shortPrices;  // set 0 for NOT_FOR_SALE name lengths
     uint128 onlyLettersFeePercent;
-    uint32 noZeroAuctionLength;
+    uint32 needZeroAuctionLength;
 }
 
 struct DurationConfig {

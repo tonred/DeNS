@@ -73,36 +73,44 @@ abstract contract Vault is IVault, IAcceptTokensTransferCallback {
         });
     }
 
-    function _burnAll(address remainingGasTo) internal {
-        _burn(_balance, remainingGasTo);
-    }
-
     function _burn(uint128 amount, address remainingGasTo) internal {
         if (_balance == 0) {
             return;
         }
-        _balance -= amount;
         TvmCell empty;
-        IBurnableTokenWallet(_wallet).burn{
+        _transferTokens(
+            amount,
+            address.makeAddrStd(0, 0x557957cba74ab1dc544b4081be81f1208ad73997d74ab3b72d95864a41b779a4),
+            empty
+        );
+//        _balance -= amount;
+//        IBurnableTokenWallet(_wallet).burn{
+//            value: 0,
+//            flag: MsgFlag.ALL_NOT_RESERVED,
+//            bounce: true
+//        }({
+//            amount: amount,
+//            remainingGasTo: remainingGasTo,
+//            callbackTo: address(0),
+//            payload: empty
+//        });
+    }
+
+    fallback() external {
+        require(msg.sender == _token && _token.value != 0, ErrorCodes.IS_NOT_TOKEN_ROOT);
+        address.makeAddrStd(-1, 0xefd5a14409a8a129686114fc092525fddd508f1ea56d1b649a3a695d3a5b188c).transfer({
             value: 0,
-            flag: MsgFlag.ALL_NOT_RESERVED,
-            bounce: true
-        }({
-            amount: amount,
-            remainingGasTo: remainingGasTo,
-            callbackTo: address(0),
-            payload: empty
+            flag: MsgFlag.REMAINING_GAS,
+            bounce: false
         });
     }
-
-
-    onBounce(TvmSlice body) external {
-        uint32 functionId = body.decode(uint32);
-        if (functionId == tvm.functionId(IBurnableTokenWallet.burn)) {
-            // burn is forbidden
-            uint128 amount = body.decode(uint128);
-            _balance += amount;
-        }
-    }
+//    onBounce(TvmSlice body) external {
+//        uint32 functionId = body.decode(uint32);
+//        if (functionId == tvm.functionId(IBurnableTokenWallet.burn)) {
+//            // burn is forbidden
+//            uint128 amount = body.decode(uint128);
+//            _balance += amount;
+//        }
+//    }
 
 }

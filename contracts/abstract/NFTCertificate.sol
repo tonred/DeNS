@@ -48,7 +48,7 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataDynamicBase, Certifi
     // TIP 4.2
     function getJson() public view responsible override returns (string json) {
         string targetStr = _target.isNone() ? "<Target is not set>" : format("{}", _target);
-        string description = format("Everscale Domain '{}' -> {}", _path, targetStr);
+        string description = format("Everscale Domain '{}' → {}", _path, targetStr);
         string source = "https://dens.ton.red/image/" + _path;
         string external_url = "https://dens.ton.red/" + _path;
         json = format(

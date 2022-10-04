@@ -1,0 +1,958 @@
+.version sol 0.63.0
+
+.macro constructor
+DROP
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+GETGLOB 6
+THROWIF 51
+LDREF
+ENDS
+.loc ../node_modules/@broxus/contracts/contracts/utils/CheckPubKey.sol, 9
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+GETGLOB 2
+EQUAL
+THROWIFNOT 1103
+.loc ../contracts/RootDeployer.sol, 26
+ACCEPT
+.loc ../contracts/RootDeployer.sol, 27
+SETGLOB 11
+.loc ../node_modules/@broxus/contracts/contracts/utils/CheckPubKey.sol, 0
+CALLREF {
+	CALL $c7_to_c4$
+}
+THROW 0
+
+.macro setRootCode
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/RootDeployer.sol, 30
+LDREF
+ENDS
+.loc ../contracts/RootDeployer.sol, 0
+CALLREF {
+	CALL $setRootCode_1773faee_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+THROW 0
+
+.globl	setRootCode_1773faee_internal
+.type	setRootCode_1773faee_internal, @function
+CALL $setRootCode_1773faee_internal_macro$
+
+.macro setRootCode_1773faee_internal_macro
+.loc ../node_modules/@broxus/contracts/contracts/utils/CheckPubKey.sol, 9
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+GETGLOB 2
+EQUAL
+THROWIFNOT 1103
+.loc ../contracts/RootDeployer.sol, 31
+ACCEPT
+.loc ../contracts/RootDeployer.sol, 32
+SETGLOB 12
+.loc ../contracts/RootDeployer.sol, 0
+
+.macro setDomainCode
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/RootDeployer.sol, 35
+LDREF
+ENDS
+.loc ../contracts/RootDeployer.sol, 0
+CALLREF {
+	CALL $setDomainCode_ef44e5e5_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+THROW 0
+
+.globl	setDomainCode_ef44e5e5_internal
+.type	setDomainCode_ef44e5e5_internal, @function
+CALL $setDomainCode_ef44e5e5_internal_macro$
+
+.macro setDomainCode_ef44e5e5_internal_macro
+.loc ../node_modules/@broxus/contracts/contracts/utils/CheckPubKey.sol, 9
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+GETGLOB 2
+EQUAL
+THROWIFNOT 1103
+.loc ../contracts/RootDeployer.sol, 36
+ACCEPT
+.loc ../contracts/RootDeployer.sol, 37
+SETGLOB 13
+.loc ../contracts/RootDeployer.sol, 0
+
+.macro setSubdomainCode
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/RootDeployer.sol, 40
+LDREF
+ENDS
+.loc ../contracts/RootDeployer.sol, 0
+CALLREF {
+	CALL $setSubdomainCode_46c5eeb5_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+THROW 0
+
+.globl	setSubdomainCode_46c5eeb5_internal
+.type	setSubdomainCode_46c5eeb5_internal, @function
+CALL $setSubdomainCode_46c5eeb5_internal_macro$
+
+.macro setSubdomainCode_46c5eeb5_internal_macro
+.loc ../node_modules/@broxus/contracts/contracts/utils/CheckPubKey.sol, 9
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+GETGLOB 2
+EQUAL
+THROWIFNOT 1103
+.loc ../contracts/RootDeployer.sol, 41
+ACCEPT
+.loc ../contracts/RootDeployer.sol, 42
+SETGLOB 14
+.loc ../contracts/RootDeployer.sol, 0
+
+.macro setIndexBasisCode
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/RootDeployer.sol, 45
+LDREF
+ENDS
+.loc ../contracts/RootDeployer.sol, 0
+CALLREF {
+	CALL $setIndexBasisCode_59147ccd_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+THROW 0
+
+.globl	setIndexBasisCode_59147ccd_internal
+.type	setIndexBasisCode_59147ccd_internal, @function
+CALL $setIndexBasisCode_59147ccd_internal_macro$
+
+.macro setIndexBasisCode_59147ccd_internal_macro
+.loc ../node_modules/@broxus/contracts/contracts/utils/CheckPubKey.sol, 9
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+GETGLOB 2
+EQUAL
+THROWIFNOT 1103
+.loc ../contracts/RootDeployer.sol, 46
+ACCEPT
+.loc ../contracts/RootDeployer.sol, 47
+SETGLOB 15
+.loc ../contracts/RootDeployer.sol, 0
+
+.macro setIndexCode
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/RootDeployer.sol, 50
+LDREF
+ENDS
+.loc ../contracts/RootDeployer.sol, 0
+CALLREF {
+	CALL $setIndexCode_5a995e50_internal_macro$
+}
+CALLREF {
+	CALL $c7_to_c4$
+}
+THROW 0
+
+.globl	setIndexCode_5a995e50_internal
+.type	setIndexCode_5a995e50_internal, @function
+CALL $setIndexCode_5a995e50_internal_macro$
+
+.macro setIndexCode_5a995e50_internal_macro
+.loc ../node_modules/@broxus/contracts/contracts/utils/CheckPubKey.sol, 9
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+GETGLOB 2
+EQUAL
+THROWIFNOT 1103
+.loc ../contracts/RootDeployer.sol, 51
+ACCEPT
+.loc ../contracts/RootDeployer.sol, 52
+SETGLOB 16
+.loc ../contracts/RootDeployer.sol, 0
+
+.macro NewRoot
+DROP
+GETGLOB 6
+THROWIFNOT 76
+GETGLOB 2
+ISNULL
+IFREF {
+	CALL $c4_to_c7$
+}
+.loc ../contracts/RootDeployer.sol, 55
+OVER
+PUSHCONT {
+	LDREF
+	ENDS
+	CTOS
+}
+IF
+LDU 256
+LDREF
+LDREF
+LDMSGADDR
+LDREF
+ENDS
+CTOS
+LDMSGADDR
+LDU 32
+LDU 32
+LDU 32
+LDU 32
+LDU 128
+LDU 128
+ROLLREV 6
+TUPLE 6
+SWAP
+LDREF
+ENDS
+CTOS
+LDU 128
+LDU 32
+LDDICT
+ROTREV
+PAIR
+SWAP
+LDU 128
+LDU 32
+ROLLREV 4
+TUPLE 4
+SWAP
+LDMSGADDR
+LDREF
+ENDS
+CTOS
+LDMSGADDR
+LDU 32
+ROLLREV 3
+TRIPLE
+SWAP
+LDU 32
+LDU 32
+LDU 32
+ROLLREV 3
+TRIPLE
+SWAP
+ENDS
+.loc ../contracts/RootDeployer.sol, 0
+CALLREF {
+	CALL $NewRoot_4188f57d_internal_macro$
+}
+OVER
+PUSHCONT {
+	PUSH S3
+	CTOS
+	LDU 2
+	LDMSGADDR
+	DROP
+	NIP
+	NEWC
+	STSLICECONST xc
+	STSLICE
+	PUSHINT 1
+	STUR 98
+	SWAP
+	NEWC
+	STSLICECONST xbe0ce887
+	STSLICE
+	STBREFR
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+PUSHCONT {
+	DROP
+}
+IFELSE
+IFREF {
+	CALL $upd_only_time_in_c4$
+}
+THROW 0
+
+.globl	NewRoot_4188f57d_internal
+.type	NewRoot_4188f57d_internal, @function
+CALL $NewRoot_4188f57d_internal_macro$
+
+.macro NewRoot_4188f57d_internal_macro
+.loc ../node_modules/@broxus/contracts/contracts/utils/CheckPubKey.sol, 9
+GETGLOB 5
+DUP
+ISNULL
+PUSHCONT {
+	DROP
+	PUSHINT 0
+}
+IF
+GETGLOB 2
+EQUAL
+THROWIFNOT 1103
+.loc ../contracts/RootDeployer.sol, 66
+ACCEPT
+.loc ../contracts/RootDeployer.sol, 67
+PUSHINT 0
+NEWC
+STU 256
+PUSHINT 0
+NEWDICT
+PUSHINT 64
+DICTUSETB
+ROLL 9
+NEWC
+STU 256
+PUSHINT 1
+ROT
+PUSHINT 64
+DICTUSETB
+ROLL 8
+PUSHINT 2
+ROT
+PUSHINT 64
+DICTUSETREF
+NEWC
+STDICT
+ENDC
+GETGLOB 12
+NEWC
+STSLICECONST x2_
+STOPTREF
+STOPTREF
+STZERO
+ENDC
+.loc ../contracts/RootDeployer.sol, 75
+REVERSE 7, 0
+GETGLOB 11
+ROLL 8
+GETGLOB 16
+GETGLOB 15
+GETGLOB 14
+GETGLOB 13
+ROLL 12
+DUP
+HASHCU
+NEWC
+STSLICECONST x801_
+STU 256
+ENDC
+CTOS
+ROLLREV 13
+PUSH S13
+NEWC
+STSLICECONST x62_
+STSLICE
+PUSHINT 3274370980303967982866698814945429188247555
+STUR 143
+OVER
+CALLREF {
+	CTOS
+	LDI 1
+	SWAP
+	PUSHCONT {
+		LDI 5
+		NIP
+	}
+	IF
+	LDI 1
+	SWAP
+	PUSHCONT {
+		LDI 2
+		NIP
+	}
+	IF
+	LDOPTREF
+	LDOPTREF
+	LDDICT
+	ENDS
+	BLKDROP 3
+}
+STREF
+STSLICECONST 1
+ROLLREV 12
+NEWC
+STSLICECONST x1dd861b2
+STREF
+STREF
+STREF
+ROLLREV 9
+NEWC
+STREF
+STREF
+STREF
+STSLICE
+ROLLREV 5
+NEWC
+STSLICE
+SWAP
+UNTUPLE 6
+REVERSE 7, 0
+STU 32
+STU 32
+STU 32
+STU 32
+STU 128
+STU 128
+SWAP
+UNTUPLE 4
+REVERSE 5, 0
+ROLLREV 6
+NEWC
+STU 128
+SWAP
+UNPAIR
+XCHG S2
+STU 32
+STDICT
+STU 128
+STU 32
+SWAP
+UNTRIPLE
+REVERSE 4, 0
+STSLICE
+ROLLREV 3
+NEWC
+STSLICE
+STU 32
+SWAP
+UNTRIPLE
+REVERSE 4, 0
+STU 32
+STU 32
+STU 32
+STBREFR
+STBREFR
+STBREFR
+STBREFR
+STBREFR
+ENDC
+PUSHINT 1
+SENDRAWMSG
+.loc ../contracts/RootDeployer.sol, 0
+
+.macro c4_to_c7
+PUSHROOT
+CTOS
+LDU 256 ; pubkey c4
+LDU 64 ; pubkey timestamp c4
+LDU 1 ; ctor flag
+NIP
+LDU 256
+LDREF
+LDREF
+LDREF
+LDREF
+ENDS
+CTOS
+LDREF
+LDREF
+LDREF
+ENDS
+SETGLOB 16
+SETGLOB 15
+SETGLOB 14
+SETGLOB 13
+SETGLOB 12
+SETGLOB 11
+SETGLOB 10
+SETGLOB 3
+SETGLOB 2
+
+.macro c4_to_c7_with_init_storage
+PUSHROOT
+CTOS
+SBITS
+GTINT 1
+PUSHCONT {
+	PUSHINT 0
+	PUSHROOT
+	CTOS
+	PLDDICT ; D
+	PUSHINT 1
+	OVER
+	PUSHINT 64
+	DICTUGET
+	ZEROSWAPIFNOT
+	PUSHCONT {
+		PLDU 256
+	}
+	IF
+	PUSHREF {
+	}
+	BLKPUSH 5, 0
+	SETGLOB 16
+	SETGLOB 15
+	SETGLOB 14
+	SETGLOB 13
+	SETGLOB 12
+	SETGLOB 11
+	SETGLOB 10
+	PUSHINT 64
+	DICTUGET
+	THROWIFNOT 61
+	PLDU 256
+	SETGLOB 2
+	PUSHINT 0 ; timestamp
+	SETGLOB 3
+}
+IFREFELSE {
+	CALL $c4_to_c7$
+}
+
+.macro c7_to_c4
+GETGLOB 16
+GETGLOB 15
+GETGLOB 14
+GETGLOB 13
+GETGLOB 12
+GETGLOB 11
+GETGLOB 10
+GETGLOB 3
+GETGLOB 2
+NEWC
+STU 256
+STU 64
+STONE
+STU 256
+STREF
+STREF
+STREF
+ROLLREV 3
+NEWC
+STREF
+STREF
+STREF
+STBREFR
+ENDC
+POPROOT
+
+.macro upd_only_time_in_c4
+PUSHROOT
+CTOS
+LDU 256
+LDU 64
+NIP
+GETGLOB 3
+ROT
+NEWC
+STU 256
+STU 64
+STSLICE
+ENDC
+POPROOT
+
+.internal-alias :main_internal, 0
+.internal :main_internal
+PUSHROOT
+CTOS
+SBITS
+NEQINT 1
+SETGLOB 6
+PUSH S2
+CTOS
+PLDU 4
+MODPOW2 1
+IFRET
+OVER
+SEMPTY ; isEmpty
+IFJMPREF {
+	GETGLOB 6
+	THROWIFNOT 76
+}
+OVER
+LDUQ 32  ; [funcId] body' ok
+THROWIFNOT 60
+OVER
+IFNOTJMPREF {
+	GETGLOB 6
+	THROWIFNOT 76
+}
+SWAP
+CALLREF {
+	CALL $public_function_selector$
+}
+THROW 60
+
+.internal-alias :main_external, -1
+.internal :main_external
+PUSHROOT
+CTOS
+SBITS
+NEQINT 1
+SETGLOB 6
+OVER
+CALLREF {
+	CALL $c4_to_c7_with_init_storage$
+}
+LDU 1 ; haveSign msgSlice
+SWAP
+PUSHCONT {
+	PUSHPOW2 9
+	LDSLICEX ; signatureSlice msgSlice
+	DUP
+	HASHSU ; signatureSlice msgSlice hashMsgSlice
+	SWAP
+	LDU 1 ; signatureSlice hashMsgSlice hasPubkey msgSlice
+	SWAP
+	PUSHCONT {
+		LDU 256 ; signatureSlice hashMsgSlice pubkey msgSlice
+		XCHG S3
+		SWAP
+	}
+	PUSHCONT {
+		XCHG S2
+		GETGLOB 2
+	}
+	IFELSE
+	DUP
+	SETGLOB 5
+	CHKSIGNU ; msgSlice isSigned
+	THROWIFNOT 40
+}
+PUSHCONT {
+	LDU 1 ; hasPubkey msgSlice
+	SWAP
+	THROWIF 58
+}
+IFELSE
+LDU 64 ; timestamp msgSlice
+SWAP
+CALL $replay_protection_macro$
+LDU 32 ; expireAt msgSlice
+SWAP
+NOW ; msgSlice expireAt now
+GREATER ; msgSlice expireAt>now
+THROWIFNOT 57
+LDU 32 ; funcId body
+SWAP
+CALLREF {
+	CALL $public_function_selector$
+}
+THROW 60
+
+.macro _randomNonce
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 10
+OVER
+PUSHCONT {
+	PUSHSLICE xc0000000000000000000000000bb53331f
+	NEWC
+	STSLICE
+	STU 256
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro _platformCode
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 11
+OVER
+PUSHCONT {
+	PUSHSLICE xc000000000000000000000000094b09f67
+	NEWC
+	STSLICE
+	STREF
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro _rootCode
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 12
+OVER
+PUSHCONT {
+	PUSHSLICE xc0000000000000000000000000e7b85fec
+	NEWC
+	STSLICE
+	STREF
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro _domainCode
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 13
+OVER
+PUSHCONT {
+	PUSHSLICE xc00000000000000000000000009bcfffa7
+	NEWC
+	STSLICE
+	STREF
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro _subdomainCode
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 14
+OVER
+PUSHCONT {
+	PUSHSLICE xc0000000000000000000000000a48d9564
+	NEWC
+	STSLICE
+	STREF
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro _indexBasisCode
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 15
+OVER
+PUSHCONT {
+	PUSHSLICE xc00000000000000000000000008f85aaf4
+	NEWC
+	STSLICE
+	STREF
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro _indexCode
+DROP
+ENDS
+CALLREF {
+	CALL $c4_to_c7$
+}
+GETGLOB 16
+OVER
+PUSHCONT {
+	PUSHSLICE xc00000000000000000000000009c9d58e1
+	NEWC
+	STSLICE
+	STREF
+	ENDC
+	PUSHINT 0
+	SENDRAWMSG
+}
+IF
+THROW 0
+
+.macro public_function_selector
+DUP
+PUSHINT 478865691
+LEQ
+IFJMPREF {
+	DUP
+	PUSHINT 260418292
+	EQUAL
+	IFJMPREF {
+		CALL $_indexBasisCode$
+	}
+	DUP
+	PUSHINT 347119463
+	EQUAL
+	IFJMPREF {
+		CALL $_platformCode$
+	}
+	DUP
+	PUSHINT 466616231
+	EQUAL
+	IFJMPREF {
+		CALL $_domainCode$
+	}
+	DUP
+	PUSHINT 478865691
+	EQUAL
+	IFJMPREF {
+		CALL $constructor$
+	}
+}
+DUP
+PUSHINT 1041033351
+LEQ
+IFJMPREF {
+	DUP
+	PUSHINT 480073953
+	EQUAL
+	IFJMPREF {
+		CALL $_indexCode$
+	}
+	DUP
+	PUSHINT 613258596
+	EQUAL
+	IFJMPREF {
+		CALL $_subdomainCode$
+	}
+	DUP
+	PUSHINT 995308319
+	EQUAL
+	IFJMPREF {
+		CALL $_randomNonce$
+	}
+	DUP
+	PUSHINT 1041033351
+	EQUAL
+	IFJMPREF {
+		CALL $NewRoot$
+	}
+}
+DUP
+PUSHINT 1590035614
+LEQ
+IFJMPREF {
+	DUP
+	PUSHINT 1119961424
+	EQUAL
+	IFJMPREF {
+		CALL $setSubdomainCode$
+	}
+	DUP
+	PUSHINT 1194515159
+	EQUAL
+	IFJMPREF {
+		CALL $setDomainCode$
+	}
+	DUP
+	PUSHINT 1491207782
+	EQUAL
+	IFJMPREF {
+		CALL $setIndexCode$
+	}
+	DUP
+	PUSHINT 1590035614
+	EQUAL
+	IFJMPREF {
+		CALL $setRootCode$
+	}
+}
+DUP
+PUSHINT 1909376900
+LEQ
+IFJMPREF {
+	DUP
+	PUSHINT 1740136428
+	EQUAL
+	IFJMPREF {
+		CALL $_rootCode$
+	}
+	DUP
+	PUSHINT 1909376900
+	EQUAL
+	IFJMPREF {
+		CALL $setIndexBasisCode$
+	}
+}
+

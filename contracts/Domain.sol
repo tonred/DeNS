@@ -119,6 +119,7 @@ contract Domain is IDomain, NFTCertificate {
                 emit ZeroAuctionStarted(_zeroAuction);
             } else if (msg.sender == _zeroAuction) {
                 // Auction finished (canceled)
+                newManager = _paybackOwner;  // `newManager` is `Root`, change it
                 _finishZeroAuction(newManager);
             }
         }

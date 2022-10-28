@@ -238,11 +238,11 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         _deploySubdomain(path, setup);
     }
 
-    function confiscate(string path, string reason, address owner) public view override onlyDao {
+    function confiscate(string path, string reason, address owner) public view override onlyDao minValue(Gas.CONFISCATE_VALUE) {
         _reserve();
         emit Confiscated(path, reason, owner);
         address certificate = _certificateAddress(path);
-        NFTCertificate(certificate).confiscate{
+        ICertificate(certificate).confiscate{
             value: 0,
             flag: MsgFlag.ALL_NOT_RESERVED,
             bounce: false

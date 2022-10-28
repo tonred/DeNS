@@ -61,15 +61,14 @@ contract Subdomain is ISubdomain, NFTCertificate {
     }
 
     function requestRenew() public view override onlyOwner onlyRenewable cashBack {
-        Certificate(_parent).renewSubdomain{
+        ICertificate(_parent).renewSubdomain{
             value: Gas.RENEW_SUBDOMAIN_VALUE,
             flag: MsgFlag.SENDER_PAYS_FEES,
             bounce: false
-        }(address(this), msg.sender);
+        }(address(this));
     }
 
-    function renew(address owner, uint32 expireTime) public override onlyParent onlyRenewable {
-        require(owner == _owner, ErrorCodes.IS_NOT_OWNER);
+    function renew(uint32 expireTime) public override onlyParent onlyRenewable {
         _reserve();
         if (_expireTime != expireTime) {
             _expireTime = expireTime;
@@ -80,6 +79,10 @@ contract Subdomain is ISubdomain, NFTCertificate {
             flag: MsgFlag.ALL_NOT_RESERVED,
             bounce: false
         }(_path, _expireTime);
+    }
+
+    function destroy() public override onlyOwner {
+        _destroy();
     }
 
 

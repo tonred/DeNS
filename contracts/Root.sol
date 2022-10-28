@@ -237,11 +237,11 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         _deploySubdomain(path, setup);
     }
 
-    function confiscate(string path, string reason, address owner) public view override onlyDao {
+    function confiscate(string path, string reason, address owner) public view override onlyDao minValue(Gas.CONFISCATE_VALUE) {
         _reserve();
         emit Confiscated(path, reason, owner);
         address certificate = _certificateAddress(path);
-        NFTCertificate(certificate).confiscate{
+        ICertificate(certificate).confiscate{
             value: 0,
             flag: MsgFlag.ALL_NOT_RESERVED,
             bounce: false
@@ -405,7 +405,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
     function _deploySubdomain(string path, SubdomainSetup setup) private view {
         TvmCell code = _getLatestCode(Constants.SUBDOMAIN_SID);
         TvmCell params = abi.encode(path, _durationConfig, setup, _indexCode);
-        _deployCertificate(path, Gas.DEPLOY_DOMAIN_VALUE, MsgFlag.SENDER_PAYS_FEES, code, params);
+        _deployCertificate(path, Gas.DEPLOY_SUBDOMAIN_VALUE, MsgFlag.SENDER_PAYS_FEES, code, params);
     }
 
     function _deployCertificate(string path, uint128 value, uint8 flag, TvmCell code, TvmCell params) private view {

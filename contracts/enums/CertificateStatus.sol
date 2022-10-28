@@ -7,6 +7,6 @@ enum CertificateStatus {
     IN_ZERO_AUCTION,    // 2
     COMMON,             // 3
     EXPIRING,           // 4
-    GRACE,              // 5
-    EXPIRED             // 6
+    GRACE,              // 5  (onActive is false)
+    EXPIRED             // 6  (onActive is false)
 }

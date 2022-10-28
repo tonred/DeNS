@@ -74,11 +74,17 @@ abstract contract NFTCertificate is NFTBase4_3, JSONMetadataDynamicBase, Certifi
         );
     }
 
-    function confiscate(address newOwner) public onlyRoot cashBack {
+    function confiscate(address newOwner) public override onlyRoot {
+        _reserve();
         _changeOwner(_owner, newOwner);
+        IOwner(newOwner).onConfiscated{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false
+        }(_path);
     }
 
-    function expire() public onStatus(CertificateStatus.EXPIRED) {
+    function expire() public override onStatus(CertificateStatus.EXPIRED) {
         tvm.accept();
         _destroy();
     }

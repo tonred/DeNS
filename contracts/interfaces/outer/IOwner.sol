@@ -13,5 +13,6 @@ interface IOwner {
 
     function onRenewed(string path, uint32 expireTime) external;
     function onUnreserved(string path, uint32 expireTime) external;
+    function onConfiscated(string path) external;
 
 }

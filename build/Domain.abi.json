@@ -247,6 +247,22 @@
 			]
 		},
 		{
+			"name": "deleteRecords",
+			"inputs": [
+				{"name":"keys","type":"uint32[]"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "deleteRecord",
+			"inputs": [
+				{"name":"key","type":"uint32"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "createSubdomain",
 			"inputs": [
 				{"name":"name","type":"string"},
@@ -259,8 +275,7 @@
 		{
 			"name": "renewSubdomain",
 			"inputs": [
-				{"name":"subdomain","type":"address"},
-				{"name":"owner","type":"address"}
+				{"name":"subdomain","type":"address"}
 			],
 			"outputs": [
 			]

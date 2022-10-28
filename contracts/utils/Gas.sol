@@ -20,6 +20,7 @@ library Gas {
     uint128 constant RENEW_DOMAIN_VALUE         = 2 ever;  // more than UPGRADE_SLAVE_VALUE + RETURN_TOKENS_VALUE
     uint128 constant START_ZERO_AUCTION_VALUE   = 4.5 ever;  // more than CREATE_AUCTION_VALUE
     uint128 constant DEPLOY_DOMAIN_VALUE        = 2 ever;  // more than DOMAIN_TARGET_BALANCE + 2 * DEPLOY_INDEX_VALUE (TIP4.3)
+    uint128 constant CONFISCATE_VALUE           = 1 ever;
     uint128 constant UNRESERVE_VALUE            = 1 ever;
     uint128 constant UPGRADE_SLAVE_VALUE        = 1 ever;
 

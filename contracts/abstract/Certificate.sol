@@ -1,6 +1,6 @@
 pragma ever-solidity ^0.63.0;
 
-import "../enums/CertificateStatus.sol";
+import "../interfaces/ICertificate.sol";
 import "../interfaces/IRoot.sol";
 import "../interfaces/ISubdomain.sol";
 import "../utils/Constants.sol";
@@ -12,7 +12,7 @@ import "../utils/TransferUtils.sol";
 import {BaseSlave, Version, ErrorCodes as VersionableErrorCodes} from "versionable/contracts/BaseSlave.sol";
 
 
-abstract contract Certificate is BaseSlave, TransferUtils {
+abstract contract Certificate is ICertificate, BaseSlave, TransferUtils {
 
     event ChangedTarget(address oldTarget, address newTarget);
     event ChangedOwner(address oldOwner, address newOwner, bool confiscate);
@@ -69,46 +69,56 @@ abstract contract Certificate is BaseSlave, TransferUtils {
     function _init(TvmCell params) internal virtual;
 
 
-    function getPath() public view responsible returns (string path) {
+    function getPath() public view responsible override returns (string path) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _path;
     }
 
-    function getDetails() public view responsible returns (address owner, uint32 initTime, uint32 expireTime) {
+    function getDetails() public view responsible override returns (address owner, uint32 initTime, uint32 expireTime) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} (_getOwner(), _initTime, _expireTime);
     }
 
-    function getStatus() public view responsible returns (CertificateStatus status) {
+    function getStatus() public view responsible override returns (CertificateStatus status) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _status();
     }
 
-    function resolve() public view responsible onActive returns (address target) {
+    function resolve() public view responsible override onActive returns (address target) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _target;
     }
 
-    function query(uint32 key) public view responsible onActive returns (optional(TvmCell) value) {
+    function query(uint32 key) public view responsible override onActive returns (optional(TvmCell) value) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records.fetch(key);
     }
 
-    function getRecords() public view responsible onActive returns (mapping(uint32 => TvmCell) records) {
+    function getRecords() public view responsible override onActive returns (mapping(uint32 => TvmCell) records) {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _records;
     }
 
 
-    function setTarget(address target) public onActive onlyOwner cashBack {
+    function setTarget(address target) public override onActive onlyOwner cashBack {
         _setTarget(target);
     }
 
-    function setRecords(mapping(uint32 => TvmCell) records) public onActive onlyOwner cashBack {
+    function setRecords(mapping(uint32 => TvmCell) records) public override onActive onlyOwner cashBack {
         for ((uint32 key, TvmCell value) : records) {
             _setRecord(key, value);
         }
     }
 
-    function setRecord(uint32 key, TvmCell value) public onActive onlyOwner cashBack {
+    function setRecord(uint32 key, TvmCell value) public override onActive onlyOwner cashBack {
         _setRecord(key, value);
     }
 
-    function createSubdomain(string name, address owner, bool renewable) public view onlyOwner cashBack {
+    function deleteRecords(uint32[] keys) public override onActive onlyOwner cashBack {
+        for (uint32 key : keys) {
+            _deleteRecord(key);
+        }
+    }
+
+    function deleteRecord(uint32 key) public override onActive onlyOwner cashBack {
+        _deleteRecord(key);
+    }
+
+    function createSubdomain(string name, address owner, bool renewable) public view override onlyOwner cashBack {
         CertificateStatus status = _status();
         require(
             status == CertificateStatus.COMMON ||
@@ -130,13 +140,13 @@ abstract contract Certificate is BaseSlave, TransferUtils {
         }(_path, name, setup);
     }
 
-    // can renew only direct child
-    function renewSubdomain(address subdomain, address owner) public view onActive minValue(Gas.RENEW_SUBDOMAIN_VALUE) {
+    // renew only direct child, anyone can call
+    function renewSubdomain(address subdomain) public view override onActive minValue(Gas.RENEW_SUBDOMAIN_VALUE) {
         ISubdomain(subdomain).renew{
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
             bounce: true
-        }(owner, _expireTime);
+        }(_expireTime);
     }
 
 
@@ -148,6 +158,14 @@ abstract contract Certificate is BaseSlave, TransferUtils {
         } else {
             value.dataSize(Constants.MAX_CELLS);  // can raise exception 8 (cell overflow)
             _records[key] = value;
+        }
+    }
+
+    function _deleteRecord(uint32 key) private {
+        if (key == Constants.TARGET_RECORD_ID) {
+            _setTarget(address.makeAddrNone());
+        } else {
+            delete _records[key];
         }
     }
 
@@ -169,7 +187,7 @@ abstract contract Certificate is BaseSlave, TransferUtils {
     function _status() internal view virtual returns (CertificateStatus);
 
 
-    function requestUpgrade() public view cashBack {
+    function requestUpgrade() public view override cashBack {
         IRoot(_root).upgradeToLatest{
             value: Gas.UPGRADE_SLAVE_VALUE,
             flag: MsgFlag.SENDER_PAYS_FEES,

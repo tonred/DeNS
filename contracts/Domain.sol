@@ -201,9 +201,9 @@ contract Domain is IDomain, NFTCertificate {
         _reserved = false;
         _initTime = now;
         _expireTime = expireTime;
-        IOwner(_owner).onUnreserved{
+        IOwner(owner).onUnreserved{
             value: 0,
-            flag: MsgFlag.REMAINING_GAS,
+            flag: MsgFlag.ALL_NOT_RESERVED,
             bounce: false
         }(_path, expireTime);
     }

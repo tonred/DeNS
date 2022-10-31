@@ -248,11 +248,12 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         }(owner);
     }
 
-    function reserve(string[] paths, string reason) public view override onlyDao cashBack {
+    function reserve(string[] paths, string reason, optional(address) owner) public view override onlyDao cashBack {
+        address domainOwner = owner.hasValue() ? owner.get() : _dao;
         for (string path : paths) {
             emit Reserved(path, reason);
             DomainSetup setup = DomainSetup({
-                owner: _dao,
+                owner: domainOwner,
                 price: 0,
                 reserved: true,
                 needZeroAuction: false,

@@ -195,7 +195,8 @@
 			"name": "reserve",
 			"inputs": [
 				{"name":"paths","type":"string[]"},
-				{"name":"reason","type":"string"}
+				{"name":"reason","type":"string"},
+				{"name":"owner","type":"optional(address)"}
 			],
 			"outputs": [
 			]

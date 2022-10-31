@@ -194,8 +194,7 @@ contract Domain is IDomain, NFTCertificate {
     }
 
     function unreserve(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) public override onlyRoot {
-        _updateIndexes(_owner, owner, _owner);
-        _owner = owner;
+        _transfer(_owner);
         _price = price;
         _needZeroAuction = needZeroAuction;
         _reserved = false;

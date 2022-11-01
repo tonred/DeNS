@@ -5599,7 +5599,7 @@ PUSHCONT {
 }
 IFNOTJMP
 .loc ../contracts/abstract/Vault.sol, 81
-PUSHSLICE x80061e0105956277ccbfb3f60dd36f61fa041074e04fc67c5fd42b1b0bb43f11a81_
+PUSHSLICE x800aaf2af974e9563b8a89681037d03e24115ae732fae95676e5b2b0c94836ef349_
 PUSHREF {
 }
 CALLREF {
@@ -5615,7 +5615,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Vault.sol, 101
+.loc ../contracts/abstract/Vault.sol, 100
 PUSHINT 4001
 GETGLOB 9
 GETGLOB 15
@@ -5631,7 +5631,7 @@ PUSHCONT {
 }
 IF
 THROWANYIFNOT
-.loc ../contracts/abstract/Vault.sol, 102
+.loc ../contracts/abstract/Vault.sol, 101
 PUSHREF {
 	.blob x427ff7ead0a204d45094b4308a7e049292feeea8478f52b68db24d1d34ae9d2d8c460000000000000000000000000000
 }
@@ -8173,6 +8173,54 @@ PUSHCONT {
 IF
 THROW 0
 
+.globl	Converter_with_obj_toDuration_2824106b
+.type	Converter_with_obj_toDuration_2824106b, @function
+CALL $Converter_with_obj_toDuration_2824106b_macro$
+
+.macro Converter_with_obj_toDuration_2824106b_macro
+.loc ../contracts/utils/Converter.sol, 9
+PUSHINT 31536000
+PUSH S2
+ROT
+MULDIV
+UFITS 32
+.loc ../contracts/utils/Converter.sol, 0
+
+.globl	Converter_no_obj_toDuration_2824106b
+.type	Converter_no_obj_toDuration_2824106b, @function
+CALL $Converter_no_obj_toDuration_2824106b_macro$
+
+.macro Converter_no_obj_toDuration_2824106b_macro
+.loc ../contracts/utils/Converter.sol, 9
+PUSHINT 31536000
+ROTREV
+MULDIV
+UFITS 32
+.loc ../contracts/utils/Converter.sol, 0
+
+.globl	Converter_with_obj_toAmount_beae5258
+.type	Converter_with_obj_toAmount_beae5258, @function
+CALL $Converter_with_obj_toAmount_beae5258_macro$
+
+.macro Converter_with_obj_toAmount_beae5258_macro
+.loc ../contracts/utils/Converter.sol, 13
+PUXC S1, S-1
+PUSHINT 31536000
+MULDIV
+UFITS 128
+.loc ../contracts/utils/Converter.sol, 0
+
+.globl	Converter_no_obj_toAmount_beae5258
+.type	Converter_no_obj_toAmount_beae5258, @function
+CALL $Converter_no_obj_toAmount_beae5258_macro$
+
+.macro Converter_no_obj_toAmount_beae5258_macro
+.loc ../contracts/utils/Converter.sol, 13
+PUSHINT 31536000
+MULDIV
+UFITS 128
+.loc ../contracts/utils/Converter.sol, 0
+
 .globl	VersionLibrary_with_obj_compare_66da61cd
 .type	VersionLibrary_with_obj_compare_66da61cd, @function
 CALL $VersionLibrary_with_obj_compare_66da61cd_macro$
@@ -8226,54 +8274,6 @@ SUB
 FITS 64
 SGN
 .loc ../node_modules/versionable/contracts/utils/VersionLibrary.sol, 0
-
-.globl	Converter_with_obj_toDuration_2824106b
-.type	Converter_with_obj_toDuration_2824106b, @function
-CALL $Converter_with_obj_toDuration_2824106b_macro$
-
-.macro Converter_with_obj_toDuration_2824106b_macro
-.loc ../contracts/utils/Converter.sol, 9
-PUSHINT 31536000
-PUSH S2
-ROT
-MULDIV
-UFITS 32
-.loc ../contracts/utils/Converter.sol, 0
-
-.globl	Converter_no_obj_toDuration_2824106b
-.type	Converter_no_obj_toDuration_2824106b, @function
-CALL $Converter_no_obj_toDuration_2824106b_macro$
-
-.macro Converter_no_obj_toDuration_2824106b_macro
-.loc ../contracts/utils/Converter.sol, 9
-PUSHINT 31536000
-ROTREV
-MULDIV
-UFITS 32
-.loc ../contracts/utils/Converter.sol, 0
-
-.globl	Converter_with_obj_toAmount_beae5258
-.type	Converter_with_obj_toAmount_beae5258, @function
-CALL $Converter_with_obj_toAmount_beae5258_macro$
-
-.macro Converter_with_obj_toAmount_beae5258_macro
-.loc ../contracts/utils/Converter.sol, 13
-PUXC S1, S-1
-PUSHINT 31536000
-MULDIV
-UFITS 128
-.loc ../contracts/utils/Converter.sol, 0
-
-.globl	Converter_no_obj_toAmount_beae5258
-.type	Converter_no_obj_toAmount_beae5258, @function
-CALL $Converter_no_obj_toAmount_beae5258_macro$
-
-.macro Converter_no_obj_toAmount_beae5258_macro
-.loc ../contracts/utils/Converter.sol, 13
-PUSHINT 31536000
-MULDIV
-UFITS 128
-.loc ../contracts/utils/Converter.sol, 0
 
 .globl	NameChecker_with_obj_isCorrectName_8d43da88
 .type	NameChecker_with_obj_isCorrectName_8d43da88, @function

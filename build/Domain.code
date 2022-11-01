@@ -149,21 +149,22 @@ CALL $_init_58f8ee94_internal_macro$
 CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
-.loc ../contracts/Domain.sol, 57
+.loc ../contracts/Domain.sol, 56
 PUSHINT 1
-BLKPUSH 2, 0
+DUP
+PUSHINT 2
 PAIR
 CALLREF {
 	CALL $_initVersion_31c90a60_internal_macro$
 }
-.loc ../contracts/Domain.sol, 58
+.loc ../contracts/Domain.sol, 57
 PUSHREFSLICE {
 	.blob x8000000000000000000000000000000000000000000000000000000000000000001_
 }
 PUSHINT 0
 BLKPUSH 4, 0
 TUPLE 6
-.loc ../contracts/Domain.sol, 60
+.loc ../contracts/Domain.sol, 59
 SWAP
 CTOS
 LDREF
@@ -197,7 +198,7 @@ SETGLOB 17
 SETGLOB 22
 SETGLOB 23
 POP S2
-.loc ../contracts/Domain.sol, 62
+.loc ../contracts/Domain.sol, 61
 SWAP
 UNTUPLE 6
 REVERSE 6, 0
@@ -207,14 +208,14 @@ SETGLOB 25
 SETGLOB 27
 SETGLOB 19
 SETGLOB 30
-.loc ../contracts/Domain.sol, 63
+.loc ../contracts/Domain.sol, 62
 PUSHSLICE x2_
 DUP
 SETGLOB 31
 DUP
 SETGLOB 29
 SETGLOB 28
-.loc ../contracts/Domain.sol, 64
+.loc ../contracts/Domain.sol, 63
 GETGLOB 10
 DUP
 ROT
@@ -233,7 +234,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 68
+.loc ../contracts/Domain.sol, 67
 LDU 32
 GETGLOB 4
 ROT
@@ -310,7 +311,7 @@ THROW 0
 CALL $getDurationConfig_3184d751_internal_macro$
 
 .macro getDurationConfig_3184d751_internal_macro
-.loc ../contracts/Domain.sol, 69
+.loc ../contracts/Domain.sol, 68
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -331,7 +332,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 72
+.loc ../contracts/Domain.sol, 71
 LDU 32
 GETGLOB 4
 ROT
@@ -406,7 +407,7 @@ THROW 0
 CALL $getConfig_c3f909d4_internal_macro$
 
 .macro getConfig_c3f909d4_internal_macro
-.loc ../contracts/Domain.sol, 73
+.loc ../contracts/Domain.sol, 72
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -427,7 +428,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 76
+.loc ../contracts/Domain.sol, 75
 LDU 32
 GETGLOB 4
 ROT
@@ -494,7 +495,7 @@ THROW 0
 CALL $getPrice_98d5fdca_internal_macro$
 
 .macro getPrice_98d5fdca_internal_macro
-.loc ../contracts/Domain.sol, 77
+.loc ../contracts/Domain.sol, 76
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -515,7 +516,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 80
+.loc ../contracts/Domain.sol, 79
 LDU 32
 GETGLOB 4
 ROT
@@ -589,7 +590,7 @@ THROW 0
 CALL $getFlags_6cc7149d_internal_macro$
 
 .macro getFlags_6cc7149d_internal_macro
-.loc ../contracts/Domain.sol, 81
+.loc ../contracts/Domain.sol, 80
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -612,7 +613,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 84
+.loc ../contracts/Domain.sol, 83
 LDU 32
 GETGLOB 4
 ROT
@@ -708,20 +709,20 @@ THROW 0
 CALL $getZeroAuction_6104a586_internal_macro$
 
 .macro getZeroAuction_6104a586_internal_macro
-.loc ../contracts/Domain.sol, 84
+.loc ../contracts/Domain.sol, 83
 NULL
-.loc ../contracts/Domain.sol, 85
+.loc ../contracts/Domain.sol, 84
 GETGLOB 29
 PUSHSLICE x2_
 SDEQ
 PUSHCONT {
-	.loc ../contracts/Domain.sol, 86
+	.loc ../contracts/Domain.sol, 85
 	DROP
 	GETGLOB 29
 	.loc ../contracts/Domain.sol, 0
 }
 IFNOT
-.loc ../contracts/Domain.sol, 88
+.loc ../contracts/Domain.sol, 87
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -741,7 +742,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 92
+.loc ../contracts/Domain.sol, 91
 OVER
 PUSHCONT {
 	LDREF
@@ -785,13 +786,13 @@ SDEQ
 THROWIFNOT 1001
 .loc ../contracts/abstract/Certificate.sol, 34
 PUSHCONT {
-	.loc ../contracts/Domain.sol, 93
+	.loc ../contracts/Domain.sol, 92
 	CALLREF {
 		CALL $_status_0fb3844c_internal_macro$
 	}
 	NEQINT 1
 	PUSHCONT {
-		.loc ../contracts/Domain.sol, 94
+		.loc ../contracts/Domain.sol, 93
 		PUSHINT 4
 		XCHG S2
 		GETGLOB 17
@@ -815,21 +816,21 @@ PUSHCONT {
 		ENDC
 		PUSHINT 64
 		SENDRAWMSG
-		.loc ../contracts/Domain.sol, 99
+		.loc ../contracts/Domain.sol, 98
 		DROP
 		.loc ../contracts/Domain.sol, 0
 	}
 	IFJMP
-	.loc ../contracts/Domain.sol, 101
+	.loc ../contracts/Domain.sol, 100
 	TRUE
 	SETGLOB 26
-	.loc ../contracts/Domain.sol, 102
+	.loc ../contracts/Domain.sol, 101
 	PUSH S2
 	FIRST
 	SETGLOB 28
-	.loc ../contracts/Domain.sol, 104
+	.loc ../contracts/Domain.sol, 103
 	PUSH2 S2, S2
-	.loc ../contracts/Domain.sol, 234
+	.loc ../contracts/Domain.sol, 233
 	THIRD
 	NOW
 	GETGLOB 30
@@ -841,9 +842,9 @@ PUSHCONT {
 	STU 128
 	STU 64
 	STU 64
-	.loc ../contracts/Domain.sol, 235
+	.loc ../contracts/Domain.sol, 234
 	ENDC
-	.loc ../contracts/Domain.sol, 105
+	.loc ../contracts/Domain.sol, 104
 	PUSHINT 3500000000
 	SWAP
 	PAIR
@@ -861,16 +862,16 @@ PUSHCONT {
 	ROTREV
 	PUSHINT 267
 	DICTSETB
-	.loc ../contracts/Domain.sol, 106
+	.loc ../contracts/Domain.sol, 105
 	GETGLOB 10
 	SETGLOB 31
-	.loc ../contracts/Domain.sol, 107
+	.loc ../contracts/Domain.sol, 106
 	GETGLOB 16
 	SETGLOB 11
-	.loc ../contracts/Domain.sol, 108
+	.loc ../contracts/Domain.sol, 107
 	GETGLOB 16
 	SETGLOB 10
-	.loc ../contracts/Domain.sol, 109
+	.loc ../contracts/Domain.sol, 108
 	ROLL 3
 	FIRST
 	ROTREV
@@ -879,7 +880,7 @@ PUSHCONT {
 	}
 	.loc ../contracts/Domain.sol, 0
 	DROP
-	.loc ../contracts/Domain.sol, 92
+	.loc ../contracts/Domain.sol, 91
 }
 CALLX
 .loc ../contracts/Domain.sol, 0
@@ -893,7 +894,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 112
+.loc ../contracts/Domain.sol, 111
 OVER
 PUSHCONT {
 	LDREF
@@ -939,21 +940,21 @@ SWAP
 NEQINT 5
 AND
 THROWIFNOT 1003
-.loc ../contracts/Domain.sol, 115
+.loc ../contracts/Domain.sol, 114
 GETGLOB 26
 PUSHCONT {
-	.loc ../contracts/Domain.sol, 116
+	.loc ../contracts/Domain.sol, 115
 	GETGLOB 9
 	GETGLOB 28
 	SDEQ
 	PUSHCONT {
-		.loc ../contracts/Domain.sol, 118
+		.loc ../contracts/Domain.sol, 117
 		GETGLOB 31
 		SETGLOB 10
-		.loc ../contracts/Domain.sol, 119
+		.loc ../contracts/Domain.sol, 118
 		PUSH2 S2, S2
 		SETGLOB 29
-		.loc ../contracts/Domain.sol, 120
+		.loc ../contracts/Domain.sol, 119
 		PUSHSLICE xc00000000000000000000000000bf14cd5
 		NEWC
 		STSLICE
@@ -967,10 +968,10 @@ PUSHCONT {
 		GETGLOB 29
 		SDEQ
 		PUSHCONT {
-			.loc ../contracts/Domain.sol, 123
+			.loc ../contracts/Domain.sol, 122
 			GETGLOB 31
 			POP S3
-			.loc ../contracts/Domain.sol, 124
+			.loc ../contracts/Domain.sol, 123
 			PUSH S2
 			CALLREF {
 				CALL $_finishZeroAuction_ee0904da_internal_macro$
@@ -983,7 +984,7 @@ PUSHCONT {
 	.loc ../contracts/Domain.sol, 0
 }
 IF
-.loc ../contracts/Domain.sol, 127
+.loc ../contracts/Domain.sol, 126
 CALLREF {
 	CALL $NFTCertificate_changeManager_b0f29e6c_macro$
 }
@@ -998,7 +999,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 130
+.loc ../contracts/Domain.sol, 129
 OVER
 PUSHCONT {
 	LDREF
@@ -1044,17 +1045,17 @@ SWAP
 NEQINT 5
 AND
 THROWIFNOT 1003
-.loc ../contracts/Domain.sol, 133
+.loc ../contracts/Domain.sol, 132
 GETGLOB 9
 GETGLOB 29
 SDEQ
 PUSHCONT {
-	.loc ../contracts/Domain.sol, 135
+	.loc ../contracts/Domain.sol, 134
 	PUSH S2
 	CALLREF {
 		CALL $_finishZeroAuction_ee0904da_internal_macro$
 	}
-	.loc ../contracts/Domain.sol, 136
+	.loc ../contracts/Domain.sol, 135
 	PUSHINT 12
 	GETGLOB 31
 	GETGLOB 30
@@ -1082,7 +1083,7 @@ PUSHCONT {
 	.loc ../contracts/Domain.sol, 0
 }
 IF
-.loc ../contracts/Domain.sol, 142
+.loc ../contracts/Domain.sol, 141
 CALLREF {
 	CALL $NFTCertificate_transfer_28b87cb6_macro$
 }
@@ -1097,7 +1098,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 146
+.loc ../contracts/Domain.sol, 145
 LDU 32
 GETGLOB 4
 ROT
@@ -1165,7 +1166,7 @@ THROW 0
 CALL $expectedRenewAmount_3b9c82eb_internal_macro$
 
 .macro expectedRenewAmount_3b9c82eb_internal_macro
-.loc ../contracts/Domain.sol, 147
+.loc ../contracts/Domain.sol, 146
 DUP
 GETGLOB 19
 LEQ
@@ -1182,11 +1183,11 @@ PUSHCONT {
 	DUP
 	PUSHCONT {
 		DROP
-		.loc ../contracts/Domain.sol, 257
+		.loc ../contracts/Domain.sol, 256
 		CALLREF {
 			CALL $_status_0fb3844c_internal_macro$
 		}
-		.loc ../contracts/Domain.sol, 258
+		.loc ../contracts/Domain.sol, 257
 		DUP
 		NEQINT 0
 		OVER
@@ -1202,7 +1203,7 @@ PUSHCONT {
 }
 IFNOT
 PUSHCONT {
-	.loc ../contracts/Domain.sol, 148
+	.loc ../contracts/Domain.sol, 147
 	GETGLOB 4
 	PUSHINT 0
 	SETINDEXQ 2
@@ -1216,19 +1217,19 @@ PUSHCONT {
 	.loc ../contracts/Domain.sol, 0
 }
 IFJMP
-.loc ../contracts/Domain.sol, 150
+.loc ../contracts/Domain.sol, 149
 GETGLOB 19
 SUB
 UFITS 32
-.loc ../contracts/Domain.sol, 266
+.loc ../contracts/Domain.sol, 265
 GETGLOB 24
-.loc ../contracts/Domain.sol, 267
+.loc ../contracts/Domain.sol, 266
 CALLREF {
 	CALL $_status_0fb3844c_internal_macro$
 }
 EQINT 5
 PUSHCONT {
-	.loc ../contracts/Domain.sol, 268
+	.loc ../contracts/Domain.sol, 267
 	GETGLOB 23
 	SECOND
 	OVER
@@ -1240,7 +1241,7 @@ PUSHCONT {
 	.loc ../contracts/Domain.sol, 0
 }
 IF
-.loc ../contracts/Domain.sol, 152
+.loc ../contracts/Domain.sol, 151
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -1263,7 +1264,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 155
+.loc ../contracts/Domain.sol, 154
 OVER
 PUSHCONT {
 	LDREF
@@ -1295,19 +1296,19 @@ SDEQ
 THROWIFNOT 1001
 .loc ../contracts/abstract/Certificate.sol, 34
 PUSHCONT {
-	.loc ../contracts/Domain.sol, 156
+	.loc ../contracts/Domain.sol, 155
 	CALLREF {
 		CALL $_reserve_413ab4a8_internal_macro$
 	}
-	.loc ../contracts/Domain.sol, 157
+	.loc ../contracts/Domain.sol, 156
 	DUP
 	PUSHCONT {
 		NULL
-		.loc ../contracts/Domain.sol, 257
+		.loc ../contracts/Domain.sol, 256
 		CALLREF {
 			CALL $_status_0fb3844c_internal_macro$
 		}
-		.loc ../contracts/Domain.sol, 258
+		.loc ../contracts/Domain.sol, 257
 		DUP
 		NEQINT 0
 		OVER
@@ -1330,13 +1331,13 @@ PUSHCONT {
 				GETGLOB 19
 				LEQ
 				PUSHCONT {
-					.loc ../contracts/Domain.sol, 250
+					.loc ../contracts/Domain.sol, 249
 					DROP2
 					PUSHINT 9
 					.loc ../contracts/Domain.sol, 0
 				}
 				PUSHCONT {
-					.loc ../contracts/Domain.sol, 252
+					.loc ../contracts/Domain.sol, 251
 					DROP2
 					NULL
 					.loc ../contracts/Domain.sol, 0
@@ -1344,7 +1345,7 @@ PUSHCONT {
 				IFELSE
 			}
 			PUSHCONT {
-				.loc ../contracts/Domain.sol, 248
+				.loc ../contracts/Domain.sol, 247
 				DROP2
 				PUSHINT 8
 				.loc ../contracts/Domain.sol, 0
@@ -1352,20 +1353,20 @@ PUSHCONT {
 			IFELSE
 		}
 		PUSHCONT {
-			.loc ../contracts/Domain.sol, 246
+			.loc ../contracts/Domain.sol, 245
 			DROP2
 			PUSHINT 4
 			.loc ../contracts/Domain.sol, 0
 		}
 		IFELSE
-		.loc ../contracts/Domain.sol, 244
+		.loc ../contracts/Domain.sol, 243
 	}
 	CALLX
-	.loc ../contracts/Domain.sol, 158
+	.loc ../contracts/Domain.sol, 157
 	DUP
 	ISNULL
 	PUSHCONT {
-		.loc ../contracts/Domain.sol, 160
+		.loc ../contracts/Domain.sol, 159
 		DUP
 		ISNULL
 		THROWIF 63
@@ -1394,16 +1395,16 @@ PUSHCONT {
 		.loc ../contracts/Domain.sol, 0
 	}
 	IFNOTJMP
-	.loc ../contracts/Domain.sol, 266
+	.loc ../contracts/Domain.sol, 265
 	DROP
 	GETGLOB 24
-	.loc ../contracts/Domain.sol, 267
+	.loc ../contracts/Domain.sol, 266
 	CALLREF {
 		CALL $_status_0fb3844c_internal_macro$
 	}
 	EQINT 5
 	PUSHCONT {
-		.loc ../contracts/Domain.sol, 268
+		.loc ../contracts/Domain.sol, 267
 		GETGLOB 23
 		SECOND
 		OVER
@@ -1415,7 +1416,7 @@ PUSHCONT {
 		.loc ../contracts/Domain.sol, 0
 	}
 	IF
-	.loc ../contracts/Domain.sol, 169
+	.loc ../contracts/Domain.sol, 168
 	NOW
 	GETGLOB 23
 	FIRST
@@ -1424,12 +1425,12 @@ PUSHCONT {
 	GETGLOB 19
 	SUB
 	UFITS 32
-	.loc ../contracts/Domain.sol, 170
+	.loc ../contracts/Domain.sol, 169
 	OVER
 	CALLREF {
 		CALL $Converter_no_obj_toAmount_beae5258_macro$
 	}
-	.loc ../contracts/Domain.sol, 171
+	.loc ../contracts/Domain.sol, 170
 	PUSH2 S0, S3
 	LESS
 	ZEROSWAPIFNOT
@@ -1439,25 +1440,25 @@ PUSHCONT {
 		UFITS 128
 	}
 	IF
-	.loc ../contracts/Domain.sol, 172
+	.loc ../contracts/Domain.sol, 171
 	PUSH S4
 	ROT
 	MIN
 	POP S4
-	.loc ../contracts/Domain.sol, 174
+	.loc ../contracts/Domain.sol, 173
 	PUSH S3
 	ROT
 	CALLREF {
 		CALL $Converter_no_obj_toDuration_2824106b_macro$
 	}
-	.loc ../contracts/Domain.sol, 175
+	.loc ../contracts/Domain.sol, 174
 	GETGLOB 19
 	OVER
 	ADD
 	UFITS 32
 	DUP
 	SETGLOB 19
-	.loc ../contracts/Domain.sol, 176
+	.loc ../contracts/Domain.sol, 175
 	SWAP
 	NOW
 	PUSHSLICE xc000000000000000000000000073628eee
@@ -1469,14 +1470,14 @@ PUSHCONT {
 	ENDC
 	PUSHINT 0
 	SENDRAWMSG
-	.loc ../contracts/Domain.sol, 178
+	.loc ../contracts/Domain.sol, 177
 	CALLREF {
 		CALL $_status_0fb3844c_internal_macro$
 	}
-	.loc ../contracts/Domain.sol, 179
+	.loc ../contracts/Domain.sol, 178
 	EQINT 1
 	PUSHCONT {
-		.loc ../contracts/Domain.sol, 180
+		.loc ../contracts/Domain.sol, 179
 		GETGLOB 30
 		PUSH S3
 		ADD
@@ -1485,11 +1486,11 @@ PUSHCONT {
 		.loc ../contracts/Domain.sol, 0
 	}
 	IF
-	.loc ../contracts/Domain.sol, 183
+	.loc ../contracts/Domain.sol, 182
 	DUP
 	GTINT 0
 	PUSHCONT {
-		.loc ../contracts/Domain.sol, 184
+		.loc ../contracts/Domain.sol, 183
 		PUSHINT 10
 		BLKPUSH 2, 2
 		GETGLOB 17
@@ -1516,7 +1517,7 @@ PUSHCONT {
 		.loc ../contracts/Domain.sol, 0
 	}
 	IF
-	.loc ../contracts/Domain.sol, 190
+	.loc ../contracts/Domain.sol, 189
 	BLKDROP 3
 	GETGLOB 19
 	GETGLOB 17
@@ -1534,7 +1535,7 @@ PUSHCONT {
 	ENDC
 	PUSHPOW2 7
 	SENDRAWMSG
-	.loc ../contracts/Domain.sol, 155
+	.loc ../contracts/Domain.sol, 154
 }
 CALLX
 .loc ../contracts/Domain.sol, 0
@@ -1548,7 +1549,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Domain.sol, 197
+.loc ../contracts/Domain.sol, 196
 OVER
 PUSHCONT {
 	LDREF
@@ -1580,26 +1581,26 @@ GETGLOB 9
 GETGLOB 16
 SDEQ
 THROWIFNOT 1001
-.loc ../contracts/Domain.sol, 198
+.loc ../contracts/Domain.sol, 197
 PUSH S3
 CALLREF {
 	CALL $_transfer_eab06849_internal_macro$
 }
-.loc ../contracts/Domain.sol, 199
+.loc ../contracts/Domain.sol, 198
 ROT
 SETGLOB 24
-.loc ../contracts/Domain.sol, 200
+.loc ../contracts/Domain.sol, 199
 SETGLOB 27
-.loc ../contracts/Domain.sol, 201
+.loc ../contracts/Domain.sol, 200
 FALSE
 SETGLOB 25
-.loc ../contracts/Domain.sol, 202
+.loc ../contracts/Domain.sol, 201
 NOW
 SETGLOB 18
-.loc ../contracts/Domain.sol, 203
+.loc ../contracts/Domain.sol, 202
 DUP
 SETGLOB 19
-.loc ../contracts/Domain.sol, 204
+.loc ../contracts/Domain.sol, 203
 GETGLOB 17
 ROT
 FALSE
@@ -1622,22 +1623,22 @@ SENDRAWMSG
 CALL $_status_0fb3844c_internal_macro$
 
 .macro _status_0fb3844c_internal_macro
-.loc ../contracts/Domain.sol, 212
+.loc ../contracts/Domain.sol, 211
 PUSHINT 0
-.loc ../contracts/Domain.sol, 213
+.loc ../contracts/Domain.sol, 212
 NOW
 GETGLOB 18
 SUB
 FITS 64
-.loc ../contracts/Domain.sol, 214
+.loc ../contracts/Domain.sol, 213
 GETGLOB 19
 NOW
 SUB
 FITS 64
-.loc ../contracts/Domain.sol, 215
+.loc ../contracts/Domain.sol, 214
 GETGLOB 25
 PUSHCONT {
-	.loc ../contracts/Domain.sol, 216
+	.loc ../contracts/Domain.sol, 215
 	BLKDROP 3
 	PUSHINT 0
 	.loc ../contracts/Domain.sol, 0
@@ -1645,7 +1646,7 @@ PUSHCONT {
 PUSHCONT {
 	GETGLOB 26
 	PUSHCONT {
-		.loc ../contracts/Domain.sol, 218
+		.loc ../contracts/Domain.sol, 217
 		BLKDROP 3
 		PUSHINT 2
 		.loc ../contracts/Domain.sol, 0
@@ -1658,7 +1659,7 @@ PUSHCONT {
 		GETGLOB 27
 		AND
 		PUSHCONT {
-			.loc ../contracts/Domain.sol, 220
+			.loc ../contracts/Domain.sol, 219
 			BLKDROP 3
 			PUSHINT 1
 			.loc ../contracts/Domain.sol, 0
@@ -1670,7 +1671,7 @@ PUSHCONT {
 			NEGATE
 			LESS
 			PUSHCONT {
-				.loc ../contracts/Domain.sol, 222
+				.loc ../contracts/Domain.sol, 221
 				BLKDROP 3
 				PUSHINT 6
 				.loc ../contracts/Domain.sol, 0
@@ -1679,7 +1680,7 @@ PUSHCONT {
 				DUP
 				LESSINT 0
 				PUSHCONT {
-					.loc ../contracts/Domain.sol, 224
+					.loc ../contracts/Domain.sol, 223
 					BLKDROP 3
 					PUSHINT 5
 					.loc ../contracts/Domain.sol, 0
@@ -1689,13 +1690,13 @@ PUSHCONT {
 					SECOND
 					LESS
 					PUSHCONT {
-						.loc ../contracts/Domain.sol, 226
+						.loc ../contracts/Domain.sol, 225
 						DROP2
 						PUSHINT 4
 						.loc ../contracts/Domain.sol, 0
 					}
 					PUSHCONT {
-						.loc ../contracts/Domain.sol, 228
+						.loc ../contracts/Domain.sol, 227
 						DROP2
 						PUSHINT 3
 						.loc ../contracts/Domain.sol, 0
@@ -1718,7 +1719,7 @@ IFELSE
 CALL $_finishZeroAuction_ee0904da_internal_macro$
 
 .macro _finishZeroAuction_ee0904da_internal_macro
-.loc ../contracts/Domain.sol, 239
+.loc ../contracts/Domain.sol, 238
 PUSHSLICE xc000000000000000000000000058770f92
 NEWC
 STSLICE
@@ -1726,10 +1727,10 @@ STSLICE
 ENDC
 PUSHINT 0
 SENDRAWMSG
-.loc ../contracts/Domain.sol, 240
+.loc ../contracts/Domain.sol, 239
 FALSE
 SETGLOB 26
-.loc ../contracts/Domain.sol, 241
+.loc ../contracts/Domain.sol, 240
 FALSE
 SETGLOB 27
 .loc ../contracts/Domain.sol, 0
@@ -1739,7 +1740,7 @@ SETGLOB 27
 CALL $_encodeContractData_b4a8b135_internal_macro$
 
 .macro _encodeContractData_b4a8b135_internal_macro
-.loc ../contracts/Domain.sol, 279
+.loc ../contracts/Domain.sol, 278
 GETGLOB 29
 GETGLOB 28
 GETGLOB 27
@@ -4227,7 +4228,7 @@ IFREF {
 CALL $TransferUtils__reserve_413ab4a8_macro$
 
 .macro TransferUtils__reserve_413ab4a8_macro
-.loc ../contracts/Domain.sol, 274
+.loc ../contracts/Domain.sol, 273
 PUSHINT 1000000000
 .loc ../contracts/Domain.sol, 0
 PUSHINT 0
@@ -6697,6 +6698,54 @@ PUSHCONT {
 IF
 THROW 0
 
+.globl	Converter_with_obj_toDuration_2824106b
+.type	Converter_with_obj_toDuration_2824106b, @function
+CALL $Converter_with_obj_toDuration_2824106b_macro$
+
+.macro Converter_with_obj_toDuration_2824106b_macro
+.loc ../contracts/utils/Converter.sol, 9
+PUSHINT 31536000
+PUSH S2
+ROT
+MULDIV
+UFITS 32
+.loc ../contracts/utils/Converter.sol, 0
+
+.globl	Converter_no_obj_toDuration_2824106b
+.type	Converter_no_obj_toDuration_2824106b, @function
+CALL $Converter_no_obj_toDuration_2824106b_macro$
+
+.macro Converter_no_obj_toDuration_2824106b_macro
+.loc ../contracts/utils/Converter.sol, 9
+PUSHINT 31536000
+ROTREV
+MULDIV
+UFITS 32
+.loc ../contracts/utils/Converter.sol, 0
+
+.globl	Converter_with_obj_toAmount_beae5258
+.type	Converter_with_obj_toAmount_beae5258, @function
+CALL $Converter_with_obj_toAmount_beae5258_macro$
+
+.macro Converter_with_obj_toAmount_beae5258_macro
+.loc ../contracts/utils/Converter.sol, 13
+PUXC S1, S-1
+PUSHINT 31536000
+MULDIV
+UFITS 128
+.loc ../contracts/utils/Converter.sol, 0
+
+.globl	Converter_no_obj_toAmount_beae5258
+.type	Converter_no_obj_toAmount_beae5258, @function
+CALL $Converter_no_obj_toAmount_beae5258_macro$
+
+.macro Converter_no_obj_toAmount_beae5258_macro
+.loc ../contracts/utils/Converter.sol, 13
+PUSHINT 31536000
+MULDIV
+UFITS 128
+.loc ../contracts/utils/Converter.sol, 0
+
 .globl	VersionLibrary_with_obj_compare_66da61cd
 .type	VersionLibrary_with_obj_compare_66da61cd, @function
 CALL $VersionLibrary_with_obj_compare_66da61cd_macro$
@@ -6750,54 +6799,6 @@ SUB
 FITS 64
 SGN
 .loc ../node_modules/versionable/contracts/utils/VersionLibrary.sol, 0
-
-.globl	Converter_with_obj_toDuration_2824106b
-.type	Converter_with_obj_toDuration_2824106b, @function
-CALL $Converter_with_obj_toDuration_2824106b_macro$
-
-.macro Converter_with_obj_toDuration_2824106b_macro
-.loc ../contracts/utils/Converter.sol, 9
-PUSHINT 31536000
-PUSH S2
-ROT
-MULDIV
-UFITS 32
-.loc ../contracts/utils/Converter.sol, 0
-
-.globl	Converter_no_obj_toDuration_2824106b
-.type	Converter_no_obj_toDuration_2824106b, @function
-CALL $Converter_no_obj_toDuration_2824106b_macro$
-
-.macro Converter_no_obj_toDuration_2824106b_macro
-.loc ../contracts/utils/Converter.sol, 9
-PUSHINT 31536000
-ROTREV
-MULDIV
-UFITS 32
-.loc ../contracts/utils/Converter.sol, 0
-
-.globl	Converter_with_obj_toAmount_beae5258
-.type	Converter_with_obj_toAmount_beae5258, @function
-CALL $Converter_with_obj_toAmount_beae5258_macro$
-
-.macro Converter_with_obj_toAmount_beae5258_macro
-.loc ../contracts/utils/Converter.sol, 13
-PUXC S1, S-1
-PUSHINT 31536000
-MULDIV
-UFITS 128
-.loc ../contracts/utils/Converter.sol, 0
-
-.globl	Converter_no_obj_toAmount_beae5258
-.type	Converter_no_obj_toAmount_beae5258, @function
-CALL $Converter_no_obj_toAmount_beae5258_macro$
-
-.macro Converter_no_obj_toAmount_beae5258_macro
-.loc ../contracts/utils/Converter.sol, 13
-PUSHINT 31536000
-MULDIV
-UFITS 128
-.loc ../contracts/utils/Converter.sol, 0
 
 .macro public_function_selector
 DUP

@@ -125,6 +125,14 @@ CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
 .loc ../contracts/Subdomain.sol, 45
+PUSHINT 2
+PUSHINT 1
+PUSHINT 3
+PAIR
+CALLREF {
+	CALL $_initVersion_31c90a60_internal_macro$
+}
+.loc ../contracts/Subdomain.sol, 46
 PUSHREFSLICE {
 	.blob x8000000000000000000000000000000000000000000000000000000000000000001_
 }
@@ -135,11 +143,11 @@ PUSHREFSLICE {
 }
 PUSHINT 0
 TUPLE 5
-.loc ../contracts/Subdomain.sol, 46
+.loc ../contracts/Subdomain.sol, 47
 PUSHREFSLICE {
 	.blob x8000000000000000000000000000000000000000000000000000000000000000001_
 }
-.loc ../contracts/Subdomain.sol, 47
+.loc ../contracts/Subdomain.sol, 48
 ROT
 CTOS
 LDREF
@@ -170,7 +178,7 @@ SETGLOB 17
 SETGLOB 22
 POP S3
 SETGLOB 12
-.loc ../contracts/Subdomain.sol, 49
+.loc ../contracts/Subdomain.sol, 50
 SWAP
 UNTUPLE 5
 REVERSE 5, 0
@@ -179,7 +187,7 @@ POP S4
 SETGLOB 19
 SETGLOB 23
 SETGLOB 24
-.loc ../contracts/Subdomain.sol, 50
+.loc ../contracts/Subdomain.sol, 51
 GETGLOB 10
 GETGLOB 17
 PUSH S2
@@ -200,7 +208,7 @@ STBREFR
 ENDC
 PUSHINT 1
 SENDRAWMSG
-.loc ../contracts/Subdomain.sol, 55
+.loc ../contracts/Subdomain.sol, 56
 GETGLOB 10
 DUP
 GETGLOB 12
@@ -219,7 +227,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Subdomain.sol, 59
+.loc ../contracts/Subdomain.sol, 60
 LDU 32
 GETGLOB 4
 ROT
@@ -296,7 +304,7 @@ THROW 0
 CALL $getDurationConfig_3184d751_internal_macro$
 
 .macro getDurationConfig_3184d751_internal_macro
-.loc ../contracts/Subdomain.sol, 60
+.loc ../contracts/Subdomain.sol, 61
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -317,7 +325,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Subdomain.sol, 63
+.loc ../contracts/Subdomain.sol, 64
 ENDS
 .loc ../contracts/Subdomain.sol, 0
 CALLREF {
@@ -348,7 +356,7 @@ THROWANYIFNOT
 CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
-.loc ../contracts/Subdomain.sol, 64
+.loc ../contracts/Subdomain.sol, 65
 GETGLOB 23
 FALSE
 NEWC
@@ -387,7 +395,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Subdomain.sol, 71
+.loc ../contracts/Subdomain.sol, 72
 LDU 32
 ENDS
 .loc ../contracts/Subdomain.sol, 0
@@ -414,19 +422,19 @@ THROWANYIFNOT
 PUSHINT 5002
 GETGLOB 24
 THROWANYIFNOT
-.loc ../contracts/Subdomain.sol, 72
+.loc ../contracts/Subdomain.sol, 73
 CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
-.loc ../contracts/Subdomain.sol, 73
+.loc ../contracts/Subdomain.sol, 74
 GETGLOB 19
 OVER
 NEQ
 PUSHCONT {
-	.loc ../contracts/Subdomain.sol, 74
+	.loc ../contracts/Subdomain.sol, 75
 	BLKPUSH 2, 0
 	SETGLOB 19
-	.loc ../contracts/Subdomain.sol, 75
+	.loc ../contracts/Subdomain.sol, 76
 	NOW
 	PUSHSLICE xc0000000000000000000000000405e1309
 	NEWC
@@ -439,7 +447,7 @@ PUSHCONT {
 	.loc ../contracts/Subdomain.sol, 0
 }
 IF
-.loc ../contracts/Subdomain.sol, 77
+.loc ../contracts/Subdomain.sol, 78
 DROP
 GETGLOB 19
 GETGLOB 17
@@ -468,7 +476,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/Subdomain.sol, 84
+.loc ../contracts/Subdomain.sol, 85
 ENDS
 .loc ../contracts/Subdomain.sol, 0
 CALLREF {
@@ -491,7 +499,7 @@ CALLREF {
 }
 SDEQ
 THROWIFNOT 1002
-.loc ../contracts/Subdomain.sol, 85
+.loc ../contracts/Subdomain.sol, 86
 CALLREF {
 	CALL $_destroy_b4c298ca_internal_macro$
 }
@@ -502,21 +510,21 @@ CALLREF {
 CALL $_status_0fb3844c_internal_macro$
 
 .macro _status_0fb3844c_internal_macro
-.loc ../contracts/Subdomain.sol, 89
-PUSHINT 0
 .loc ../contracts/Subdomain.sol, 90
+PUSHINT 0
+.loc ../contracts/Subdomain.sol, 91
 GETGLOB 19
 NOW
 SUB
 FITS 64
-.loc ../contracts/Subdomain.sol, 91
+.loc ../contracts/Subdomain.sol, 92
 DUP
 GETGLOB 22
 THIRD
 NEGATE
 LESS
 PUSHCONT {
-	.loc ../contracts/Subdomain.sol, 92
+	.loc ../contracts/Subdomain.sol, 93
 	DROP2
 	PUSHINT 6
 	.loc ../contracts/Subdomain.sol, 0
@@ -525,7 +533,7 @@ PUSHCONT {
 	DUP
 	LESSINT 0
 	PUSHCONT {
-		.loc ../contracts/Subdomain.sol, 94
+		.loc ../contracts/Subdomain.sol, 95
 		DROP2
 		PUSHINT 5
 		.loc ../contracts/Subdomain.sol, 0
@@ -535,13 +543,13 @@ PUSHCONT {
 		SECOND
 		LESS
 		PUSHCONT {
-			.loc ../contracts/Subdomain.sol, 96
+			.loc ../contracts/Subdomain.sol, 97
 			DROP
 			PUSHINT 4
 			.loc ../contracts/Subdomain.sol, 0
 		}
 		PUSHCONT {
-			.loc ../contracts/Subdomain.sol, 98
+			.loc ../contracts/Subdomain.sol, 99
 			DROP
 			PUSHINT 3
 			.loc ../contracts/Subdomain.sol, 0
@@ -558,7 +566,7 @@ IFELSE
 CALL $_encodeContractData_b4a8b135_internal_macro$
 
 .macro _encodeContractData_b4a8b135_internal_macro
-.loc ../contracts/Subdomain.sol, 108
+.loc ../contracts/Subdomain.sol, 109
 GETGLOB 24
 GETGLOB 23
 GETGLOB 22
@@ -3074,7 +3082,7 @@ IFREF {
 CALL $TransferUtils__reserve_413ab4a8_macro$
 
 .macro TransferUtils__reserve_413ab4a8_macro
-.loc ../contracts/Subdomain.sol, 103
+.loc ../contracts/Subdomain.sol, 104
 PUSHINT 1000000000
 .loc ../contracts/Subdomain.sol, 0
 PUSHINT 0

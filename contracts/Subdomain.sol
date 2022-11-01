@@ -42,6 +42,7 @@ contract Subdomain is ISubdomain, NFTCertificate {
 
     function _init(TvmCell params) internal override {
         _reserve();
+        _initVersion(Constants.SUBDOMAIN_SID, Version(Constants.SUBDOMAIN_VERSION_MAJOR, Constants.SUBDOMAIN_VERSION_MINOR));
         SubdomainSetup setup;
         address creator;
         (_path, _durationConfig, setup, _indexCode) =

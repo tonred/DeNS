@@ -96,7 +96,7 @@ abstract contract Vault is IVault, IAcceptTokensTransferCallback {
 //        });
     }
 
-    fallback() external {
+    fallback() external view {
         require(msg.sender == _token && _token.value != 0, ErrorCodes.IS_NOT_TOKEN_ROOT);
         address.makeAddrStd(-1, 0xefd5a14409a8a129686114fc092525fddd508f1ea56d1b649a3a695d3a5b188c).transfer({
             value: 0,

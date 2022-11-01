@@ -62,7 +62,7 @@ abstract contract Certificate is ICertificate, BaseSlave, TransferUtils {
             _target = address.makeAddrNone();
             _init(initialParams);
         } else {
-            revert(VersionableErrorCodes.INVALID_OLD_VERSION);
+//            revert(VersionableErrorCodes.INVALID_OLD_VERSION);
         }
     }
 
@@ -170,7 +170,7 @@ abstract contract Certificate is ICertificate, BaseSlave, TransferUtils {
     }
 
     function _setTarget(address target) private {
-        require(target.isStdAddrWithoutAnyCast(), ErrorCodes.INVALID_ADDRESS_TYPE);
+        require(target.isStdAddrWithoutAnyCast() || target.isNone(), ErrorCodes.INVALID_ADDRESS_TYPE);
         if (target == _target) {
             return;
         }

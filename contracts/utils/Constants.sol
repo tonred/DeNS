@@ -26,9 +26,9 @@ library Constants {
     // VERSIONABLE
     uint16 constant DOMAIN_SID = 1;
     uint16 constant DOMAIN_VERSION_MAJOR = 1;
-    uint16 constant DOMAIN_VERSION_MINOR = 1;
+    uint16 constant DOMAIN_VERSION_MINOR = 2;
     uint16 constant SUBDOMAIN_SID = 2;
     uint16 constant SUBDOMAIN_VERSION_MAJOR = 1;
-    uint16 constant SUBDOMAIN_VERSION_MINOR = 1;
+    uint16 constant SUBDOMAIN_VERSION_MINOR = 2;
 
 }

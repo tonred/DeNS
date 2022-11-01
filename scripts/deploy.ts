@@ -2,8 +2,8 @@ import { Address, Contract, Signer } from "locklift";
 import { RootAbi, RootDeployerAbi, TokenRootAbi, WalletAbi } from "../build/factorySource";
 import { AuctionConfig, Config, DurationConfig, PriceConfig } from "./types";
 import { logContract } from "./utils";
-import { Account } from "locklift/build/factory";
-import { logger } from "locklift/build/logger";
+import { Account } from "locklift/internal/factory";
+import { logger } from "locklift/internal/logger";
 import BigNumber from "bignumber.js";
 
 export async function deployRootDeployer(signer: Signer, value: string): Promise<Contract<RootDeployerAbi>> {

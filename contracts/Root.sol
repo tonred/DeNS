@@ -464,6 +464,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         emit CodeUpgraded();
         TvmCell data = abi.encode(
             _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
+            _json,
             _token, _wallet, _balance,  // Vault
             _slaves,  // BaseMaster
             _randomNonce,  // RandomNonce
@@ -475,20 +476,22 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
     }
 
     function onCodeUpgrade(TvmCell input) private {
-        tvm.resetStorage();
-        (
-            _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
-            _token, _wallet, _balance,  // Vault
-            _slaves,  // BaseMaster
-            _randomNonce,  // RandomNonce
-            _tld, _dao, _admin, _active, _config, _priceConfig, _auctionConfig, _durationConfig  // Root
-        ) = abi.decode(input, (
-            uint128, TvmCell, TvmCell, TvmCell,  // CollectionBase4_1 + CollectionBase4_3
-            address, address, uint128,  // Vault
-            mapping(uint16 => SlaveData),  // BaseMaster
-            uint,  // RandomNonce
-            string, address, address, bool, RootConfig, PriceConfig, AuctionConfig, DurationConfig  // Root
-        ));
+//        tvm.resetStorage();
+//        (
+//            _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
+//            _json,
+//            _token, _wallet, _balance,  // Vault
+//            _slaves,  // BaseMaster
+//            _randomNonce,  // RandomNonce
+//            _tld, _dao, _admin, _active, _config, _priceConfig, _auctionConfig, _durationConfig  // Root
+//        ) = abi.decode(input, (
+//            uint128, TvmCell, TvmCell, TvmCell,  // CollectionBase4_1 + CollectionBase4_3
+//            string,
+//            address, address, uint128,  // Vault
+//            mapping(uint16 => SlaveData),  // BaseMaster
+//            uint,  // RandomNonce
+//            string, address, address, bool, RootConfig, PriceConfig, AuctionConfig, DurationConfig  // Root
+//        ));
     }
 
 }

@@ -194,7 +194,7 @@ contract Domain is IDomain, NFTCertificate {
     }
 
     function unreserve(address owner, uint128 price, uint32 expireTime, bool needZeroAuction) public override onlyRoot {
-        _transfer(_owner);
+        _transfer(owner);
         _price = price;
         _needZeroAuction = needZeroAuction;
         _reserved = false;
@@ -230,7 +230,7 @@ contract Domain is IDomain, NFTCertificate {
 
     function _buildZeroAuctionPayload(AuctionConfig config) private view inline returns (TvmCell) {
         TvmBuilder builder;
-        builder.store(config.tokenRoot, _paybackAmount, now, config.duration);
+        builder.store(uint32(0), config.tokenRoot, _paybackAmount, uint64(now), uint64(config.duration));
         return builder.toCell();
     }
 

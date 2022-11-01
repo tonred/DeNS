@@ -7,7 +7,7 @@
         "build": "npx locklift build",
         "deploy-prod": "npx locklift run --network mainnet --script scripts/migration/prod.ts --disable-build",
         "deploy-test": "npx locklift run --network mainnet --script scripts/migration/test.ts --disable-build",
-        "test": "npx locklift test --network local --disable-build",
+        "test": "npx locklift test --network local --disable-build"
     },
     "author": "TONRED",
     "license": "ISC",

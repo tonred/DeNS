@@ -1,11 +1,10 @@
 # DeNS
-tonred team
 
+## Deployed domains
 
-## TODO
-
-* Unreserve domain
-* Versionable
+| tld  | Address                                                             |
+|------|---------------------------------------------------------------------|
+| ever | 0:a7d0694c025b61e1a4a846f1cf88980a5df8adf737d17ac58e35bf172c9fca29  |
 
 ## Resolve
 ### To get a dns record for a specific domain:
@@ -23,7 +22,7 @@ This method will return the address of the domain certificate. Check if such acc
 | 0  | Everscale account address (target address) | address |
 | 1  | ADNL address                               | uint256 |
 |    |                                            |         |
-|    | todo                                       |         |
+|    | TBD                                        |         |
 |    |                                            |         |
 |    |                                            |         |
 

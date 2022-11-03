@@ -152,7 +152,7 @@ CALLREF {
 .loc ../contracts/Domain.sol, 68
 PUSHINT 1
 DUP
-PUSHINT 4
+PUSHINT 5
 PAIR
 CALLREF {
 	CALL $_initVersion_31c90a60_internal_macro$

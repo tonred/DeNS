@@ -33,6 +33,18 @@ contract Domain is IDomain, NFTCertificate {
     address public _paybackOwner;
 
 
+    modifier onActiveNotNew() {
+        CertificateStatus status = _status();
+        require(
+            status != CertificateStatus.EXPIRED &&
+            status != CertificateStatus.GRACE &&
+            status != CertificateStatus.NEW,
+            ErrorCodes.IS_NOT_ACTIVE
+        );
+        _;
+    }
+
+
     // 0x4A2E4FD6 is a Platform constructor functionID
     function onDeployRetry(TvmCell /*code*/, TvmCell params) public functionID(0x4A2E4FD6) override onlyRoot {
         (/*path*/, /*durationConfig*/, /*config*/, DomainSetup setup, /*indexCode*/)
@@ -108,9 +120,15 @@ contract Domain is IDomain, NFTCertificate {
         changeManager(config.auctionRoot, sender, callbacks);
     }
 
+    function changeOwner(
+        address newOwner, address sendGasTo, mapping(address => CallbackParams) callbacks
+    ) public override onlyManager onActiveNotNew {
+        super.changeOwner(newOwner, sendGasTo, callbacks);
+    }
+
     function changeManager(
         address newManager, address sendGasTo, mapping(address => CallbackParams) callbacks
-    ) public override onlyManager onActive {
+    ) public override onlyManager onActiveNotNew {
         if (_inZeroAuction) {
             if (msg.sender == _auctionRoot) {
                 // Auction started
@@ -119,7 +137,7 @@ contract Domain is IDomain, NFTCertificate {
                 emit ZeroAuctionStarted(_zeroAuction);
             } else if (msg.sender == _zeroAuction) {
                 // Auction finished (canceled)
-                newManager = _paybackOwner;  // `newManager` is `Root`, change it
+                newManager = _paybackOwner;  // `newManager` is `Root`, changing it
                 _finishZeroAuction(newManager);
             }
         }
@@ -128,7 +146,7 @@ contract Domain is IDomain, NFTCertificate {
 
     function transfer(
         address to, address sendGasTo, mapping(address => CallbackParams) callbacks
-    ) public override onlyManager onActive {
+    ) public override onlyManager onActiveNotNew {
         if (msg.sender == _zeroAuction) {
             // Auction finished (completed)
             _finishZeroAuction(to);

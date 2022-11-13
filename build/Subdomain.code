@@ -1353,6 +1353,15 @@ CALL $TransferUtils__reserve_413ab4a8_macro$
 .internal :onCodeUpgrade
 .loc ../contracts/abstract/Certificate.sol, 55
 PUSHCONT {
+	.loc ../contracts/abstract/Certificate.sol, 67
+	GETGLOB 20
+	PUSHSLICE x2_
+	SDEQ
+	IFNOTREF {
+		CALL $_updateCodeSalt_cb7e936f_internal_macro$
+	}
+}
+PUSHCONT {
 	.loc ../contracts/abstract/Certificate.sol, 56
 	PUSHREFSLICE {
 		.blob x8000000000000000000000000000000000000000000000000000000000000000001_
@@ -1426,11 +1435,10 @@ PUSHCONT {
 	CALLREF {
 		CALL $_init_58f8ee94_internal_macro$
 	}
-	.loc ../contracts/abstract/Certificate.sol, 0
 }
-IFNOT
-DROP
+IFELSE
 .loc ../contracts/abstract/Certificate.sol, 0
+DROP
 CALLREF {
 	CALL $c7_to_c4$
 }
@@ -1446,7 +1454,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 72
+.loc ../contracts/abstract/Certificate.sol, 76
 LDU 32
 GETGLOB 4
 ROT
@@ -1513,7 +1521,7 @@ THROW 0
 CALL $getPath_555b37be_internal_macro$
 
 .macro getPath_555b37be_internal_macro
-.loc ../contracts/abstract/Certificate.sol, 73
+.loc ../contracts/abstract/Certificate.sol, 77
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -1534,7 +1542,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 76
+.loc ../contracts/abstract/Certificate.sol, 80
 LDU 32
 GETGLOB 4
 ROT
@@ -1612,7 +1620,7 @@ THROW 0
 CALL $getDetails_fbbf93a0_internal_macro$
 
 .macro getDetails_fbbf93a0_internal_macro
-.loc ../contracts/abstract/Certificate.sol, 77
+.loc ../contracts/abstract/Certificate.sol, 81
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -1637,7 +1645,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 80
+.loc ../contracts/abstract/Certificate.sol, 84
 LDU 32
 GETGLOB 4
 ROT
@@ -1704,7 +1712,7 @@ THROW 0
 CALL $getStatus_4e69d560_internal_macro$
 
 .macro getStatus_4e69d560_internal_macro
-.loc ../contracts/abstract/Certificate.sol, 81
+.loc ../contracts/abstract/Certificate.sol, 85
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -1727,7 +1735,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 84
+.loc ../contracts/abstract/Certificate.sol, 88
 LDU 32
 GETGLOB 4
 ROT
@@ -1812,7 +1820,7 @@ SWAP
 NEQINT 5
 AND
 THROWIFNOT 1003
-.loc ../contracts/abstract/Certificate.sol, 85
+.loc ../contracts/abstract/Certificate.sol, 89
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -1833,7 +1841,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 88
+.loc ../contracts/abstract/Certificate.sol, 92
 LDU 32
 GETGLOB 4
 ROT
@@ -1934,7 +1942,7 @@ SWAP
 NEQINT 5
 AND
 THROWIFNOT 1003
-.loc ../contracts/abstract/Certificate.sol, 89
+.loc ../contracts/abstract/Certificate.sol, 93
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -1959,7 +1967,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 92
+.loc ../contracts/abstract/Certificate.sol, 96
 LDU 32
 GETGLOB 4
 ROT
@@ -2037,7 +2045,7 @@ SWAP
 NEQINT 5
 AND
 THROWIFNOT 1003
-.loc ../contracts/abstract/Certificate.sol, 93
+.loc ../contracts/abstract/Certificate.sol, 97
 GETGLOB 4
 PUSHINT 0
 SETINDEXQ 2
@@ -2058,7 +2066,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 97
+.loc ../contracts/abstract/Certificate.sol, 101
 OVER
 PUSHCONT {
 	LDREF
@@ -2104,7 +2112,7 @@ THROWIFNOT 1002
 CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
-.loc ../contracts/abstract/Certificate.sol, 98
+.loc ../contracts/abstract/Certificate.sol, 102
 CALLREF {
 	CALL $_setTarget_436962b4_internal_macro$
 }
@@ -2129,7 +2137,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 101
+.loc ../contracts/abstract/Certificate.sol, 105
 LDDICT
 ENDS
 .loc ../contracts/abstract/Certificate.sol, 0
@@ -2168,7 +2176,7 @@ THROWIFNOT 1002
 CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
-.loc ../contracts/abstract/Certificate.sol, 102
+.loc ../contracts/abstract/Certificate.sol, 106
 DUP
 PUSHINT 32
 DICTUMINREF
@@ -2187,7 +2195,7 @@ PUSHCONT {
 	NOT
 }
 PUSHCONT {
-	.loc ../contracts/abstract/Certificate.sol, 103
+	.loc ../contracts/abstract/Certificate.sol, 107
 	DUP2
 	CALLREF {
 		CALL $_setRecord_01584cc4_internal_macro$
@@ -2231,7 +2239,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 107
+.loc ../contracts/abstract/Certificate.sol, 111
 LDU 32
 LDREF
 ENDS
@@ -2271,7 +2279,7 @@ THROWIFNOT 1002
 CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
-.loc ../contracts/abstract/Certificate.sol, 108
+.loc ../contracts/abstract/Certificate.sol, 112
 CALLREF {
 	CALL $_setRecord_01584cc4_internal_macro$
 }
@@ -2296,7 +2304,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 111
+.loc ../contracts/abstract/Certificate.sol, 115
 LDU 32
 LDDICT
 ROTREV
@@ -2339,7 +2347,7 @@ THROWIFNOT 1002
 CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
-.loc ../contracts/abstract/Certificate.sol, 112
+.loc ../contracts/abstract/Certificate.sol, 116
 SECOND
 PUSHINT 0
 NULL
@@ -2358,7 +2366,7 @@ PUSHCONT {
 	NOT
 }
 PUSHCONT {
-	.loc ../contracts/abstract/Certificate.sol, 113
+	.loc ../contracts/abstract/Certificate.sol, 117
 	DUP
 	CALLREF {
 		CALL $_deleteRecord_2e9e0aa9_internal_macro$
@@ -2391,7 +2399,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 117
+.loc ../contracts/abstract/Certificate.sol, 121
 LDU 32
 ENDS
 .loc ../contracts/abstract/Certificate.sol, 0
@@ -2430,7 +2438,7 @@ THROWIFNOT 1002
 CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
-.loc ../contracts/abstract/Certificate.sol, 118
+.loc ../contracts/abstract/Certificate.sol, 122
 CALLREF {
 	CALL $_deleteRecord_2e9e0aa9_internal_macro$
 }
@@ -2455,7 +2463,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 121
+.loc ../contracts/abstract/Certificate.sol, 125
 OVER
 PUSHCONT {
 	LDREF
@@ -2495,11 +2503,11 @@ THROWIFNOT 1002
 CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
-.loc ../contracts/abstract/Certificate.sol, 122
+.loc ../contracts/abstract/Certificate.sol, 126
 CALLREF {
 	CALL $_status_0fb3844c_internal_macro$
 }
-.loc ../contracts/abstract/Certificate.sol, 123
+.loc ../contracts/abstract/Certificate.sol, 127
 DUP
 EQINT 3
 OVER
@@ -2511,14 +2519,14 @@ AND
 OR
 OR
 THROWIFNOT 2001
-.loc ../contracts/abstract/Certificate.sol, 129
+.loc ../contracts/abstract/Certificate.sol, 133
 SWAP
 GETGLOB 9
 GETGLOB 19
 MYADDR
 ROLL 4
 TUPLE 5
-.loc ../contracts/abstract/Certificate.sol, 136
+.loc ../contracts/abstract/Certificate.sol, 140
 SWAP
 GETGLOB 17
 GETGLOB 16
@@ -2574,7 +2582,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 144
+.loc ../contracts/abstract/Certificate.sol, 148
 OVER
 PUSHCONT {
 	LDREF
@@ -2616,7 +2624,7 @@ PICK
 PUSHINT 500000000
 GEQ
 THROWIFNOT 500
-.loc ../contracts/abstract/Certificate.sol, 145
+.loc ../contracts/abstract/Certificate.sol, 149
 GETGLOB 19
 SWAP
 TRUE
@@ -2638,15 +2646,15 @@ SENDRAWMSG
 CALL $_setRecord_01584cc4_internal_macro$
 
 .macro _setRecord_01584cc4_internal_macro
-.loc ../contracts/abstract/Certificate.sol, 154
+.loc ../contracts/abstract/Certificate.sol, 158
 OVER
 PUSHCONT {
-	.loc ../contracts/abstract/Certificate.sol, 159
+	.loc ../contracts/abstract/Certificate.sol, 163
 	DUP
 	PUSHINT 8
 	CDATASIZE
 	BLKDROP 3
-	.loc ../contracts/abstract/Certificate.sol, 160
+	.loc ../contracts/abstract/Certificate.sol, 164
 	PUSH2 S0, S1
 	GETGLOB 21
 	PUSHINT 32
@@ -2654,11 +2662,11 @@ PUSHCONT {
 	SETGLOB 21
 }
 PUSHCONT {
-	.loc ../contracts/abstract/Certificate.sol, 155
+	.loc ../contracts/abstract/Certificate.sol, 159
 	DUP
 	CTOS
 	SBITREFS
-	.loc ../contracts/abstract/Certificate.sol, 156
+	.loc ../contracts/abstract/Certificate.sol, 160
 	SWAP
 	PUSHINT 267
 	EQUAL
@@ -2666,7 +2674,7 @@ PUSHCONT {
 	EQINT 0
 	AND
 	THROWIFNOT 2002
-	.loc ../contracts/abstract/Certificate.sol, 157
+	.loc ../contracts/abstract/Certificate.sol, 161
 	DUP
 	CTOS
 	LDMSGADDR
@@ -2684,10 +2692,10 @@ DROP2
 CALL $_deleteRecord_2e9e0aa9_internal_macro$
 
 .macro _deleteRecord_2e9e0aa9_internal_macro
-.loc ../contracts/abstract/Certificate.sol, 165
+.loc ../contracts/abstract/Certificate.sol, 169
 DUP
 PUSHCONT {
-	.loc ../contracts/abstract/Certificate.sol, 168
+	.loc ../contracts/abstract/Certificate.sol, 172
 	DUP
 	GETGLOB 21
 	PUSHINT 32
@@ -2696,7 +2704,7 @@ PUSHCONT {
 	SETGLOB 21
 }
 PUSHCONT {
-	.loc ../contracts/abstract/Certificate.sol, 166
+	.loc ../contracts/abstract/Certificate.sol, 170
 	PUSHSLICE x2_
 	CALLREF {
 		CALL $_setTarget_436962b4_internal_macro$
@@ -2711,7 +2719,7 @@ DROP
 CALL $_setTarget_436962b4_internal_macro$
 
 .macro _setTarget_436962b4_internal_macro
-.loc ../contracts/abstract/Certificate.sol, 173
+.loc ../contracts/abstract/Certificate.sol, 177
 DUP
 PARSEMSGADDR
 DUP
@@ -2731,17 +2739,17 @@ PUSHSLICE x2_
 SDEQ
 OR
 THROWIFNOT 2003
-.loc ../contracts/abstract/Certificate.sol, 174
+.loc ../contracts/abstract/Certificate.sol, 178
 DUP
 GETGLOB 20
 SDEQ
 PUSHCONT {
-	.loc ../contracts/abstract/Certificate.sol, 175
+	.loc ../contracts/abstract/Certificate.sol, 179
 	DROP
 	.loc ../contracts/abstract/Certificate.sol, 0
 }
 IFJMP
-.loc ../contracts/abstract/Certificate.sol, 177
+.loc ../contracts/abstract/Certificate.sol, 181
 DUP
 GETGLOB 20
 PUSHREFSLICE {
@@ -2761,22 +2769,35 @@ STBREFR
 ENDC
 PUSHINT 0
 SENDRAWMSG
-.loc ../contracts/abstract/Certificate.sol, 178
+.loc ../contracts/abstract/Certificate.sol, 182
 DUP
+SETGLOB 20
+.loc ../contracts/abstract/Certificate.sol, 183
 NEWC
 STSLICE
 ENDC
-.loc ../contracts/abstract/Certificate.sol, 179
-SWAP
-SETGLOB 20
-.loc ../contracts/abstract/Certificate.sol, 180
-DUP
 PUSHINT 0
 GETGLOB 21
 PUSHINT 32
 DICTUSETREF
 SETGLOB 21
-.loc ../contracts/abstract/Certificate.sol, 181
+.loc ../contracts/abstract/Certificate.sol, 184
+CALLREF {
+	CALL $_updateCodeSalt_cb7e936f_internal_macro$
+}
+.loc ../contracts/abstract/Certificate.sol, 0
+
+.globl	_updateCodeSalt_cb7e936f_internal
+.type	_updateCodeSalt_cb7e936f_internal, @function
+CALL $_updateCodeSalt_cb7e936f_internal_macro$
+
+.macro _updateCodeSalt_cb7e936f_internal_macro
+.loc ../contracts/abstract/Certificate.sol, 188
+GETGLOB 20
+NEWC
+STSLICE
+ENDC
+.loc ../contracts/abstract/Certificate.sol, 189
 MYCODE
 CTOS
 SWAP
@@ -2885,7 +2906,7 @@ CALLREF {
 	}
 	IFELSE
 }
-.loc ../contracts/abstract/Certificate.sol, 182
+.loc ../contracts/abstract/Certificate.sol, 190
 SETCODE
 .loc ../contracts/abstract/Certificate.sol, 0
 
@@ -2898,7 +2919,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 190
+.loc ../contracts/abstract/Certificate.sol, 198
 ENDS
 .loc ../contracts/abstract/Certificate.sol, 0
 CALLREF {
@@ -2918,7 +2939,7 @@ CALL $requestUpgrade_1fb04b58_internal_macro$
 CALLREF {
 	CALL $_reserve_413ab4a8_internal_macro$
 }
-.loc ../contracts/abstract/Certificate.sol, 191
+.loc ../contracts/abstract/Certificate.sol, 199
 GETGLOB 9
 MYADDR
 GETGLOB 13
@@ -2965,7 +2986,7 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 198
+.loc ../contracts/abstract/Certificate.sol, 206
 OVER
 PUSHCONT {
 	LDU 16
@@ -3012,7 +3033,7 @@ GETGLOB 9
 GETGLOB 16
 SDEQ
 THROWIFNOT 1001
-.loc ../contracts/abstract/Certificate.sol, 199
+.loc ../contracts/abstract/Certificate.sol, 207
 CALLREF {
 	CALL $_acceptUpgrade_d9beded5_internal_macro$
 }
@@ -3023,7 +3044,7 @@ CALLREF {
 CALL $_onCodeUpgrade_0f0cde19_internal_macro$
 
 .macro _onCodeUpgrade_0f0cde19_internal_macro
-.loc ../contracts/abstract/Certificate.sol, 203
+.loc ../contracts/abstract/Certificate.sol, 211
 REVERSE 4, 0
 NEWC
 STREF
@@ -3035,7 +3056,7 @@ STU 32
 STREF
 STSLICE
 ENDC
-.loc ../contracts/abstract/Certificate.sol, 204
+.loc ../contracts/abstract/Certificate.sol, 212
 TRUE
 CALLREF {
 	CALL $:onCodeUpgrade$
@@ -3050,13 +3071,13 @@ ISNULL
 IFREF {
 	CALL $c4_to_c7$
 }
-.loc ../contracts/abstract/Certificate.sol, 209
+.loc ../contracts/abstract/Certificate.sol, 217
 PLDU 32
-.loc ../contracts/abstract/Certificate.sol, 210
+.loc ../contracts/abstract/Certificate.sol, 218
 PUSHINT 648007909
 EQUAL
 PUSHCONT {
-	.loc ../contracts/abstract/Certificate.sol, 212
+	.loc ../contracts/abstract/Certificate.sol, 220
 	CALLREF {
 		CALL $_getOwner_f7e6af80_internal_macro$
 	}

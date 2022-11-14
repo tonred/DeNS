@@ -287,7 +287,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         _active = false;
     }
 
-    function burnBalance(uint128 amount)  public override onlyDao {
+    function burnBalance(uint128 amount) public override onlyDao {
         _reserve();
         _burn(amount, _dao);
     }
@@ -464,7 +464,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         emit CodeUpgraded();
         TvmCell data = abi.encode(
             _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
-            _json,
+            _json,  // JSONMetadataBase
             _token, _wallet, _balance,  // Vault
             _slaves,  // BaseMaster
             _randomNonce,  // RandomNonce
@@ -479,7 +479,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
 //        tvm.resetStorage();
 //        (
 //            _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
-//            _json,
+//            _json,  // JSONMetadataBase
 //            _token, _wallet, _balance,  // Vault
 //            _slaves,  // BaseMaster
 //            _randomNonce,  // RandomNonce

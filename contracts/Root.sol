@@ -20,7 +20,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
     string constant SEPARATOR = ".";  // cant be in Constants due to tvm limitations
 
     event Renewed(string path);
-    event ZeroAuctionStarted(string path);
+    event ZeroAuctionStarted(string path, address auction, uint128 initialAmount);
     event Confiscated(string path, string reason, address owner);
     event Reserved(string path, string reason);
     event Unreserved(string path, string reason, address owner);
@@ -201,8 +201,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
             if (!params.hasValue()) {
                 return;
             }
-            (string path, address domain) = params.get();
-            emit ZeroAuctionStarted(path);
+            (/*string path*/, address domain) = params.get();
             IDomain(domain).startZeroAuction{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
@@ -211,6 +210,25 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         } else {
             _returnTokens(amount, sender, TransferBackReason.UNKNOWN_TRANSFER);
         }
+    }
+
+    function zeroAuctionInitialBid(
+        string path, address auction, uint128 initialAmount, address initialOwner
+    ) public override onlyCertificate(path) {
+        // encode as bridge data https://github.com/broxus/ton-eth-bridge-credit-processor/blob/master/contracts/libraries/EventDataDecoder.sol
+        _reserve();
+        emit ZeroAuctionStarted(path, auction, initialAmount);
+        TvmCell layer3 = abi.encode(uint32(now));
+        TvmCell layer2 = abi.encode(initialAmount, initialAmount, uint8(0), uint128(0), uint128(0), layer3);
+        TvmCell layer1 = abi.encode(
+            initialAmount,      // amount (unused)
+            initialOwner.wid,   // wid
+            initialOwner.value, // user
+            uint256(0),         // creditor (unused)
+            auction.value,      // recipient (unused)
+            layer2              // [ref] layer2 (unused)
+        );
+        _transferTokens(initialAmount, auction, layer1);
     }
 
     function returnTokensFromDomain(
@@ -289,7 +307,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
 
     function burnBalance(uint128 amount) public override onlyDao {
         _reserve();
-        _burn(amount, _dao);
+        _burnTokens(amount, _dao);
     }
 
     function changePriceConfig(PriceConfig priceConfig) public override onlyDao cashBack {

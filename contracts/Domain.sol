@@ -29,8 +29,8 @@ contract Domain is IDomain, NFTCertificate {
     bool public _needZeroAuction;
     address public _auctionRoot;
     address public _zeroAuction;
-    uint128 public _paybackAmount;
-    address public _paybackOwner;
+    uint128 public _initialAmount;
+    address public _initialOwner;
 
 
     modifier onActiveNotNew() {
@@ -70,8 +70,9 @@ contract Domain is IDomain, NFTCertificate {
         TvmCell indexCode;
         (_path, _durationConfig, _config, setup, indexCode) =
             abi.decode(params, (string, DurationConfig, DomainConfig, DomainSetup, TvmCell));
-        (_owner, _price, _reserved, _needZeroAuction, _expireTime, _paybackAmount) = setup.unpack();
-        _auctionRoot = _zeroAuction = _paybackOwner = address.makeAddrNone();
+        (_owner, _price, _reserved, _needZeroAuction, _expireTime, _initialAmount) = setup.unpack();
+        _auctionRoot = _zeroAuction = address.makeAddrNone();
+        _initialOwner = _owner;
         _initNFT(_owner, _owner, indexCode, _owner);
     }
 
@@ -113,8 +114,7 @@ contract Domain is IDomain, NFTCertificate {
         _auctionRoot = config.auctionRoot;
         mapping(address => CallbackParams) callbacks;
         TvmCell payload = _buildZeroAuctionPayload(config);
-        callbacks[config.auctionRoot] = CallbackParams(Gas.CREATE_AUCTION_VALUE, payload);
-        _paybackOwner = _owner;
+        callbacks[config.auctionRoot] = CallbackParams(Gas.CREATE_ZERO_AUCTION_VALUE, payload);
         _manager = _root;   // in order to pass `onlyManager` modifier in `changeManager`
         _owner = _root;     // in order to receive tokens on Root from Auction
         changeManager(config.auctionRoot, sender, callbacks);
@@ -132,12 +132,18 @@ contract Domain is IDomain, NFTCertificate {
         if (_inZeroAuction) {
             if (msg.sender == _auctionRoot) {
                 // Auction started
-                _owner = _paybackOwner;
+                _owner = _initialOwner;
                 _zeroAuction = newManager;
                 emit ZeroAuctionStarted(_zeroAuction);
+                IRoot(_root).zeroAuctionInitialBid{
+                    value: Gas.ZERO_AUCTION_BID_VALUE,
+                    flag: MsgFlag.SENDER_PAYS_FEES,
+                    bounce: false
+                }(_path, _zeroAuction, _initialAmount, _initialOwner);
             } else if (msg.sender == _zeroAuction) {
                 // Auction finished (canceled)
-                newManager = _paybackOwner;  // `newManager` is `Root`, changing it
+                // this cannot happen, but for safety lets return ownership
+                newManager = _initialOwner;  // `newManager` is `Root`, changing it
                 _finishZeroAuction(newManager);
             }
         }
@@ -150,11 +156,6 @@ contract Domain is IDomain, NFTCertificate {
         if (msg.sender == _zeroAuction) {
             // Auction finished (completed)
             _finishZeroAuction(to);
-            IRoot(_root).returnTokensFromDomain{
-                value: Gas.RETURN_TOKENS_VALUE,
-                flag: MsgFlag.SENDER_PAYS_FEES,
-                bounce: false
-            }(_path, _paybackAmount, _paybackOwner, TransferBackReason.AUCTION_BUYOUT);
         }
         super.transfer(to, sendGasTo, callbacks);
     }
@@ -194,7 +195,7 @@ contract Domain is IDomain, NFTCertificate {
 
         CertificateStatus status = _status();
         if (status == CertificateStatus.NEW) {
-            _paybackAmount += amount;
+            _initialAmount += amount;
         }
 
         if (returnAmount > 0) {
@@ -248,7 +249,7 @@ contract Domain is IDomain, NFTCertificate {
 
     function _buildZeroAuctionPayload(AuctionConfig config) private view inline returns (TvmCell) {
         TvmBuilder builder;
-        builder.store(uint32(0), config.tokenRoot, _paybackAmount, uint64(now), uint64(config.duration));
+        builder.store(uint32(0), config.tokenRoot, _initialAmount, uint64(now), uint64(config.duration));
         return builder.toCell();
     }
 

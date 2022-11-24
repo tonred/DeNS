@@ -151,6 +151,17 @@
 			]
 		},
 		{
+			"name": "zeroAuctionInitialBid",
+			"inputs": [
+				{"name":"path","type":"string"},
+				{"name":"auction","type":"address"},
+				{"name":"initialAmount","type":"uint128"},
+				{"name":"initialOwner","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "returnTokensFromDomain",
 			"inputs": [
 				{"name":"path","type":"string"},
@@ -683,7 +694,9 @@
 		{
 			"name": "ZeroAuctionStarted",
 			"inputs": [
-				{"name":"path","type":"string"}
+				{"name":"path","type":"string"},
+				{"name":"auction","type":"address"},
+				{"name":"initialAmount","type":"uint128"}
 			],
 			"outputs": [
 			]

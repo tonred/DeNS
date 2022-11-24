@@ -526,19 +526,19 @@
 			]
 		},
 		{
-			"name": "_paybackAmount",
+			"name": "_initialAmount",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_paybackAmount","type":"uint128"}
+				{"name":"_initialAmount","type":"uint128"}
 			]
 		},
 		{
-			"name": "_paybackOwner",
+			"name": "_initialOwner",
 			"inputs": [
 			],
 			"outputs": [
-				{"name":"_paybackOwner","type":"address"}
+				{"name":"_initialOwner","type":"address"}
 			]
 		}
 	],
@@ -664,7 +664,7 @@
 		{"name":"_needZeroAuction","type":"bool"},
 		{"name":"_auctionRoot","type":"address"},
 		{"name":"_zeroAuction","type":"address"},
-		{"name":"_paybackAmount","type":"uint128"},
-		{"name":"_paybackOwner","type":"address"}
+		{"name":"_initialAmount","type":"uint128"},
+		{"name":"_initialOwner","type":"address"}
 	]
 }

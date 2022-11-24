@@ -57,18 +57,6 @@ abstract contract Vault is IVault, IAcceptTokensTransferCallback {
     }
 
 
-    function _burn(uint128 amount, address /*remainingGasTo*/) internal {
-        if (_balance == 0) {
-            return;
-        }
-        TvmCell empty;
-        _transferTokens(
-            amount,
-            address.makeAddrStd(0, Constants.WEVER_ROOT_VALUE),
-            empty
-        );
-    }
-
     function _transferTokens(uint128 amount, address recipient, TvmCell payload) internal {
         _balance -= amount;
         ITokenWallet(_wallet).transfer{
@@ -85,9 +73,19 @@ abstract contract Vault is IVault, IAcceptTokensTransferCallback {
         });
     }
 
+    function _burnTokens(uint128 amount, address /*remainingGasTo*/) internal {
+        if (_balance == 0) {
+            return;
+        }
+        TvmCell empty;
+        address wever_root = address.makeAddrStd(0, Constants.WEVER_ROOT_VALUE);
+        _transferTokens(amount, wever_root, empty);
+    }
+
     fallback() external view {
         require(msg.sender == _token && _token.value != 0, ErrorCodes.IS_NOT_TOKEN_ROOT);
-        address.makeAddrStd(-1, Constants.BLACK_HOLE_VALUE).transfer({
+        address black_hole = address.makeAddrStd(-1, Constants.BLACK_HOLE_VALUE);
+        black_hole.transfer({
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
             bounce: false

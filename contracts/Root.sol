@@ -181,11 +181,10 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
             _deployDomain(path, setup);
             sender.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
         } else if (kind == TransferKind.RENEW) {
-            optional(string, address) params = _buildDomainCallParams(amount, sender, data, Gas.RENEW_DOMAIN_VALUE);
-            if (!params.hasValue()) {
+            (string path, address domain, bool error) = _buildDomainCallParams(amount, sender, data, Gas.RENEW_DOMAIN_VALUE);
+            if (error) {
                 return;
             }
-            (string path, address domain) = params.get();
             emit Renewed(path);
             IDomain(domain).renew{
                 value: 0,
@@ -197,11 +196,10 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
                 _returnTokens(amount, sender, TransferBackReason.LOW_TOKENS_AMOUNT);
                 return;
             }
-            optional(string, address) params = _buildDomainCallParams(amount, sender, data, Gas.START_ZERO_AUCTION_VALUE);
-            if (!params.hasValue()) {
+            (/*path*/, address domain, bool error) = _buildDomainCallParams(amount, sender, data, Gas.START_ZERO_AUCTION_VALUE);
+            if (!error) {
                 return;
             }
-            (/*string path*/, address domain) = params.get();
             IDomain(domain).startZeroAuction{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
@@ -368,16 +366,16 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
 
     function _buildDomainCallParams(
         uint128 amount, address sender, TvmCell data, uint128 minValue
-    ) private returns (optional(string, address)) {
+    ) private returns (string, address, bool) {
         string name = abi.decode(data, string);
         (string path, optional(TransferBackReason) error) = _buildPathParams(name, minValue);
         if (error.hasValue()) {
             _returnTokens(amount, sender, error.get());
-            return null;
+            return ("", address(0), true);
         }
         address domain = _certificateAddress(path);
         _upgradeToLatest(Constants.DOMAIN_SID, domain, _wallet, Gas.UPGRADE_SLAVE_VALUE, 0);
-        return optional(string, address)((path, domain));
+        return (path, domain, false);
     }
 
     function _buildPathParams(string name, uint128 minValue) private view returns (string, optional(TransferBackReason)) {

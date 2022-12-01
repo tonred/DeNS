@@ -5,6 +5,7 @@ import "../enums/CertificateStatus.sol";
 
 interface ICertificate {
 
+    function afterCodeUpgrade() external view;
     function getPath() external view responsible returns (string path);
     function getDetails() external view responsible returns (address owner, uint32 initTime, uint32 expireTime);
     function getStatus() external view responsible returns (CertificateStatus status);

@@ -26,6 +26,7 @@ library Gas {
     uint128 constant UPGRADE_SLAVE_VALUE        = 1 ever;
 
     // Certificate
+    uint128 constant AFTER_CODE_UPGRADE_VALUE   = 0.2 ever;
     uint128 constant DEPLOY_SUBDOMAIN_VALUE     = 2.5 ever;  // more than SUBDOMAIN_TARGET_BALANCE + CREATOR_NOTIFY_VALUE + 2 * DEPLOY_INDEX_VALUE[TIP4.3]
     uint128 constant RENEW_SUBDOMAIN_VALUE      = 0.5 ever;
 

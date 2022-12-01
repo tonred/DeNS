@@ -20,7 +20,7 @@
         "mocha-logger": "^1.0.8",
         "tip3": "git://github.com/broxus/tip3#6503e61880c03fb45741c177c25f4955dca5f0df",
         "tip4": "git://github.com/tonred/TIP4#ac85142007ed63849e7f52a239d9de83d0f0a042",
-        "versionable": "git://github.com/tonred/Versionable#337c199a135805b1d3fc351c78f07f998a262f6e"
+        "versionable": "git://github.com/tonred/Versionable#4a968c99dc7781fbdacc3b5ce548ea8c4a89c315"
     },
     "devDependencies": {
         "@broxus/contracts": "^1.0.3",

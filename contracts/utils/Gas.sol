@@ -35,7 +35,7 @@ library Gas {
 
     // Domain
     uint128 constant DOMAIN_TARGET_BALANCE      = 1 ever;
-    uint128 constant CREATE_ZERO_AUCTION_VALUE  = 3.5 ever;  // more than DEPLOY_AUCTION_VALUE[Auction]
+    uint128 constant CREATE_ZERO_AUCTION_VALUE  = 5 ever;  // more than DEPLOY_AUCTION_VALUE[Auction]
     uint128 constant ZERO_AUCTION_BID_VALUE     = 1.5 ever;  // more than TOKENS_RECEIVED_CALLBACK_VALUE[Auction]
     uint128 constant RETURN_TOKENS_VALUE        = 0.2 ever;  // must be less than TRANSFER_OWNERSHIP_VALUE[Auction] - 2 * DEPLOY_INDEX_VALUE[TIP4.3]
     // Subdomain

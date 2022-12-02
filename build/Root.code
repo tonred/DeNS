@@ -1661,7 +1661,7 @@ PUSHCONT {
 				IFJMP
 				.loc ../contracts/Root.sol, 200
 				PUSH S3
-				PUSHINT 5500000000
+				PUSHINT 6500000000
 				CALLREF {
 					CALL $_buildDomainCallParams_e6b6cf1b_internal_macro$
 				}
@@ -8284,105 +8284,6 @@ PUSHCONT {
 IF
 THROW 0
 
-.globl	NameChecker_with_obj_isOnlyLetters_973325e4
-.type	NameChecker_with_obj_isOnlyLetters_973325e4, @function
-CALL $NameChecker_with_obj_isOnlyLetters_973325e4_macro$
-
-.macro NameChecker_with_obj_isOnlyLetters_973325e4_macro
-.loc ../contracts/utils/NameChecker.sol, 26
-DUP
-CTOS
-NULL
-FALSE ; decl return flag
-PUSHCONT {
-	PUSH S2
-	SEMPTY
-	NOT
-}
-PUSHCONT {
-	PUSH S2
-	LDUQ 8
-	PUSHCONT {
-		PLDREF
-		CTOS
-		LDU 8
-	}
-	IFNOT
-	POP S4
-	POP S2
-	.loc ../contracts/utils/NameChecker.sol, 27
-	OVER
-	GTINT 96
-	PUSH S2
-	LESSINT 123
-	AND
-	PUSHCONT {
-		.loc ../contracts/utils/NameChecker.sol, 28
-		BLKDROP 3
-		FALSE
-		PUSHINT 4
-		RETALT
-		.loc ../contracts/utils/NameChecker.sol, 0
-	}
-	IFNOTJMP
-	.loc ../contracts/utils/NameChecker.sol, 0
-}
-WHILEBRK
-IFRET
-DROP2
-.loc ../contracts/utils/NameChecker.sol, 31
-TRUE
-.loc ../contracts/utils/NameChecker.sol, 0
-
-.globl	NameChecker_no_obj_isOnlyLetters_973325e4
-.type	NameChecker_no_obj_isOnlyLetters_973325e4, @function
-CALL $NameChecker_no_obj_isOnlyLetters_973325e4_macro$
-
-.macro NameChecker_no_obj_isOnlyLetters_973325e4_macro
-.loc ../contracts/utils/NameChecker.sol, 26
-CTOS
-NULL
-FALSE ; decl return flag
-PUSHCONT {
-	PUSH S2
-	SEMPTY
-	NOT
-}
-PUSHCONT {
-	PUSH S2
-	LDUQ 8
-	PUSHCONT {
-		PLDREF
-		CTOS
-		LDU 8
-	}
-	IFNOT
-	POP S4
-	POP S2
-	.loc ../contracts/utils/NameChecker.sol, 27
-	OVER
-	GTINT 96
-	PUSH S2
-	LESSINT 123
-	AND
-	PUSHCONT {
-		.loc ../contracts/utils/NameChecker.sol, 28
-		BLKDROP 3
-		FALSE
-		PUSHINT 4
-		RETALT
-		.loc ../contracts/utils/NameChecker.sol, 0
-	}
-	IFNOTJMP
-	.loc ../contracts/utils/NameChecker.sol, 0
-}
-WHILEBRK
-IFRET
-DROP2
-.loc ../contracts/utils/NameChecker.sol, 31
-TRUE
-.loc ../contracts/utils/NameChecker.sol, 0
-
 .globl	VersionLibrary_with_obj_compare_66da61cd
 .type	VersionLibrary_with_obj_compare_66da61cd, @function
 CALL $VersionLibrary_with_obj_compare_66da61cd_macro$
@@ -8746,6 +8647,105 @@ WHILEBRK
 IFRET
 BLKDROP 3
 .loc ../contracts/utils/NameChecker.sol, 22
+TRUE
+.loc ../contracts/utils/NameChecker.sol, 0
+
+.globl	NameChecker_with_obj_isOnlyLetters_973325e4
+.type	NameChecker_with_obj_isOnlyLetters_973325e4, @function
+CALL $NameChecker_with_obj_isOnlyLetters_973325e4_macro$
+
+.macro NameChecker_with_obj_isOnlyLetters_973325e4_macro
+.loc ../contracts/utils/NameChecker.sol, 26
+DUP
+CTOS
+NULL
+FALSE ; decl return flag
+PUSHCONT {
+	PUSH S2
+	SEMPTY
+	NOT
+}
+PUSHCONT {
+	PUSH S2
+	LDUQ 8
+	PUSHCONT {
+		PLDREF
+		CTOS
+		LDU 8
+	}
+	IFNOT
+	POP S4
+	POP S2
+	.loc ../contracts/utils/NameChecker.sol, 27
+	OVER
+	GTINT 96
+	PUSH S2
+	LESSINT 123
+	AND
+	PUSHCONT {
+		.loc ../contracts/utils/NameChecker.sol, 28
+		BLKDROP 3
+		FALSE
+		PUSHINT 4
+		RETALT
+		.loc ../contracts/utils/NameChecker.sol, 0
+	}
+	IFNOTJMP
+	.loc ../contracts/utils/NameChecker.sol, 0
+}
+WHILEBRK
+IFRET
+DROP2
+.loc ../contracts/utils/NameChecker.sol, 31
+TRUE
+.loc ../contracts/utils/NameChecker.sol, 0
+
+.globl	NameChecker_no_obj_isOnlyLetters_973325e4
+.type	NameChecker_no_obj_isOnlyLetters_973325e4, @function
+CALL $NameChecker_no_obj_isOnlyLetters_973325e4_macro$
+
+.macro NameChecker_no_obj_isOnlyLetters_973325e4_macro
+.loc ../contracts/utils/NameChecker.sol, 26
+CTOS
+NULL
+FALSE ; decl return flag
+PUSHCONT {
+	PUSH S2
+	SEMPTY
+	NOT
+}
+PUSHCONT {
+	PUSH S2
+	LDUQ 8
+	PUSHCONT {
+		PLDREF
+		CTOS
+		LDU 8
+	}
+	IFNOT
+	POP S4
+	POP S2
+	.loc ../contracts/utils/NameChecker.sol, 27
+	OVER
+	GTINT 96
+	PUSH S2
+	LESSINT 123
+	AND
+	PUSHCONT {
+		.loc ../contracts/utils/NameChecker.sol, 28
+		BLKDROP 3
+		FALSE
+		PUSHINT 4
+		RETALT
+		.loc ../contracts/utils/NameChecker.sol, 0
+	}
+	IFNOTJMP
+	.loc ../contracts/utils/NameChecker.sol, 0
+}
+WHILEBRK
+IFRET
+DROP2
+.loc ../contracts/utils/NameChecker.sol, 31
 TRUE
 .loc ../contracts/utils/NameChecker.sol, 0
 

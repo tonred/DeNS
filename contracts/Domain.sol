@@ -115,6 +115,7 @@ contract Domain is IDomain, NFTCertificate {
         mapping(address => CallbackParams) callbacks;
         TvmCell payload = _buildZeroAuctionPayload(config);
         callbacks[config.auctionRoot] = CallbackParams(Gas.CREATE_ZERO_AUCTION_VALUE, payload);
+        _initialOwner = _owner; // temp fix for upgrading from 1.5 to 1.7(6)
         _manager = _root;   // in order to pass `onlyManager` modifier in `changeManager`
         _owner = _root;     // in order to receive tokens on Root from Auction
         changeManager(config.auctionRoot, sender, callbacks);

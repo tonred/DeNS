@@ -8,6 +8,7 @@ import "../utils/Gas.sol";
 import "@broxus/contracts/contracts/libraries/MsgFlag.sol";
 import "tip3/contracts/interfaces/ITokenRoot.sol";
 import "tip3/contracts/interfaces/ITokenWallet.sol";
+import "tip3/contracts/interfaces/TIP3TokenWallet.sol";
 import "tip3/contracts/interfaces/IAcceptTokensTransferCallback.sol";
 
 
@@ -56,6 +57,18 @@ abstract contract Vault is IVault, IAcceptTokensTransferCallback {
         return {value: 0, flag: MsgFlag.REMAINING_GAS, bounce: false} _balance;
     }
 
+    function _syncBalance() internal view {
+        TIP3TokenWallet(_wallet).balance{
+            value: 0,
+            flag: MsgFlag.ALL_NOT_RESERVED,
+            bounce: false,
+            callback: onReceiveBalance
+        }();
+    }
+
+    function onReceiveBalance(uint128 balance) public onlyWallet {
+        _balance = balance;
+    }
 
     function _transferTokens(uint128 amount, address recipient, TvmCell payload) internal {
         _balance -= amount;

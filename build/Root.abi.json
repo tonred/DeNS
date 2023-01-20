@@ -238,6 +238,13 @@
 			]
 		},
 		{
+			"name": "syncBalance",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "changePriceConfig",
 			"inputs": [
 				{"components":[{"name":"longPrice","type":"uint128"},{"name":"shortPrices","type":"uint128[]"},{"name":"onlyLettersFeePercent","type":"uint128"},{"name":"needZeroAuctionLength","type":"uint32"}],"name":"priceConfig","type":"tuple"}
@@ -408,6 +415,14 @@
 			],
 			"outputs": [
 				{"name":"balance","type":"uint128"}
+			]
+		},
+		{
+			"name": "onReceiveBalance",
+			"inputs": [
+				{"name":"balance","type":"uint128"}
+			],
+			"outputs": [
 			]
 		},
 		{

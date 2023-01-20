@@ -310,6 +310,11 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         _burnTokens(amount, _dao);
     }
 
+    function syncBalance() public override onlyDao {
+        _reserve();
+        _syncBalance();
+    }
+
     function changePriceConfig(PriceConfig priceConfig) public override onlyDao cashBack {
         _priceConfig = priceConfig;
     }

@@ -91,7 +91,7 @@ abstract contract Vault is IVault, IAcceptTokensTransferCallback {
             return;
         }
         TvmCell empty;
-        address wever_root = address.makeAddrStd(0, Constants.WEVER_ROOT_VALUE);
+        address wever_root = address.makeAddrStd(0, Constants.WEVER_VAULT_VALUE);
         _transferTokens(amount, wever_root, empty);
     }
 

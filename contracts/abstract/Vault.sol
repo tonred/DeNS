@@ -97,8 +97,9 @@ abstract contract Vault is IVault, IAcceptTokensTransferCallback {
 
     fallback() external view {
         require(msg.sender == _token && _token.value != 0, ErrorCodes.IS_NOT_TOKEN_ROOT);
-        address black_hole = address.makeAddrStd(-1, Constants.BLACK_HOLE_VALUE);
-        black_hole.transfer({
+//        address black_hole = address.makeAddrStd(-1, Constants.BLACK_HOLE_VALUE);
+//        black_hole.transfer({
+        address(0).transfer({
             value: 0,
             flag: MsgFlag.REMAINING_GAS,
             bounce: false

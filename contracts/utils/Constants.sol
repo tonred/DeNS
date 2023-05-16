@@ -1,7 +1,5 @@
 pragma ever-solidity ^0.63.0;
 
-import {Version} from "versionable/contracts/utils/Structs.sol";
-
 
 library Constants {
 
@@ -26,9 +24,13 @@ library Constants {
     // VERSIONABLE
     uint16 constant DOMAIN_SID = 1;
     uint16 constant DOMAIN_VERSION_MAJOR = 1;
-    uint16 constant DOMAIN_VERSION_MINOR = 5;
+    uint16 constant DOMAIN_VERSION_MINOR = 7;
     uint16 constant SUBDOMAIN_SID = 2;
     uint16 constant SUBDOMAIN_VERSION_MAJOR = 1;
     uint16 constant SUBDOMAIN_VERSION_MINOR = 3;
+
+    // Vault
+    uint256 constant WEVER_VAULT_VALUE = 0x557957cba74ab1dc544b4081be81f1208ad73997d74ab3b72d95864a41b779a4;
+    uint256 constant BLACK_HOLE_VALUE = 0xefd5a14409a8a129686114fc092525fddd508f1ea56d1b649a3a695d3a5b188c;
 
 }

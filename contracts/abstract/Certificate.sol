@@ -62,7 +62,23 @@ abstract contract Certificate is ICertificate, BaseSlave, TransferUtils {
             _target = address.makeAddrNone();
             _init(initialParams);
         } else {
-//            revert(VersionableErrorCodes.INVALID_OLD_VERSION);
+            // revert(VersionableErrorCodes.INVALID_OLD_VERSION);
+            // Salt code with target address (on upgrade)
+            if (!_target.isNone()) {
+                this.afterCodeUpgrade{
+                    value: Gas.AFTER_CODE_UPGRADE_VALUE,
+                    flag: MsgFlag.SENDER_PAYS_FEES,
+                    bounce: false}
+                ();
+            }
+        }
+    }
+
+    function afterCodeUpgrade() public view override {
+        require(msg.sender == address(this), ErrorCodes.IS_NOT_CERTIFICATE);
+        tvm.accept();
+        if (!_target.isNone()) {
+            _updateCodeSalt();
         }
     }
 
@@ -175,9 +191,13 @@ abstract contract Certificate is ICertificate, BaseSlave, TransferUtils {
             return;
         }
         emit ChangedTarget(_target, target);
-        TvmCell encoded = abi.encode(target);
         _target = target;
-        _records[Constants.TARGET_RECORD_ID] = encoded;
+        _records[Constants.TARGET_RECORD_ID] = abi.encode(target);
+        _updateCodeSalt();
+    }
+
+    function _updateCodeSalt() private view {
+        TvmCell encoded = abi.encode(_target);
         TvmCell code = tvm.setCodeSalt(tvm.code(), encoded);
         tvm.setcode(code);
     }

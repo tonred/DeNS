@@ -23,6 +23,7 @@ interface IRoot {
     function buildRegisterPayload(string name) external view responsible returns (TvmCell payload);
     function buildRenewPayload(string name) external view responsible returns (TvmCell payload);
     function buildStartZeroAuctionPayload(string name) external view responsible returns (TvmCell payload);
+    function zeroAuctionInitialBid(string path, address auction, uint128 initialAmount, address initialOwner) external;
     function returnTokensFromDomain(string path, uint128 amount, address recipient, TransferBackReason reason) external;
 
     function deploySubdomain(string path, string name, SubdomainSetup setup) external view;
@@ -33,6 +34,7 @@ interface IRoot {
     function activate() external;
     function deactivate() external;
     function burnBalance(uint128 amount) external;
+    function syncBalance() external;
     function changePriceConfig(PriceConfig priceConfig) external;
     function changeConfigs(
         optional(RootConfig) config,

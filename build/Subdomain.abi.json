@@ -109,6 +109,13 @@
 			]
 		},
 		{
+			"name": "afterCodeUpgrade",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "getPath",
 			"inputs": [
 				{"name":"answerId","type":"uint32"}

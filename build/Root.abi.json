@@ -151,6 +151,17 @@
 			]
 		},
 		{
+			"name": "zeroAuctionInitialBid",
+			"inputs": [
+				{"name":"path","type":"string"},
+				{"name":"auction","type":"address"},
+				{"name":"initialAmount","type":"uint128"},
+				{"name":"initialOwner","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "returnTokensFromDomain",
 			"inputs": [
 				{"name":"path","type":"string"},
@@ -222,6 +233,13 @@
 			"name": "burnBalance",
 			"inputs": [
 				{"name":"amount","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "syncBalance",
+			"inputs": [
 			],
 			"outputs": [
 			]
@@ -397,6 +415,14 @@
 			],
 			"outputs": [
 				{"name":"balance","type":"uint128"}
+			]
+		},
+		{
+			"name": "onReceiveBalance",
+			"inputs": [
+				{"name":"balance","type":"uint128"}
+			],
+			"outputs": [
 			]
 		},
 		{
@@ -683,7 +709,9 @@
 		{
 			"name": "ZeroAuctionStarted",
 			"inputs": [
-				{"name":"path","type":"string"}
+				{"name":"path","type":"string"},
+				{"name":"auction","type":"address"},
+				{"name":"initialAmount","type":"uint128"}
 			],
 			"outputs": [
 			]

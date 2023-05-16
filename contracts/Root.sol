@@ -20,7 +20,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
     string constant SEPARATOR = ".";  // cant be in Constants due to tvm limitations
 
     event Renewed(string path);
-    event ZeroAuctionStarted(string path);
+    event ZeroAuctionStarted(string path, address auction, uint128 initialAmount);
     event Confiscated(string path, string reason, address owner);
     event Reserved(string path, string reason);
     event Unreserved(string path, string reason, address owner);
@@ -181,11 +181,11 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
             _deployDomain(path, setup);
             sender.transfer({value: 0, flag: MsgFlag.ALL_NOT_RESERVED, bounce: false});
         } else if (kind == TransferKind.RENEW) {
-            optional(string, address) params = _buildDomainCallParams(amount, sender, data, Gas.RENEW_DOMAIN_VALUE);
-            if (!params.hasValue()) {
+            (string path, address domain, optional(TransferBackReason) error) = _buildDomainCallParams(data, Gas.RENEW_DOMAIN_VALUE);
+            if (error.hasValue()) {
+                _returnTokens(amount, sender, error.get());
                 return;
             }
-            (string path, address domain) = params.get();
             emit Renewed(path);
             IDomain(domain).renew{
                 value: 0,
@@ -197,12 +197,11 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
                 _returnTokens(amount, sender, TransferBackReason.LOW_TOKENS_AMOUNT);
                 return;
             }
-            optional(string, address) params = _buildDomainCallParams(amount, sender, data, Gas.START_ZERO_AUCTION_VALUE);
-            if (!params.hasValue()) {
+            (/*path*/, address domain, optional(TransferBackReason) error) = _buildDomainCallParams(data, Gas.START_ZERO_AUCTION_VALUE);
+            if (error.hasValue()) {
+                _returnTokens(amount, sender, error.get());
                 return;
             }
-            (string path, address domain) = params.get();
-            emit ZeroAuctionStarted(path);
             IDomain(domain).startZeroAuction{
                 value: 0,
                 flag: MsgFlag.ALL_NOT_RESERVED,
@@ -211,6 +210,25 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         } else {
             _returnTokens(amount, sender, TransferBackReason.UNKNOWN_TRANSFER);
         }
+    }
+
+    function zeroAuctionInitialBid(
+        string path, address auction, uint128 initialAmount, address initialOwner
+    ) public override onlyCertificate(path) {
+        // encode as bridge data https://github.com/broxus/ton-eth-bridge-credit-processor/blob/master/contracts/libraries/EventDataDecoder.sol
+        _reserve();
+        emit ZeroAuctionStarted(path, auction, initialAmount);
+        TvmCell layer3 = abi.encode(uint32(now));
+        TvmCell layer2 = abi.encode(initialAmount, initialAmount, uint8(0), uint128(0), uint128(0), layer3);
+        TvmCell layer1 = abi.encode(
+            initialAmount,      // amount (unused)
+            initialOwner.wid,   // wid
+            initialOwner.value, // user
+            uint256(0),         // creditor (unused)
+            auction.value,      // recipient (unused)
+            layer2              // [ref] layer2 (unused)
+        );
+        _transferTokens(initialAmount, auction, layer1);
     }
 
     function returnTokensFromDomain(
@@ -287,9 +305,14 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         _active = false;
     }
 
-    function burnBalance(uint128 amount)  public override onlyDao {
+    function burnBalance(uint128 amount) public override onlyDao {
         _reserve();
-        _burn(amount, _dao);
+        _burnTokens(amount, _dao);
+    }
+
+    function syncBalance() public override onlyDao {
+        _reserve();
+        _syncBalance();
     }
 
     function changePriceConfig(PriceConfig priceConfig) public override onlyDao cashBack {
@@ -349,17 +372,16 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
     }
 
     function _buildDomainCallParams(
-        uint128 amount, address sender, TvmCell data, uint128 minValue
-    ) private returns (optional(string, address)) {
+        TvmCell data, uint128 minValue
+    ) private view returns (string, address, optional(TransferBackReason)) {
         string name = abi.decode(data, string);
         (string path, optional(TransferBackReason) error) = _buildPathParams(name, minValue);
         if (error.hasValue()) {
-            _returnTokens(amount, sender, error.get());
-            return null;
+            return ("", address(0), error);
         }
         address domain = _certificateAddress(path);
         _upgradeToLatest(Constants.DOMAIN_SID, domain, _wallet, Gas.UPGRADE_SLAVE_VALUE, 0);
-        return optional(string, address)((path, domain));
+        return (path, domain, null);
     }
 
     function _buildPathParams(string name, uint128 minValue) private view returns (string, optional(TransferBackReason)) {
@@ -464,7 +486,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
         emit CodeUpgraded();
         TvmCell data = abi.encode(
             _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
-            _json,
+            _json,  // JSONMetadataBase
             _token, _wallet, _balance,  // Vault
             _slaves,  // BaseMaster
             _randomNonce,  // RandomNonce
@@ -479,7 +501,7 @@ contract Root is IRoot, Collection, Vault, BaseMaster, IUpgradable, RandomNonce 
 //        tvm.resetStorage();
 //        (
 //            _totalSupply, _nftCode, _indexBasisCode, _indexCode,  // CollectionBase4_1 + CollectionBase4_3
-//            _json,
+//            _json,  // JSONMetadataBase
 //            _token, _wallet, _balance,  // Vault
 //            _slaves,  // BaseMaster
 //            _randomNonce,  // RandomNonce
